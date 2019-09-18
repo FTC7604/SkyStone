@@ -4,8 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Control.IMUControl;
-import org.firstinspires.ftc.teamcode.Motor.HumanController;
-import org.firstinspires.ftc.teamcode.Robot.RobotObjects;
+import org.firstinspires.ftc.teamcode.Robot.Robot;
 import org.firstinspires.ftc.teamcode.Robot.SensorValues;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,10 +17,6 @@ public class testFieldCentric extends LinearOpMode {
 
     double[] driveTrainController = new double[3];
 
-    /*The robot objects is all of the motors, and sensors that are within the robot,
-    essentially the code framework of the robot*/
-    RobotObjects robotObjects = new RobotObjects(this);
-
     /*The descriptions of the robot in terms of sensor values, position, encoder position
     and so on. All of the sensor values should be in here */
     SensorValues sensorValues  = new SensorValues();
@@ -30,12 +25,19 @@ public class testFieldCentric extends LinearOpMode {
     the loop, this should run on its own core, enabling the robot to run faster. */
     LinkedBlockingQueue <SensorValues> sensorValuesQueue = new LinkedBlockingQueue();
 
-    /*Creates the threas, its own processor, to get the sensor values*/
-    SensorRunnable sensorRunnable = new SensorRunnable(robotObjects, sensorValuesQueue);
-    Thread sensorThread = new Thread(sensorRunnable);
 
     @Override
     public void runOpMode() {
+        /*The robot objects is all of the motors, and sensors that are within the robot,
+        essentially the code framework of the robot*/
+        Robot robot = new Robot(this);
+
+        /*Creates the threads, its own processor, to get the sensor values*/
+        SensorRunnable sensorRunnable = new SensorRunnable(robot, sensorValuesQueue);
+        Thread sensorThread = new Thread(sensorRunnable);
+
+        //robot.calibrateIMU();
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -46,24 +48,32 @@ public class testFieldCentric extends LinearOpMode {
         sensorThread.start();
         runtime.reset();
 
+        robot.initIMU();
+
         while (opModeIsActive()) {
 
             //sets up the condidtion for the drivetrain
-            driveTrainController[0] = HumanController.humanController(gamepad1.left_stick_x);
-            driveTrainController[1] = HumanController.humanController(-gamepad1.left_stick_y);
-            driveTrainController[2] = HumanController.humanController(-gamepad1.right_stick_x);
+            driveTrainController[0] = /*HumanController.humanController*/(gamepad1.left_stick_x);
+            driveTrainController[1] = /*HumanController.humanController*/(-gamepad1.left_stick_y);
+            driveTrainController[2] = /*HumanController.humanController*/(-gamepad1.right_stick_x);
 
             //reset the IMU if a is pressed
-            if(gamepad1.a)robotObjects.calibrateIMU();
+            //if(gamepad1.a)robot.calibrateIMU();
+
+            telemetry.addLine("The wait is after we poll the darn thing");
+            telemetry.update();
 
             //gets the sensor values from the queue
-            getSensorValues(sensorValues);
+            sensorValues = getSensorValues(sensorValues);
+
+            telemetry.addLine("The wait is calculating the sensor values");
+            telemetry.update();
 
             //takes the imputs, and changes the to compensate for the opposite of the detected angles
-            imuControl.compensate(driveTrainController, - sensorValues.getzRotation());
+            imuControl.compensate(driveTrainController, - robot.getBothIMUAngle()[2]);
 
             //sends this to the motors.
-            robotObjects.mecPowerDrive(driveTrainController);
+            robot.mecPowerDrive(driveTrainController);
 
             //some telemetry
             telemetry.addData("X Rotation", sensorValues.getxRotation());

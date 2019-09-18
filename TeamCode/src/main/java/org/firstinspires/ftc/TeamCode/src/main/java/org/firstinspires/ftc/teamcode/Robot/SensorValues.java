@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import java.util.ArrayList;
-
 public class SensorValues {
 
     private double xRotation;
@@ -31,7 +29,4 @@ public class SensorValues {
     public void setzRotation(double zRotation) {
         this.zRotation = zRotation;
     }
-
-    private ArrayList <Double> sensorValues = new ArrayList <Double>();
-
 }

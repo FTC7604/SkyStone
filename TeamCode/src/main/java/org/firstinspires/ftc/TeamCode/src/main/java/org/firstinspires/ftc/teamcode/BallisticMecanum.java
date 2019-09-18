@@ -115,8 +115,7 @@ public class BallisticMecanum extends LinearOpMode {
                     rightBack.setPower(adjustedMotorPower);
                 }
             }
-
-            if (gamepad1.dpad_right) {
+            else if (gamepad1.dpad_right) {
 
                 startIMU();
 
@@ -138,7 +137,6 @@ public class BallisticMecanum extends LinearOpMode {
                     rightBack.setPower(adjustedMotorPower);
                 }
             }
-
             else if (gamepad1.dpad_up) {///see if we can do an encoder drive as well
 
                 double startPosition = leftFront.getCurrentPosition();
@@ -157,7 +155,8 @@ public class BallisticMecanum extends LinearOpMode {
                     rightFront.setPower(adjustedMotorPower);
                     rightBack.setPower(adjustedMotorPower);
                 }
-            } else if (gamepad1.dpad_down){
+            }
+            else if (gamepad1.dpad_down){
 
                 double startPosition = leftFront.getCurrentPosition();
 

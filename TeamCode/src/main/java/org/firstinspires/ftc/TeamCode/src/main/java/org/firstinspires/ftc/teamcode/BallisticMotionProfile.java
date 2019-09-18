@@ -182,7 +182,7 @@ public class BallisticMotionProfile {
     /////////AUTONOMOUS Call multiple times in a while loop until we reach the target position
     //we tell it where we started, where we are, and where we need to be, it is able to decide the motor power needed as a function of distance
     //This method also decides if the motor needs to be positive or negative.
-    double RunToPositionWithAccel(double startPosition, double currentPosition, double neededPosition) {//this one doesn't adhere to the top and bottom limits, will tell you a motor value when you input where it started, where it is now, and where it needs to go
+    public double RunToPositionWithAccel(double startPosition, double currentPosition, double neededPosition) {//this one doesn't adhere to the top and bottom limits, will tell you a motor value when you input where it started, where it is now, and where it needs to go
 
         //the first step is to get the distance to the top and the distance to the bottom with regards to the bounds of this particular instance
         //they will always be positive and will be calculated slightly different depending on the instance
