@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Control;
 
 
 
@@ -24,7 +24,7 @@ public class BallisticMotionProfile {
     private double EXP_POWER = 1;
 
     //we keep all the parameter names consistant
-    BallisticMotionProfile(final double LIMIT_1, final double LIMIT_2, final double DECELERATION_DISTANCE, final double MIN_POWER, final double EXP_POWER, final double MAX_POWER) {
+    public BallisticMotionProfile(final double LIMIT_1, final double LIMIT_2, final double DECELERATION_DISTANCE, final double MIN_POWER, final double EXP_POWER, final double MAX_POWER) {
 
         //lil peice of code, so that we don't need to fiddle with the imputs
         if(LIMIT_1 > LIMIT_2){

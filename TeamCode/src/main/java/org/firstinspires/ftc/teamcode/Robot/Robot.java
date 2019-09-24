@@ -1,40 +1,67 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import android.app.Activity;
 import android.graphics.Color;
-import android.view.View;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.MagneticFlux;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.BallisticMotionProfile;
 
 import java.io.File;
 
-import static java.lang.Math.*;
+/*
+
+Config:
+
+rightFrontDriveMotor -> "rf"
+leftFrontDriveMotor -> "lf"
+rightBackDriveMotor ->  "rb"
+leftBackDriveMotor -> "lb"
+
+rightIntakeMotor -> "ri"
+leftIntakeMotor -> "ri"
+
+armMotor -> "ax"
+liftMotor -> "lx"
+
+leftLatchServo -> "ll"
+rightLatchServo -> "rl"
+blockGrabberServo -> "bg"
+
+
+blockIntakeTouchSensor -> "bt"
+
+
+ */
 
 public class Robot {
     private BNO055IMU imu1 = null, imu2 = null;
-    protected DcMotorEx rightFrontDriveMotor;
-    protected DcMotorEx leftFrontDriveMotor;
-    protected DcMotorEx rightBackDriveMotor;
-    protected DcMotorEx leftBackDriveMotor;
-    protected DcMotorEx rightIntakeMotor;
-    protected DcMotorEx leftIntakeMotor;
+    DcMotorEx rightFrontDriveMotor;
+    DcMotorEx leftFrontDriveMotor;
+    DcMotorEx rightBackDriveMotor;
+    DcMotorEx leftBackDriveMotor;
 
-    private ColorSensor colorSensor;
-    private DistanceSensor distanceSensor;
-    private TouchSensor touchSensor;
+    DcMotorEx rightIntakeMotor;
+    DcMotorEx leftIntakeMotor;
+
+    DcMotorEx armMotor;
+    DcMotorEx liftMotor;
+
+    Servo leftLatchServo;
+    Servo rightLatchServo;
+    Servo blockGrabberServo;
+
+    //private ColorSensor colorSensor;
+    //private DistanceSensor distanceSensor;
+
+    private TouchSensor blockIntakeTouchSensor;
 
     private HardwareMap hardwareMap;
 
@@ -46,13 +73,17 @@ public class Robot {
 
     private void mapHardware() {
         driveTrainHardwareMap();
+
         intakeHardwareMap();
 
+        armHardwareMap();
+        liftHardwareMap();
 
+        //latchHardwareMap();
+        //blockGrabberHardwareMap();
 
-        imu1 = hardwareMap.get(BNO055IMU.class, "imu");
-        imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");
-        //imuHardwareMap();
+        imuHardwareMap();
+        blockIntakeTouchSensorHardwareMap();
     }
 
     private void driveTrainHardwareMap(){
@@ -82,6 +113,7 @@ public class Robot {
         leftBackDriveMotor.setMode(runMode);
         rightBackDriveMotor.setMode(runMode);
     }
+
     private void intakeHardwareMap(){
         //intake
         rightIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ri");
@@ -90,23 +122,69 @@ public class Robot {
         //sets the direction of the intake
         rightIntakeMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftIntakeMotor.setDirection(DcMotorEx.Direction.FORWARD);
-
-        //so that it floats by at 0, could also be stop
-        rightIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
+    public void setIntakeZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior){
+        //so that it floats by at 0, could also be stop
+        rightIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        leftIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
+    }
+    public void setIntakeRunMode(DcMotor.RunMode runMode){
+        rightIntakeMotor.setMode(runMode);
+        leftIntakeMotor.setMode(runMode);
+    }
+
+    private void armHardwareMap(){
+        //intake
+        armMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ax");
+    }
+    public void setArmZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior){
+        //so that it floats by at 0, could also be stop
+        armMotor.setZeroPowerBehavior(zeroPowerBehavior);
+    }
+    public void setArmRunMode(DcMotor.RunMode runMode){
+        armMotor.setMode(runMode);
+    }
+
+    private void liftHardwareMap(){
+        //intake
+        liftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lx");
+
+        liftMotor.setDirection(DcMotorEx.Direction.FORWARD);
+    }
+    public void setLiftZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior){
+        //so that it floats by at 0, could also be stop
+        liftMotor.setZeroPowerBehavior(zeroPowerBehavior);
+    }
+    public void setLiftRunMode(DcMotor.RunMode runMode){
+        liftMotor.setMode(runMode);
+    }
+
+    private void latchHardwareMap(){
+        leftLatchServo = hardwareMap.get(Servo.class, "ll");
+        rightLatchServo = hardwareMap.get(Servo.class,"rl");
+
+        leftLatchServo.setDirection(Servo.Direction.FORWARD);
+        rightLatchServo.setDirection(Servo.Direction.REVERSE);
+    }
+
+    private void blockGrabberHardwareMap(){
+        blockGrabberServo = hardwareMap.get(Servo.class, "bg");
+    }
+
 
     //methods that will serve us in the future, so we don't need to think about anything
     private void imuHardwareMap(){
-
+        imu1 = hardwareMap.get(BNO055IMU.class, "imu");
+        imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");
     }
-    private void colorSensorHardwareMap(){
-        //gets the right sensor
-        colorSensor = hardwareMap.get(ColorSensor.class, "rcs");
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "rds");
-    }
-    private void touchSensorHardwareMap(){
-        touchSensor = hardwareMap.touchSensor.get("touch");
+//    private void colorSensorHardwareMap(){
+//        //gets the right sensor
+//        colorSensor = hardwareMap.get(ColorSensor.class, "rcs");
+//        distanceSensor = hardwareMap.get(DistanceSensor.class, "rds");
+//    }
+    private void blockIntakeTouchSensorHardwareMap(){
+        //blockIntakeTouchSensor = hardwareMap.touchSensor.get("bt");
+        blockIntakeTouchSensor = hardwareMap.get(TouchSensor.class,"bt");
     }
 
     /**
@@ -208,9 +286,9 @@ public class Robot {
      * RGB, for computation
      * HSV, for human look
      */
-    public double getRightDistance(){
-        return distanceSensor.getDistance(DistanceUnit.INCH);
-    }
+//    public double getRightDistance(){
+//        return distanceSensor.getDistance(DistanceUnit.INCH);
+//    }
 
     private double[] getARGB(ColorSensor colorSensor){
         return new double[]{
@@ -246,18 +324,18 @@ public class Robot {
         return doubleHSV;
 
     }
-    private double[] getARBG(){
-        return (getARGB(colorSensor));
-    }
-    private double[] getRightRBG(){
-        return (getRGB(colorSensor));
-    }
-    private double[] getHSV(){
-        return (getHSV(colorSensor));
-    }
-
-    private boolean isPressed(){
-        return touchSensor.isPressed();
+//    private double[] getARBG(){
+//        return (getARGB(colorSensor));
+//    }
+//    private double[] getRightRBG(){
+//        return (getRGB(colorSensor));
+//    }
+//    private double[] getHSV(){
+//        return (getHSV(colorSensor));
+//    }
+//
+    public boolean blockIntakeTouchSensorIsPressed(){
+        return blockIntakeTouchSensor.isPressed();
     }
 
 

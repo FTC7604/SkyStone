@@ -37,6 +37,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
+
 import static java.lang.Math.abs;
 
 @TeleOp(name="Ballistic Mecanum", group="Linear Opmode")

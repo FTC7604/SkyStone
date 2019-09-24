@@ -1,23 +1,29 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
 import org.firstinspires.ftc.teamcode.Robot.Robot;
 
 import static java.lang.Thread.sleep;
 
 public class RobotLinearOpMode extends Robot {
 
+    //constructor
     public RobotLinearOpMode(LinearOpMode linearOpMode) {
+
+        //creates the robot so that I can use all of the motors
         super(linearOpMode);
+
+        //needs the linear opmode so that I can use telemetry and opModeIsActive()
         this.linearOpMode = linearOpMode;
     }
 
     LinearOpMode linearOpMode;
 
     //sets the powers on either a power or velocity, and with variables or an array, where 0 is x, 1 is y, and 2 is r
+    //if I control it using an array, then it just sends it into an earlier method
     public void mecPowerDrive(double x, double y, double r){
         leftFrontDriveMotor.setPower(y - x + r);
         leftBackDriveMotor.setPower(y + x + r);
@@ -25,10 +31,7 @@ public class RobotLinearOpMode extends Robot {
         rightBackDriveMotor.setPower(y - x - r);
     }
     public void mecPowerDrive(double[] controller){
-        leftFrontDriveMotor.setPower(controller[1] - controller[0] + controller[2]);
-        leftBackDriveMotor.setPower(controller[1] + controller[0] + controller[2]);
-        rightFrontDriveMotor.setPower(controller[1] + controller[0] - controller[2]);
-        rightBackDriveMotor.setPower(controller[1] - controller[0] - controller[2]);
+        mecPowerDrive(controller[0], controller[1], controller[2]);
     }
     public void mecVelocityDrive(double x, double y, double r){
         leftFrontDriveMotor.setVelocity(y - x + r);
@@ -37,21 +40,10 @@ public class RobotLinearOpMode extends Robot {
         rightBackDriveMotor.setVelocity(y - x - r);
     }
     public void mecVelocityDrive(double[] controller){
-        leftFrontDriveMotor.setVelocity(controller[1] - controller[0] + controller[2]);
-        leftBackDriveMotor.setVelocity(controller[1] + controller[0] + controller[2]);
-        rightFrontDriveMotor.setVelocity(controller[1] + controller[0] - controller[2]);
-        rightBackDriveMotor.setVelocity(controller[1] - controller[0] - controller[2]);
+        mecVelocityDrive(controller[0], controller[1], controller[2]);
     }
 
-    public void setIntakePower(double intakePower){
-        rightIntakeMotor.setPower(intakePower);
-        leftIntakeMotor.setPower(intakePower);
-    }
-    public void setIntakeVelocity(double intakeVelocity){
-        rightIntakeMotor.setVelocity(intakeVelocity);
-        leftIntakeMotor.setVelocity(intakeVelocity);
-    }
-
+    //outputs the average of the 4 drive train motors, be sure to reset the encoders before you engage this.
     public double getAverageDriveTrainEncoder(){
         double averageEncoderPosition = leftFrontDriveMotor.getCurrentPosition();
         averageEncoderPosition += leftBackDriveMotor.getCurrentPosition();
@@ -61,6 +53,7 @@ public class RobotLinearOpMode extends Robot {
         return averageEncoderPosition/4;
     }
 
+    //two methods that turn precisely, which Casey made and I don't fully understand
     public void turnByDegree(double degree, BallisticMotionProfile TurnProfile){
         initIMU();
 
@@ -94,17 +87,7 @@ public class RobotLinearOpMode extends Robot {
             }
         }
     }
-
-    void stopMotorsAndWait(double seconds){
-        mecPowerDrive(0,0,0);
-        try {
-            sleep((int)(seconds * 1000));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void moveByInches(double inches, BallisticMotionProfile DriveProfile){
+    public void moveByInches(double inches, BallisticMotionProfile DriveProfile){
         double startPosition = getAverageDriveTrainEncoder();
         double currentPosition;
 
@@ -138,5 +121,39 @@ public class RobotLinearOpMode extends Robot {
             //no where to move in here.
         }
     }
+
+    //eliminates residual forces
+    public void stopMotorsAndWait(double seconds){
+        mecPowerDrive(0,0,0);
+        linearOpMode.sleep((int)(seconds * 1000));
+    }
+
+    //sets the intake power and velocity
+    public void setIntakePower(double intakePower){
+        rightIntakeMotor.setPower(intakePower);
+        leftIntakeMotor.setPower(intakePower);
+    }
+    public void setIntakeVelocity(double intakeVelocity){
+        rightIntakeMotor.setVelocity(intakeVelocity);
+        leftIntakeMotor.setVelocity(intakeVelocity);
+    }
+
+    //sets the lift power and veloctiy
+    public void setLiftPower(double liftPower){
+        liftMotor.setPower(liftPower);
+    }
+    public int getLiftEncoder(){
+        return liftMotor.getCurrentPosition();
+    }
+
+    //sets the arm power and velocity
+    public void setArmPower(double armPower){
+        armMotor.setPower(armPower);
+    }
+    public int getArmEncoder(){
+        return armMotor.getCurrentPosition();
+    }
+
+
 
 }
