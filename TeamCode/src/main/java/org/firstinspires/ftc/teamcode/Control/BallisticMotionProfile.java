@@ -100,7 +100,7 @@ public class BallisticMotionProfile {
 
     //USED in TELEOP, this method keeps a system from oversteping its bounds, decelerating it as it APPROACHES one of the limits.
     //This is different than limitWithAccel because it doesn't slow the system down when it is LEAVING one of the limits.
-    double limitWithoutAccel(double currentPosition, double requestedPower) {
+    public double limitWithoutAccel(double currentPosition, double requestedPower) {
 
         //This is how we regulate the maximum motor power for a system. MAX_POWER is always a positive value less than or equal to 1. This way,
         //we will never return more than ± MAX_POWER
@@ -155,7 +155,7 @@ public class BallisticMotionProfile {
     ////this is a second attempt at doing and better job limiting with acceleration
     //This slows the system down depending on how close it is to the top and bottom limits, regardless of which way it is going
     //we do this using the double curve method because we are thinking about two limits
-    double V2limitWithAccel(double currentPosition, double requestedPower) {
+    public double V2limitWithAccel(double currentPosition, double requestedPower) {
 
         //This makes sure we never go above the MAX power
         requestedPower = requestedPower * MAX_POWER;
@@ -217,7 +217,7 @@ public class BallisticMotionProfile {
     }
 
     //Use this one the same as with accel, but there is no acceleration curve, meaning it starts from full speed, no matter how close the target is
-    double RunToPositionWithoutAccel(double startPosition, double currentPosition, double neededPosition) {//this one doesn't adhere to the top and bottom limits, will tell you a motor value when you input where it started, where it is now, and where it needs to go
+    public double RunToPositionWithoutAccel(double startPosition, double currentPosition, double neededPosition) {//this one doesn't adhere to the top and bottom limits, will tell you a motor value when you input where it started, where it is now, and where it needs to go
 
         //the first step is to get the distance the desired position with regards to the bounds of this particular instance
         //this distance will always be positive and will be calculated slightly different depending on the instance
