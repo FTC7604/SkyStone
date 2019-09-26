@@ -154,6 +154,21 @@ public class RobotLinearOpMode extends Robot {
         return armMotor.getCurrentPosition();
     }
 
+    public void closeGrabber(){
+        blockGrabberServo.setPosition(.65);
+    }
+    public void openGrabber(){
+        blockGrabberServo.setPosition(.55);
+    }
+
+    public void closeLatch(){
+        leftLatchServo.setPosition(.3);
+        rightLatchServo.setPosition(.45);
+    }
+    public void openLatch(){
+        leftLatchServo.setPosition(.5);
+        rightLatchServo.setPosition(.65);
+    }
 
 
 }

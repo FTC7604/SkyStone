@@ -7,8 +7,8 @@ public class Toggle {
     private boolean loop;
 
     //creates the toggle as either any value
-    Toggle(boolean start){toggle = start;}
-    Toggle(){toggle = false;}
+    public Toggle(boolean start){toggle = start;}
+    public Toggle(){toggle = false;}
 
     //returns the value of the toggle
     public boolean get(){ return toggle;}

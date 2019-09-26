@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //allows me to use the package code
 import org.firstinspires.ftc.robotcontroller.external.samples.BasicOpMode_Iterative;
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
+import org.firstinspires.ftc.teamcode.Control.Toggle;
 import org.firstinspires.ftc.teamcode.Motor.HumanController;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 
@@ -50,13 +51,19 @@ public class testOpMode extends LinearOpMode {
 
     //sensor values, also exist to make the code cleaner
     double armPosition = 0;
-    boolean blockIntakeTouchSensor = true;
+    int liftPosition;
+    boolean blockIntakeTouchSensor;
+
+    RobotLinearOpMode robotLinearOpMode;
+
+    Toggle latchToggle;
+    Toggle grabberToggle;
+
 
     //this is the loop that repeats until the end of teleOp.
     @Override
     public void runOpMode() {
-
-        RobotLinearOpMode robotLinearOpMode = new RobotLinearOpMode(this);
+        robotLinearOpMode= new RobotLinearOpMode(this);
 
         robotLinearOpMode.setDriveTrainRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robotLinearOpMode.setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -67,8 +74,10 @@ public class testOpMode extends LinearOpMode {
         robotLinearOpMode.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robotLinearOpMode.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        latchToggle = new Toggle(false);
+        grabberToggle = new Toggle(false);
 
-        BallisticMotionProfile liftProfile = new BallisticMotionProfile(0,-20000, 2000, 0.05, 1, 0.5);
+        BallisticMotionProfile liftProfile = new BallisticMotionProfile(0,-20000, 20000, 0.05, .5, 1);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -80,9 +89,9 @@ public class testOpMode extends LinearOpMode {
         while (opModeIsActive()) {
 
             //sets up the condidtion for the drivetrain
-            driveTrainController[1] = HumanController.humanController(((-gamepad1.right_stick_y)*(abs(-gamepad1.right_stick_y))+((-gamepad1.left_stick_y)*(abs(-gamepad1.left_stick_y))))/2);
-            driveTrainController[0] = - HumanController.humanController(((-gamepad1.right_stick_x)*(abs(-gamepad1.right_stick_x))+((-gamepad1.left_stick_x)*(abs(-gamepad1.left_stick_x))))/2);
-            driveTrainController[2] = HumanController.humanController(((-gamepad1.right_stick_y)-(-gamepad1.left_stick_y))/2);
+            driveTrainController[1] = (((-gamepad1.right_stick_y)*(abs(-gamepad1.right_stick_y))+((-gamepad1.left_stick_y)*(abs(-gamepad1.left_stick_y))))/2);
+            driveTrainController[0] = - (((-gamepad1.right_stick_x)*(abs(-gamepad1.right_stick_x))+((-gamepad1.left_stick_x)*(abs(-gamepad1.left_stick_x))))/2);
+            driveTrainController[2] = (((-gamepad1.right_stick_y)-(-gamepad1.left_stick_y))/2);
 
             //increments the intake power
             intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
@@ -90,7 +99,28 @@ public class testOpMode extends LinearOpMode {
             //sets the arm power
             armPower = gamepad2.right_stick_y;
 
-            liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
+            liftPower = -gamepad2.left_stick_y;
+                    //liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
+
+            if(gamepad2.x){
+                latchToggle.update(true);
+            }
+            else{
+                latchToggle.update(false);
+            }
+
+            if(gamepad2.y){
+                grabberToggle.update(true);
+            }
+            else{
+                grabberToggle.update(false);
+            }
+
+            if(grabberToggle.get())robotLinearOpMode.openGrabber();
+            else robotLinearOpMode.closeGrabber();;
+
+            if(latchToggle.get())robotLinearOpMode.openLatch();
+            else robotLinearOpMode.closeLatch();
 
             //sends this to the motors.
             robotLinearOpMode.mecPowerDrive(driveTrainController);
@@ -100,11 +130,14 @@ public class testOpMode extends LinearOpMode {
 
             //gets the position arm encoder
             armPosition = robotLinearOpMode.getArmEncoder();
-            int liftPosition = robotLinearOpMode.getLiftEncoder();
-            blockIntakeTouchSensor = robotLinearOpMode.blockIntakeTouchSensorIsPressed();
+            liftPosition = robotLinearOpMode.getLiftEncoder();
+            blockIntakeTouchSensor = robotLinearOpMode.blockInIntake();
 
             //now sends it too teleOp
             telemetry.addData("Intake Movement: ", intakePower);
+            telemetry.addData("Arm Movement: ", armPower);
+            telemetry.addData("Lift Movement: ", liftPower);
+
             telemetry.addData("Arm Position: ", armPosition);
             telemetry.addData("Lift Position: ", liftPosition);
             telemetry.addData("Intake Touch Boolean: ", blockIntakeTouchSensor);
