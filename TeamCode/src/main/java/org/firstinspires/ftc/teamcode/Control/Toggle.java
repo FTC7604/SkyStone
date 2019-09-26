@@ -20,7 +20,7 @@ public class Toggle {
     //changes the toggle based on the new data
     public void update(boolean newValue){
         
-		if(changed(newValue)){
+		if(changed(newValue) && newValue){
 			if(toggle)toggle = false;
 			else if(!toggle)toggle = true;
 		}

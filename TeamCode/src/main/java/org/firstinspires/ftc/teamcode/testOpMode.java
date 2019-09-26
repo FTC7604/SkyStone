@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode;
 
 //all the import
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 import static java.lang.Math.*;
 
 //name that appears on the phone and the group that it is a part of
-@TeleOp(name="Test OpMode", group="Linear Opmode")
+@TeleOp(name = "Test OpMode", group = "Linear Opmode")
 
 //class name that corresponds with the file, it is a linear opMode that I then changed
 public class testOpMode extends LinearOpMode {
@@ -63,7 +64,7 @@ public class testOpMode extends LinearOpMode {
     //this is the loop that repeats until the end of teleOp.
     @Override
     public void runOpMode() {
-        robotLinearOpMode= new RobotLinearOpMode(this);
+        robotLinearOpMode = new RobotLinearOpMode(this);
 
         robotLinearOpMode.setDriveTrainRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robotLinearOpMode.setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -77,7 +78,7 @@ public class testOpMode extends LinearOpMode {
         latchToggle = new Toggle(false);
         grabberToggle = new Toggle(false);
 
-        BallisticMotionProfile liftProfile = new BallisticMotionProfile(0,-20000, 20000, 0.05, .5, 1);
+        BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 20000, 400, 0.05, 1, .5);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -89,9 +90,9 @@ public class testOpMode extends LinearOpMode {
         while (opModeIsActive()) {
 
             //sets up the condidtion for the drivetrain
-            driveTrainController[1] = (((-gamepad1.right_stick_y)*(abs(-gamepad1.right_stick_y))+((-gamepad1.left_stick_y)*(abs(-gamepad1.left_stick_y))))/2);
-            driveTrainController[0] = - (((-gamepad1.right_stick_x)*(abs(-gamepad1.right_stick_x))+((-gamepad1.left_stick_x)*(abs(-gamepad1.left_stick_x))))/2);
-            driveTrainController[2] = (((-gamepad1.right_stick_y)-(-gamepad1.left_stick_y))/2);
+            driveTrainController[1] = (((-gamepad1.right_stick_y) * (abs(-gamepad1.right_stick_y)) + ((-gamepad1.left_stick_y) * (abs(-gamepad1.left_stick_y)))) / 2);
+            driveTrainController[0] = -(((-gamepad1.right_stick_x) * (abs(-gamepad1.right_stick_x)) + ((-gamepad1.left_stick_x) * (abs(-gamepad1.left_stick_x)))) / 2);
+            driveTrainController[2] = (((-gamepad1.right_stick_y) - (-gamepad1.left_stick_y)) / 2);
 
             //increments the intake power
             intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
@@ -99,27 +100,16 @@ public class testOpMode extends LinearOpMode {
             //sets the arm power
             armPower = gamepad2.right_stick_y;
 
-            liftPower = -gamepad2.left_stick_y;
-                    //liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
+            liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
 
-            if(gamepad2.x){
-                latchToggle.update(true);
-            }
-            else{
-                latchToggle.update(false);
-            }
 
-            if(gamepad2.y){
-                grabberToggle.update(true);
-            }
-            else{
-                grabberToggle.update(false);
-            }
+            latchToggle.update(gamepad2.x);
+            grabberToggle.update(gamepad2.y);
 
-            if(grabberToggle.get())robotLinearOpMode.openGrabber();
-            else robotLinearOpMode.closeGrabber();;
+            if (grabberToggle.get()) robotLinearOpMode.openGrabber();
+            else robotLinearOpMode.closeGrabber();
 
-            if(latchToggle.get())robotLinearOpMode.openLatch();
+            if (latchToggle.get()) robotLinearOpMode.openLatch();
             else robotLinearOpMode.closeLatch();
 
             //sends this to the motors.
