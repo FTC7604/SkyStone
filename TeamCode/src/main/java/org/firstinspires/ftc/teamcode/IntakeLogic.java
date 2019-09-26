@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+
 //package org.firstinspires.ftc.teamcode;
 //
 //public class IntakeLogic {
