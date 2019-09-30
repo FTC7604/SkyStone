@@ -155,7 +155,7 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public void closeGrabber(){
-        blockGrabberServo.setPosition(.65);
+        blockGrabberServo.setPosition(.85);
     }
     public void openGrabber(){
         blockGrabberServo.setPosition(.55);

@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //allows me to use the package code
-import org.firstinspires.ftc.robotcontroller.external.samples.BasicOpMode_Iterative;
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
+import org.firstinspires.ftc.teamcode.Control.EverHit;
+import org.firstinspires.ftc.teamcode.Control.HumanController;
 import org.firstinspires.ftc.teamcode.Control.Toggle;
-import org.firstinspires.ftc.teamcode.Motor.HumanController;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 
 //imports all of the math function
@@ -59,7 +59,12 @@ public class testOpMode extends LinearOpMode {
 
     Toggle latchToggle;
     Toggle grabberToggle;
+    EverHit blockEverInIntake;
 
+    double topArmEncoder = 2700;
+    double bottomArmEncoder = -3900;
+
+    HumanController humanController = new HumanController(0.4,1);
 
     //this is the loop that repeats until the end of teleOp.
     @Override
@@ -80,9 +85,10 @@ public class testOpMode extends LinearOpMode {
 
         latchToggle = new Toggle(false);
         grabberToggle = new Toggle(false);
+        blockEverInIntake = new EverHit();
 
         //BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 20000, 400, 0.05, 1, .5);
-        BallisticMotionProfile armProfile = new BallisticMotionProfile(-50,3000,100,0,1,.5);
+        BallisticMotionProfile armProfile = new BallisticMotionProfile(bottomArmEncoder,topArmEncoder,100,0,1,.5);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -94,27 +100,30 @@ public class testOpMode extends LinearOpMode {
         while (opModeIsActive()) {
 
             //sets up the condidtion for the drivetrain
-            driveTrainController[1] = (((-gamepad1.right_stick_y) * (abs(-gamepad1.right_stick_y)) + ((-gamepad1.left_stick_y) * (abs(-gamepad1.left_stick_y)))) / 2);
-            driveTrainController[0] = -(((-gamepad1.right_stick_x) * (abs(-gamepad1.right_stick_x)) + ((-gamepad1.left_stick_x) * (abs(-gamepad1.left_stick_x)))) / 2);
-            driveTrainController[2] = (((-gamepad1.right_stick_y) - (-gamepad1.left_stick_y)) / 2);
+            driveTrainController[1] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) * (abs(-gamepad1.right_stick_y)) + ((-gamepad1.left_stick_y) * (abs(-gamepad1.left_stick_y)))) / 2);
+            driveTrainController[0] = humanController.linearDriveProfile(-(((-gamepad1.right_stick_x) * (abs(-gamepad1.right_stick_x)) + ((-gamepad1.left_stick_x) * (abs(-gamepad1.left_stick_x)))) / 2));
+            driveTrainController[2] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) - (-gamepad1.left_stick_y)) / 2);
 
             //increments the intake power
             intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
             //sets the arm power
-            armPower = armProfile.V2limitWithAccel(robotLinearOpMode.getArmEncoder(),gamepad2.right_stick_y);
+            armPower = armProfile.limitWithoutAccel(robotLinearOpMode.getArmEncoder(),gamepad2.right_stick_y);
 
             //liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
 
-
             latchToggle.update(gamepad2.x);
             grabberToggle.update(gamepad2.y);
+
+            blockEverInIntake.update(robotLinearOpMode.blockInIntake());
 
             if (grabberToggle.get()) robotLinearOpMode.openGrabber();
             else robotLinearOpMode.closeGrabber();
 
             if (latchToggle.get()) robotLinearOpMode.openLatch();
             else robotLinearOpMode.closeLatch();
+
+            if(gamepad2.a)blockEverInIntake.reset();
 
             //sends this to the motors.
             robotLinearOpMode.mecPowerDrive(driveTrainController);
@@ -134,7 +143,7 @@ public class testOpMode extends LinearOpMode {
 
             telemetry.addData("Arm Position: ", armPosition);
             //telemetry.addData("Lift Position: ", liftPosition);
-            telemetry.addData("Intake Touch Boolean: ", blockIntakeTouchSensor);
+            telemetry.addData("Intake Touch Boolean: ", blockEverInIntake.get());
             telemetry.update();
 
         }
