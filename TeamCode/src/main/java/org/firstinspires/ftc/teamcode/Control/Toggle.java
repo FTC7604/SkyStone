@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.Control;
 public class Toggle {
     //toggle is duh, loop is the previous loop
     private boolean toggle;
-    private boolean loop;
+    private boolean oldValue;
 
     //creates the toggle as either any value
     public Toggle(boolean start){toggle = start;}
@@ -14,7 +14,7 @@ public class Toggle {
     public boolean get(){ return toggle;}
     //indicates wether or not the switch has toggled
     public boolean changed(boolean newValue){
-        if(newValue != loop)return true;
+        if(newValue != oldValue)return true;
         else return false;
     }
     //changes the toggle based on the new data
@@ -25,6 +25,6 @@ public class Toggle {
 			else if(!toggle)toggle = true;
 		}
 		
-        loop = newValue;
+        oldValue = newValue;
     }
 }

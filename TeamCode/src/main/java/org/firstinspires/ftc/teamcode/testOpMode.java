@@ -75,10 +75,14 @@ public class testOpMode extends LinearOpMode {
         robotLinearOpMode.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robotLinearOpMode.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        robotLinearOpMode.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robotLinearOpMode.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
+
         latchToggle = new Toggle(false);
         grabberToggle = new Toggle(false);
 
-        BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 20000, 400, 0.05, 1, .5);
+        //BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 20000, 400, 0.05, 1, .5);
+        BallisticMotionProfile armProfile = new BallisticMotionProfile(-50,3000,100,0,1,.5);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -98,9 +102,9 @@ public class testOpMode extends LinearOpMode {
             intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
             //sets the arm power
-            armPower = gamepad2.right_stick_y;
+            armPower = armProfile.V2limitWithAccel(robotLinearOpMode.getArmEncoder(),gamepad2.right_stick_y);
 
-            liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
+            //liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
 
 
             latchToggle.update(gamepad2.x);
@@ -116,7 +120,7 @@ public class testOpMode extends LinearOpMode {
             robotLinearOpMode.mecPowerDrive(driveTrainController);
             robotLinearOpMode.setIntakePower(intakePower);
             robotLinearOpMode.setArmPower(armPower);
-            robotLinearOpMode.setLiftPower(liftPower);
+            //robotLinearOpMode.setLiftPower(liftPower);
 
             //gets the position arm encoder
             armPosition = robotLinearOpMode.getArmEncoder();
@@ -126,10 +130,10 @@ public class testOpMode extends LinearOpMode {
             //now sends it too teleOp
             telemetry.addData("Intake Movement: ", intakePower);
             telemetry.addData("Arm Movement: ", armPower);
-            telemetry.addData("Lift Movement: ", liftPower);
+            //telemetry.addData("Lift Movement: ", liftPower);
 
             telemetry.addData("Arm Position: ", armPosition);
-            telemetry.addData("Lift Position: ", liftPosition);
+            //telemetry.addData("Lift Position: ", liftPosition);
             telemetry.addData("Intake Touch Boolean: ", blockIntakeTouchSensor);
             telemetry.update();
 
