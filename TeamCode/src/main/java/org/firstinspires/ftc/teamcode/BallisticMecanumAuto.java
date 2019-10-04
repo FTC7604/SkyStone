@@ -36,38 +36,21 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 
-import static java.lang.Math.abs;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.Y;
 
-@Autonomous(name="Ballistic Mecanum Auto", group="Linear Opmode")
+@Autonomous(name = "Ballistic Mecanum Auto", group = "Linear Opmode")
 //@Disabled
 
 public class BallisticMecanumAuto extends LinearOpMode {
 
-    private ElapsedTime runtime = new ElapsedTime();
-
-
-
-
-    ////////IN DEGREES
-    final double TOP_LIMIT = 0;//has to be greater than the bottom limit, thus positive power goes to top. if this isn't done, stuff will break
-    final double BOTTOM_LIMIT = 0;//the bottom of the lifter, can be negative
-    final double THRESHOLD = 90;//the deceleration threshold. stays the same for both the top and the botttom
-    final double FLOOR_POWER = 0.05;//the minimum power for a motor to run
-    final double EXP_POWER = 1;//to exponentially increase the curve
-    final double MAX_POWER = 0.65;
-
-    private BallisticMotionProfile TurnProfile = new BallisticMotionProfile(TOP_LIMIT, BOTTOM_LIMIT, THRESHOLD, FLOOR_POWER, EXP_POWER, MAX_POWER);//what we will be using to slow it down\
-
-    private BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, 0.05, 1, 0.75);//for driving
-
     RobotLinearOpMode robotLinearOpMode;
+    private ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
-         robotLinearOpMode = new RobotLinearOpMode(this);
+        robotLinearOpMode = new RobotLinearOpMode(this);
 
 
         robotLinearOpMode.setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -89,16 +72,16 @@ public class BallisticMecanumAuto extends LinearOpMode {
 
         robotLinearOpMode.stopMotorsAndWait(.5);
 
-        robotLinearOpMode.turnByDegree(90, TurnProfile);
+        robotLinearOpMode.turnByDegree(90);
 
         robotLinearOpMode.stopMotorsAndWait(.5);
 
         int endAngleRev2 = (int) robotLinearOpMode.getRev2IMUAngle()[2];
         int endAngleRev10 = (int) robotLinearOpMode.getRev10IMUAngle()[2];
 
-        double startPosition = robotLinearOpMode.getAverageDriveTrainEncoder();
-        robotLinearOpMode.moveByInches(24, DriveProfile);
-        double endPosition = robotLinearOpMode.getAverageDriveTrainEncoder();
+        double startPosition = robotLinearOpMode.getAverageYDriveTrainEncoder();
+        robotLinearOpMode.moveByInches(24, Y);
+        double endPosition = robotLinearOpMode.getAverageYDriveTrainEncoder();
 
         telemetry.addData("Start Angle REV 2: ", startAngleRev2);
         telemetry.addData("End Angle REV 2: ", endAngleRev2);
@@ -114,9 +97,6 @@ public class BallisticMecanumAuto extends LinearOpMode {
 
         sleep(15000);
     }
-
-
-
 
 
 }
