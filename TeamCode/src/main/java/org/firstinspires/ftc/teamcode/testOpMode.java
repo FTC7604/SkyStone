@@ -99,17 +99,17 @@ public class testOpMode extends LinearOpMode {
             //sets up the condidtion for the drivetrain
             driveMode.update(gamepad1.right_bumper);
 
-            if(driveMode.get() == false) {
+            if (driveMode.get() == false) {
                 driveTrainController[1] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) * (abs(-gamepad1.right_stick_y)) + ((-gamepad1.left_stick_y) * (abs(-gamepad1.left_stick_y)))) / 2);
                 driveTrainController[0] = humanController.linearDriveProfile(-(((-gamepad1.right_stick_x) * (abs(-gamepad1.right_stick_x)) + ((-gamepad1.left_stick_x) * (abs(-gamepad1.left_stick_x)))) / 2));
                 driveTrainController[2] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) - (-gamepad1.left_stick_y)) / 2);
-            }else{
+            } else {
                 driveTrainController[1] = humanController.linearDriveProfile(-gamepad1.left_stick_y);
                 driveTrainController[0] = humanController.linearDriveProfile(gamepad1.left_stick_x);
                 driveTrainController[2] = humanController.linearDriveProfile(-gamepad1.right_stick_x);
             }
 
-            if(gamepad1.left_bumper){
+            if (gamepad1.left_bumper) {
                 driveTrainController[1] /= 2;
                 driveTrainController[0] /= 2;
                 driveTrainController[2] /= 2;
@@ -121,7 +121,7 @@ public class testOpMode extends LinearOpMode {
             armPower = armProfile.limitWithoutAccel(robotLinearOpMode.getArmEncoder(), gamepad2.right_stick_y);
 
             //liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
-            liftPower = -gamepad2.left_stick_y/2;
+            liftPower = -gamepad2.left_stick_y / 2;
 
             latchToggle.update(gamepad2.x);
             grabberToggle.update(gamepad2.y);
@@ -151,10 +151,11 @@ public class testOpMode extends LinearOpMode {
         }
     }
 
-    void sendTelemetry(){
+    void sendTelemetry() {
         telemetry.addData("Arm Position: ", armPosition);
         telemetry.addData("Lift Position: ", liftPosition);
-        telemetry.addData("Intake Touch Boolean: ", blockEverInIntake.isHit());
+        telemetry.addData("Block Intake Touch Boolean: ", blockEverInIntake.isHit());
+        telemetry.addData("Open Intake Touch Boolean", robotLinearOpMode.intakeIsOpen());
         telemetry.update();
     }
 }

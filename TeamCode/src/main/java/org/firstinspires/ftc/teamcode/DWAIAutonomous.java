@@ -24,6 +24,8 @@ public class DWAIAutonomous extends LinearOpMode {
         initializeAutonomous();
         waitForStart();
 
+        everythingbluefountationside();
+
         //FULL ASS AUTONOMOUS
     }
 
@@ -64,7 +66,9 @@ public class DWAIAutonomous extends LinearOpMode {
         robot.moveByInches(50, Y);
         //strafe left unit enough room to turn
         //turn 90 deg to the left
+        robot.turnByDegree(90);
         //backward until platform hits the wall
+        robot.moveByInches(-6, Y);
 
 
 

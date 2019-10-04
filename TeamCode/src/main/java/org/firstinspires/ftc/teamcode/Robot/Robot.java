@@ -87,7 +87,11 @@ public class Robot {
         blockGrabberHardwareMap();
 
         imuHardwareMap();
+
         blockIntakeTouchSensorHardwareMap();
+        openIntakeTouchSensorHardwareMap();
+
+        colorLineUnderLeftWingHardwareMap();
     }
 
     private void driveTrainHardwareMap() {
@@ -188,10 +192,10 @@ public class Robot {
         imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");
     }
 
-    private void colorSensorHardwareMap(){
+    private void colorLineUnderLeftWingHardwareMap(){
         //gets the right sensor
-        colorLineUnderLeftWingColor = hardwareMap.get(ColorSensor.class, "rcs");
-        colorLineUnderLeftWingDistance = hardwareMap.get(DistanceSensor.class, "rds");
+        colorLineUnderLeftWingColor = hardwareMap.get(ColorSensor.class, "cd");
+        colorLineUnderLeftWingDistance = hardwareMap.get(DistanceSensor.class, "cd");
     }
 
     private void blockIntakeTouchSensorHardwareMap() {
@@ -257,6 +261,10 @@ public class Robot {
     //returns the value of the touch sensor
     public boolean blockInIntake() {
         return !blockIntakeTouchSensor.getState();
+    }
+
+    public boolean intakeIsOpen() {
+        return !openIntakeTouchSensor.getState();
     }
 
 
