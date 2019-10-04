@@ -152,14 +152,9 @@ public class testOpMode extends LinearOpMode {
     }
 
     void sendTelemetry(){
-        //now sends it too teleOp
-        telemetry.addData("Intake Movement: ", intakePower);
-        telemetry.addData("Arm Movement: ", armPower);
-        telemetry.addData("Lift Movement: ", liftPower);
-
         telemetry.addData("Arm Position: ", armPosition);
         telemetry.addData("Lift Position: ", liftPosition);
-        telemetry.addData("Intake Touch Boolean: ", blockEverInIntake.get());
+        telemetry.addData("Intake Touch Boolean: ", blockEverInIntake.isHit());
         telemetry.update();
     }
 }

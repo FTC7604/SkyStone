@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.Control;
 
 import static java.lang.Math.*;
 
+/**
+ * Created by Will McCormick, 2018-2019
+ * Logic class containing math used for field-centric drive
+ */
 public class IMUControl {
 
     //contricts angle to between 0 and 2pi.

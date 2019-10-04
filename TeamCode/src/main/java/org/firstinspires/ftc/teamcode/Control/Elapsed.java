@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Control;
 
+/**
+ * Created by Will McCormick, 2019-2020
+ * Logic class to figure out the difference between an initial value and a final value
+ */
 public class Elapsed {
     /*The idea behind this class is there is a bunch of stuff that needs to be kept
     track of and this class serves that purpose. It will return the elapsed time, encoders, colors
@@ -8,9 +12,6 @@ public class Elapsed {
 
     //the starting value
     double start;
-
-    //no need for an elapsed constructor
-    public Elapsed(){}
 
     //sets the starting value for a double
     public void start(double start){this.start = start;}
@@ -22,9 +23,9 @@ public class Elapsed {
     void start(short start){this.start = (double) start;}
 
     //gets the value for a double
-    public double get(double current){return current-start;}
+    public double get(double current){return current - start;}
 
-    //NOTE: the code depends on the idea that whatever type is used as an imput
+    //NOTE: the code depends on the idea that whatever type is used as an input
     //is also desired as the output, may not be the case but whatever.
 
     //gets the value for another numerical type

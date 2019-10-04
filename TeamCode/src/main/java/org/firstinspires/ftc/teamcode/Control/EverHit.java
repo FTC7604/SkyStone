@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.Control;
 
+/**
+ * Created by Will McCormick, 2019-2020
+ * Logic class for a boolean that, once changed, will remain true until it is reset
+ */
 public class EverHit {
 
     boolean everHit;
 
-    EverHit(boolean startValue){
+    public EverHit(boolean startValue){
         this.everHit = startValue;
     }
     public EverHit(){
@@ -12,10 +16,10 @@ public class EverHit {
     }
 
     public void update(boolean newValue){
-        if(newValue = true)everHit = true;
+        if(newValue) everHit = true;
     }
 
-    public boolean get(){
+    public boolean isHit(){
         return everHit;
     }
 
