@@ -48,20 +48,11 @@ public class tensorGang extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";
     private static final String LABEL_SECOND_ELEMENT = "Skystone";
-    private static final double minimumConfidence = 0.6;
-    private static final Boolean useTensorflowTracker = false;
+    private static final double minimumConfidence = 0.2;
+    private static final Boolean useTensorflowTracker = true;
 
     /*
-     * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-     * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-     * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-     * web site at https://developer.vuforia.com/license-manager.
-     *
-     * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-     * random data. As an example, here is a example of a fragment of a valid key:
-     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-     * Once you've obtained a license key, copy the string from the Vuforia web site
-     * and paste it in to your code on the next line, between the double quotes.
+     * IMPORTANT: You need to obtain your own license key to use Vuforia.
      */
     private static final String VUFORIA_KEY =
             "Adw59PP/////AAABmSngvZTKXktpu+nuzpPLAFUc6w406s2RYiPPvJaY9A1k2/zyXeM83mHvqT14sWp9QlghcCK1akohLb6SHQv4cXvD8AbeO1a9sRhhchx1X5eL6ttrRE5PH6g517XhKI0dvKsoeYhZu6k4ln6dacQOC11xv/AHSEi/VipxqOMXlNesBfv/jmCc48H6LTFTOHLVDEb9vkk7btw6StRcwle0PUdbCh5aPIkRI2pTh+0R1hY5FyGGrdyZltrBoUusodgwQW0sIai/V21YZGgKaN5QYZLOhO3Fv0ZhjWsnj52e/BivDb3RJyPF1loygTBADo6YZoki1S/oDzoqcP3VmjIaEIFr6RfIGrnVZtkVbjWZP+Zs";
@@ -124,7 +115,7 @@ public class tensorGang extends LinearOpMode {
                                     recognition.getRight(), recognition.getBottom());*/
 
                             double height = recognition.getTop() - recognition.getBottom();
-                            double width = recognition.getRight() - recognition.getLeft();
+                            double width = Math.abs(recognition.getRight() - recognition.getLeft());
 
                             if(width > height * 3 || height > width){
                                 telemetry.addLine("INVALID RECOGNITION (does not match dimensions)");
@@ -158,7 +149,7 @@ public class tensorGang extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
+        parameters.cameraDirection = CameraDirection.FRONT;
         //parameters.useExtendedTracking = false;
 
         //  Instantiate the Vuforia engine

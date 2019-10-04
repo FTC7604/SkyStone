@@ -143,7 +143,7 @@ public class testOpMode extends LinearOpMode {
 
             telemetry.addData("Arm Position: ", armPosition);
             //telemetry.addData("Lift Position: ", liftPosition);
-            telemetry.addData("Intake Touch Boolean: ", blockEverInIntake.get());
+            telemetry.addData("Intake Touch Boolean: ", blockEverInIntake.isHit());
             telemetry.update();
 
         }

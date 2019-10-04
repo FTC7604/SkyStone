@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.Control;
 
-/*A short little class that I wrote that better transforms the numeric imputs of a human,
-to a more humanistic value.
+/**
+ * Created by Will McCormick, 2019-2020
+ * Contains (two?) drive profiles for the controller, one is linear and the other has smoothed input
  */
 public class HumanController {
 

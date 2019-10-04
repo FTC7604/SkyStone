@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.Control;
 
-
-
+/**
+ * Created by Casey Pickett, 2018-2019
+ * Class that essentially slaps a curve on top of a power curve, allowing smooth acceleration
+ */
 public class BallisticMotionProfile {
 
     //this is the top limit of the system in regards to position, angle, etc. top and bottom limits set the bounds
