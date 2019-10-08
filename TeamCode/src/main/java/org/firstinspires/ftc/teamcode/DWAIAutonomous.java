@@ -42,33 +42,33 @@ public class DWAIAutonomous extends LinearOpMode {
     }
 
     void everythingbluefountationside(){
-        //intake facing away from the field
-        //strafe right to align with build platform
-        robot.moveByInches(24, X);
-        //backwards unit hit platform
-        robot.moveByInches(-48, Y);
-        //latch once build platform is hit while moving
-        robot.closeLatch();
-
-
-
-        //2 options:
-
-
-
-        //forward until hit the wall
-        robot.moveByInches(50, Y);
-        //unlatch the build plate
-        robot.openLatch();
-        //strafe left out of the entrappment
-        robot.moveByInches(-36, X);
-        //backward til aligned with platform
-        robot.moveByInches(50, Y);
-        //strafe left unit enough room to turn
-        //turn 90 deg to the left
-        robot.turnByDegree(90);
-        //backward until platform hits the wall
-        robot.moveByInches(-6, Y);
+//        //intake facing away from the field
+//        //strafe right to align with build platform
+//        robot.moveByInches(24, X);
+//        //backwards unit hit platform
+//        robot.moveByInches(-48, Y);
+//        //latch once build platform is hit while moving
+//        robot.closeLatch();
+//
+//
+//
+//        //2 options:
+//
+//
+//
+//        //forward until hit the wall
+//        robot.moveByInches(50, Y);
+//        //unlatch the build plate
+//        robot.openLatch();
+//        //strafe left out of the entrappment
+//        robot.moveByInches(-36, X);
+//        //backward til aligned with platform
+//        robot.moveByInches(50, Y);
+//        //strafe left unit enough room to turn
+//        //turn 90 deg to the left
+//        robot.turnByDegree(90);
+//        //backward until platform hits the wall
+//        robot.moveByInches(-6, Y);
 
 
 

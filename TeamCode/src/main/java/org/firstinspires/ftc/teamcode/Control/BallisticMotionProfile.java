@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.Control;
 
-/**
- * Created by Casey Pickett, 2018-2019
- * Class that essentially slaps a curve on top of a power curve, allowing smooth acceleration
- */
+
+
 public class BallisticMotionProfile {
 
     //this is the top limit of the system in regards to position, angle, etc. top and bottom limits set the bounds
@@ -28,7 +26,6 @@ public class BallisticMotionProfile {
     //we keep all the parameter names consistant
     public BallisticMotionProfile(final double LIMIT_1, final double LIMIT_2, final double DECELERATION_DISTANCE, final double MIN_POWER, final double EXP_POWER, final double MAX_POWER) {
 
-        //lil peice of code, so that we don't need to fiddle with the imputs
         if(LIMIT_1 > LIMIT_2){
             TOP_LIMIT = LIMIT_1;
             BOTTOM_LIMIT = LIMIT_2;
@@ -219,7 +216,7 @@ public class BallisticMotionProfile {
     }
 
     //Use this one the same as with accel, but there is no acceleration curve, meaning it starts from full speed, no matter how close the target is
-    public double RunToPositionWithoutAccel(double startPosition, double currentPosition, double neededPosition) {//this one doesn't adhere to the top and bottom limits, will tell you a motor value when you input where it started, where it is now, and where it needs to go
+    double RunToPositionWithoutAccel(double startPosition, double currentPosition, double neededPosition) {//this one doesn't adhere to the top and bottom limits, will tell you a motor value when you input where it started, where it is now, and where it needs to go
 
         //the first step is to get the distance the desired position with regards to the bounds of this particular instance
         //this distance will always be positive and will be calculated slightly different depending on the instance
