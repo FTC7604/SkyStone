@@ -179,13 +179,26 @@ public class RobotLinearOpMode extends Robot {
 
     //sets the intake power and velocity
     public void setIntakePower(double intakePower) {
-        rightIntakeMotor.setPower(intakePower);
-        leftIntakeMotor.setPower(intakePower);
+        if(intakeIsOpen()){
+            rightIntakeMotor.setPower(intakePower);
+            leftIntakeMotor.setPower(-intakePower);
+        }
+        else{
+            rightIntakeMotor.setPower(intakePower);
+            leftIntakeMotor.setPower(intakePower);
+        }
+
     }
 
     public void setIntakeVelocity(double intakeVelocity) {
-        rightIntakeMotor.setVelocity(intakeVelocity);
-        leftIntakeMotor.setVelocity(intakeVelocity);
+        if(intakeIsOpen()){
+            rightIntakeMotor.setVelocity(intakeVelocity);
+            leftIntakeMotor.setVelocity(-intakeVelocity);
+        }
+        else{
+            rightIntakeMotor.setVelocity(intakeVelocity);
+            leftIntakeMotor.setVelocity(intakeVelocity);
+        }
     }
 
     //sets the lift power and veloctiy
@@ -224,3 +237,4 @@ public class RobotLinearOpMode extends Robot {
         rightLatchServo.setPosition(.65);
     }
 }
+
