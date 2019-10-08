@@ -237,3 +237,4 @@ public class RobotLinearOpMode extends Robot {
         rightLatchServo.setPosition(.65);
     }
 }
+
