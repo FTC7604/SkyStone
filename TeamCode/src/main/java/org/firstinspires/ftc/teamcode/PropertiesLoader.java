@@ -7,6 +7,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Created by Sameer Suri, 2018-2019
+ * Class to utilize java properties files
+ * These store modifiable primitive values in Autonomous and TeleOp
+ */
 public class PropertiesLoader
 {
     private Properties properties;

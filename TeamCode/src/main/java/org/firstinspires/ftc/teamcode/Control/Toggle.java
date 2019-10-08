@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.Control;
 
-//class for the toggle switch.
+/**
+ * Created by Will McCormick, 2018-2019
+ * Logic class for creating a toggle variable, which will toggle on/off on button presses
+ * This makes it such that instead of being true when a button is pressed, it will persist until the button is pressed again
+ */
 public class Toggle {
     //toggle is duh, loop is the previous loop
     private boolean toggle;
-    private boolean loop;
+    private boolean oldValue;
 
     //creates the toggle as either any value
     public Toggle(boolean start){toggle = start;}
@@ -14,7 +18,7 @@ public class Toggle {
     public boolean get(){ return toggle;}
     //indicates wether or not the switch has toggled
     public boolean changed(boolean newValue){
-        if(newValue != loop)return true;
+        if(newValue != oldValue)return true;
         else return false;
     }
     //changes the toggle based on the new data
@@ -25,6 +29,6 @@ public class Toggle {
 			else if(!toggle)toggle = true;
 		}
 		
-        loop = newValue;
+        oldValue = newValue;
     }
 }

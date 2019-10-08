@@ -27,9 +27,6 @@ public class PID {
     //the parts that allow integral and derivative to work
     private double lastError, lastTime;
 
-    //blank constructor, stuff is created when the PID starts, means that it can be restarted
-    public PID(){}
-
     //starts it up, obviously the parts of the PID are 0, and the last error and time are -1 for debugging
     public void start(){
         proportional = integral = derivative = 0;

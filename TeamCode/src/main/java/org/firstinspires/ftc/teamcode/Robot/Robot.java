@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -38,8 +39,9 @@ blockGrabberServo -> "bg"
 
 
 blockIntakeTouchSensor -> "bt"
+openIntakeTouchSensor -> "it"
 
-
+colorLineUnderLeftWing -> "cd"
  */
 
 public class Robot {
@@ -59,10 +61,11 @@ public class Robot {
     Servo rightLatchServo;
     Servo blockGrabberServo;
 
-    //private ColorSensor colorSensor;
-    //private DistanceSensor distanceSensor;
+    private ColorSensor colorLineUnderLeftWingColor;
+    private DistanceSensor colorLineUnderLeftWingDistance;
 
     private DigitalChannel blockIntakeTouchSensor;
+    private DigitalChannel openIntakeTouchSensor;
 
     private HardwareMap hardwareMap;
 
@@ -84,7 +87,11 @@ public class Robot {
         blockGrabberHardwareMap();
 
         imuHardwareMap();
+
         blockIntakeTouchSensorHardwareMap();
+        openIntakeTouchSensorHardwareMap();
+
+        colorLineUnderLeftWingHardwareMap();
     }
 
     private void driveTrainHardwareMap() {
@@ -185,15 +192,19 @@ public class Robot {
         imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");
     }
 
-    //    private void colorSensorHardwareMap(){
-//        //gets the right sensor
-//        colorSensor = hardwareMap.get(ColorSensor.class, "rcs");
-//        distanceSensor = hardwareMap.get(DistanceSensor.class, "rds");
-//    }
+    private void colorLineUnderLeftWingHardwareMap(){
+        //gets the right sensor
+        colorLineUnderLeftWingColor = hardwareMap.get(ColorSensor.class, "cd");
+        colorLineUnderLeftWingDistance = hardwareMap.get(DistanceSensor.class, "cd");
+    }
 
     private void blockIntakeTouchSensorHardwareMap() {
         blockIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "bt");
         blockIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+    }
+    private void openIntakeTouchSensorHardwareMap() {
+        openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
+        openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
     }
 
     //initalializes the imu
@@ -250,6 +261,10 @@ public class Robot {
     //returns the value of the touch sensor
     public boolean blockInIntake() {
         return !blockIntakeTouchSensor.getState();
+    }
+
+    public boolean intakeIsOpen() {
+        return !openIntakeTouchSensor.getState();
     }
 
 
