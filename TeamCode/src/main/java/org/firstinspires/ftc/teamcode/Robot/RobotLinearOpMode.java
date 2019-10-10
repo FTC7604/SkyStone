@@ -113,11 +113,12 @@ public class RobotLinearOpMode extends Robot {
         }
     }
 
-    public enum MOVEMENT_DIRECTION {
+    public static enum MOVEMENT_DIRECTION {
         X,
         Y,
         R,
     }
+
 
     public void moveByInches(double desiredMovementInInches, MOVEMENT_DIRECTION movement_direction) {
         double startPosition = 0;
@@ -127,9 +128,12 @@ public class RobotLinearOpMode extends Robot {
 
         BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, 0.05, 1, 0.75);
 
-        if(movement_direction == MOVEMENT_DIRECTION.X) startPosition = getAverageXDriveTrainEncoder();
-        if(movement_direction == MOVEMENT_DIRECTION.Y) startPosition = getAverageYDriveTrainEncoder();
-        if(movement_direction == MOVEMENT_DIRECTION.R) startPosition = getAverageRDriveTrainEncoder();
+        if (movement_direction == MOVEMENT_DIRECTION.X)
+            startPosition = getAverageXDriveTrainEncoder();
+        if (movement_direction == MOVEMENT_DIRECTION.Y)
+            startPosition = getAverageYDriveTrainEncoder();
+        if (movement_direction == MOVEMENT_DIRECTION.R)
+            startPosition = getAverageRDriveTrainEncoder();
 
         neededPosition = startPosition + (desiredMovementInInches * 4000 / 69);
 
@@ -139,32 +143,44 @@ public class RobotLinearOpMode extends Robot {
         if (startPosition < neededPosition) {
 
             do {
-                if(movement_direction == MOVEMENT_DIRECTION.X) currentPosition = getAverageXDriveTrainEncoder();
-                if(movement_direction == MOVEMENT_DIRECTION.Y) currentPosition = getAverageYDriveTrainEncoder();
-                if(movement_direction == MOVEMENT_DIRECTION.R) currentPosition = getAverageRDriveTrainEncoder();
+                if (movement_direction == MOVEMENT_DIRECTION.X)
+                    currentPosition = getAverageXDriveTrainEncoder();
+                if (movement_direction == MOVEMENT_DIRECTION.Y)
+                    currentPosition = getAverageYDriveTrainEncoder();
+                if (movement_direction == MOVEMENT_DIRECTION.R)
+                    currentPosition = getAverageRDriveTrainEncoder();
 
                 adjustedMotorPower = DriveProfile.RunToPositionWithAccel(startPosition, currentPosition, neededPosition);
 
-                if(movement_direction == MOVEMENT_DIRECTION.X) mecPowerDrive(adjustedMotorPower, 0, 0);
-                if(movement_direction == MOVEMENT_DIRECTION.Y) mecPowerDrive(0, adjustedMotorPower, 0);
-                if(movement_direction == MOVEMENT_DIRECTION.R) mecPowerDrive(0,0, adjustedMotorPower);
+                if (movement_direction == MOVEMENT_DIRECTION.X)
+                    mecPowerDrive(adjustedMotorPower, 0, 0);
+                if (movement_direction == MOVEMENT_DIRECTION.Y)
+                    mecPowerDrive(0, adjustedMotorPower, 0);
+                if (movement_direction == MOVEMENT_DIRECTION.R)
+                    mecPowerDrive(0, 0, adjustedMotorPower);
 
-            } while((currentPosition < neededPosition) && linearOpMode.opModeIsActive());
+            } while ((currentPosition < neededPosition) && linearOpMode.opModeIsActive());
 
         } else if (startPosition > neededPosition) {
 
             do {
-                if(movement_direction == MOVEMENT_DIRECTION.X) currentPosition = getAverageXDriveTrainEncoder();
-                if(movement_direction == MOVEMENT_DIRECTION.Y) currentPosition = getAverageYDriveTrainEncoder();
-                if(movement_direction == MOVEMENT_DIRECTION.R) currentPosition = getAverageRDriveTrainEncoder();
+                if (movement_direction == MOVEMENT_DIRECTION.X)
+                    currentPosition = getAverageXDriveTrainEncoder();
+                if (movement_direction == MOVEMENT_DIRECTION.Y)
+                    currentPosition = getAverageYDriveTrainEncoder();
+                if (movement_direction == MOVEMENT_DIRECTION.R)
+                    currentPosition = getAverageRDriveTrainEncoder();
 
                 adjustedMotorPower = DriveProfile.RunToPositionWithAccel(startPosition, currentPosition, neededPosition);
 
-                if(movement_direction == MOVEMENT_DIRECTION.X) mecPowerDrive(adjustedMotorPower, 0, 0);
-                if(movement_direction == MOVEMENT_DIRECTION.Y) mecPowerDrive(0, adjustedMotorPower, 0);
-                if(movement_direction == MOVEMENT_DIRECTION.R) mecPowerDrive(0,0, adjustedMotorPower);
+                if (movement_direction == MOVEMENT_DIRECTION.X)
+                    mecPowerDrive(adjustedMotorPower, 0, 0);
+                if (movement_direction == MOVEMENT_DIRECTION.Y)
+                    mecPowerDrive(0, adjustedMotorPower, 0);
+                if (movement_direction == MOVEMENT_DIRECTION.R)
+                    mecPowerDrive(0, 0, adjustedMotorPower);
 
-            } while((currentPosition > neededPosition) && linearOpMode.opModeIsActive());
+            } while ((currentPosition > neededPosition) && linearOpMode.opModeIsActive());
 
         } else {
             //no where to move in here.
@@ -179,11 +195,10 @@ public class RobotLinearOpMode extends Robot {
 
     //sets the intake power and velocity
     public void setIntakePower(double intakePower) {
-        if(intakeIsOpen()){
+        if (intakeIsOpen()) {
             rightIntakeMotor.setPower(intakePower);
             leftIntakeMotor.setPower(-intakePower);
-        }
-        else{
+        } else {
             rightIntakeMotor.setPower(intakePower);
             leftIntakeMotor.setPower(intakePower);
         }
@@ -191,11 +206,10 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public void setIntakeVelocity(double intakeVelocity) {
-        if(intakeIsOpen()){
+        if (intakeIsOpen()) {
             rightIntakeMotor.setVelocity(intakeVelocity);
             leftIntakeMotor.setVelocity(-intakeVelocity);
-        }
-        else{
+        } else {
             rightIntakeMotor.setVelocity(intakeVelocity);
             leftIntakeMotor.setVelocity(intakeVelocity);
         }
@@ -237,4 +251,3 @@ public class RobotLinearOpMode extends Robot {
         rightLatchServo.setPosition(.65);
     }
 }
-
