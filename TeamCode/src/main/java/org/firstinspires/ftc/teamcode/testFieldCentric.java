@@ -73,11 +73,11 @@
 //            imuControl.compensate(driveTrainController, - robot.getBothIMUAngle()[2]);
 //
 //            //sends this to the motors.
-//            robot.mecPowerDrive(driveTrainController);
+//            robot.mecanumPowerDrive(driveTrainController);
 //
 //            //some telemetry
-//            telemetry.addData("X Rotation", sensorValues.getxRotation());
-//            telemetry.addData("Y Rotation", sensorValues.getyRotation());
+//            telemetry.addData("STRAFE Rotation", sensorValues.getxRotation());
+//            telemetry.addData("FORWARD Rotation", sensorValues.getyRotation());
 //            telemetry.addData("Z Rotation", sensorValues.getzRotation());
 //            telemetry.update();
 //        }
