@@ -49,15 +49,15 @@ public class testOpMode extends LinearOpMode {
     double liftPower = 0;
     //sensor values, also exist to make the code cleaner
     double armPosition = 0;
-    int liftPosition;
+    double liftPosition;
     boolean blockIntakeTouchSensor;
     RobotLinearOpMode robotLinearOpMode;
     Toggle latchToggle;
     Toggle grabberToggle;
     EverHit blockEverInIntake;
     Toggle driveMode;
-    double topArmEncoder = 2700;
-    double bottomArmEncoder = -3900;
+    double topArmEncoder = 2300;//I changed this
+    double bottomArmEncoder = 0;//and this. no underpass 
     HumanController humanController = new HumanController(0.1, 1);
     //the amount of time that the program has run
     private ElapsedTime runtime = new ElapsedTime();
@@ -84,8 +84,10 @@ public class testOpMode extends LinearOpMode {
         driveMode = new Toggle(false);
         blockEverInIntake = new EverHit();
 
-        //BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 20000, 400, 0.05, 1, .5);
-        BallisticMotionProfile armProfile = new BallisticMotionProfile(bottomArmEncoder, topArmEncoder, 100, 0, 1, .5);
+        //BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 20000, 700, 0.05, 1, .5);
+        
+        //I cranked up the decel distance so that it decelerates over a longer distance
+        BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, BottomArmEncoder, 1000, 0.05, 1, .5);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -94,11 +96,19 @@ public class testOpMode extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+       
+        //this will break the code so change it to the right thing. for now lets reset all the encoders at the start of teleop
+        robotlinearopmode.resetArm();
+        robotlinearopmode.resetLift();
+        robotlinearopmode.RESETEVERYTHING;
+       
+        
         while (opModeIsActive()) {
 
             //sets up the condidtion for the drivetrain
             driveMode.update(gamepad1.right_bumper);
 
+            
             if (driveMode.get() == false) {
                 driveTrainController[1] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) * (abs(-gamepad1.right_stick_y)) + ((-gamepad1.left_stick_y) * (abs(-gamepad1.left_stick_y)))) / 2);
                 driveTrainController[0] = humanController.linearDriveProfile(-(((-gamepad1.right_stick_x) * (abs(-gamepad1.right_stick_x)) + ((-gamepad1.left_stick_x) * (abs(-gamepad1.left_stick_x)))) / 2));
@@ -118,7 +128,7 @@ public class testOpMode extends LinearOpMode {
             intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
             //sets the arm power
-            armPower = armProfile.limitWithoutAccel(robotLinearOpMode.getArmEncoder(), gamepad2.right_stick_y);
+            armPower = armProfile.V2limitWitAccel(robotLinearOpMode.getArmEncoder(), gamepad2.right_stick_y);
 
             //liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
             liftPower = -gamepad2.left_stick_y / 2;
