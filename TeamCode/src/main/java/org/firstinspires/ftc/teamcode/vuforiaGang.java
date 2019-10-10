@@ -231,10 +231,12 @@ public class vuforiaGang extends LinearOpMode {
                 OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getUpdatedRobotLocation();
                 OpenGLMatrix cameraPos = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getVuforiaCameraFromTarget();
 
+                // attempting to get the pixel positions of the recognition
+                // may need to just use field positioning
                 if(cameraPos != null){
                     VectorF camPos = cameraPos.getTranslation();
                     telemetry.addLine("Pos: " + camPos.get(0) + " " + camPos.get(1));
-                    telemetry.addLine("" + camPos.length());
+                    telemetry.addLine("Dims: " + camPos.length());
                 }
 
                 if (robotLocationTransform != null) {
@@ -252,6 +254,7 @@ public class vuforiaGang extends LinearOpMode {
             else {
                 telemetry.addData("Visible Target", "none");
             }
+
             telemetry.update();
         }
 

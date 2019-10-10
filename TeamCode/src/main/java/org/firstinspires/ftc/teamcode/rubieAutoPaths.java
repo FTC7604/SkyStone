@@ -75,14 +75,14 @@ public class rubieAutoPaths extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        robotLinearOpMode.moveByInches(-36, RobotLinearOpMode.MOVEMENT_DIRECTION.X);
-        robotLinearOpMode.moveByInches(2, RobotLinearOpMode.MOVEMENT_DIRECTION.Y);
+        robotLinearOpMode.moveByInches(-36, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+        robotLinearOpMode.moveByInches(2, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
 
         while(!robotLinearOpMode.blockInIntake()) {
             robotLinearOpMode.setIntakePower(1);
         }
 
-        robotLinearOpMode.moveByInches(18, RobotLinearOpMode.MOVEMENT_DIRECTION.X);
+        robotLinearOpMode.moveByInches(18, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
     }
 //    enum AUTOPATHNAMES {
 //    R1FOUNDATIONPARKR, R1FOUNDATIONSTONEPARKR, R1FOUNDATIONSTONESTONE2PARKR, R1FOUNDATIONPARKL, R1FOUNDATIONSTONEPARKL, R1FOUNDATIONSTONESTONE2PARKL,
