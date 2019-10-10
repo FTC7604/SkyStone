@@ -12,6 +12,9 @@ public class RobotLinearOpMode extends Robot {
 
     LinearOpMode linearOpMode;
 
+    double encodersToInches = 69/4000;
+    double inchesToEncoders = 4000/69;
+
     //constructor
     public RobotLinearOpMode(LinearOpMode linearOpMode) {
 
@@ -76,6 +79,8 @@ public class RobotLinearOpMode extends Robot {
                 return averageEncoderPosition / 4;
 
         }
+
+        return 0;
     }
     public double getAverageForwardDriveTrainEncoder() {
         double averageEncoderPosition = 0;
@@ -152,15 +157,15 @@ public class RobotLinearOpMode extends Robot {
         ROTATION,
     }
 
-    public void moveByInches(double desiredMovementInInches, MOVEMENT_DIRECTION movement_direction) {
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
 
         double currentAverageEncoderValue = 0;
-        double desiredMovementInEncoders = 0;
+        double desiredPositionChangeInEncoders = 0;
         double adjustedMotorPower = 0;
 
         BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, 0.05, 1, 0.75);
 
-        desiredMovementInEncoders = desiredMovementInInches * (4000 / 69);
+        desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
 
         setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -170,13 +175,45 @@ public class RobotLinearOpMode extends Robot {
             if(movement_direction == FORWARD) currentAverageEncoderValue = getAverageForwardDriveTrainEncoder();
             if(movement_direction == ROTATION) currentAverageEncoderValue = getAverageRotationDriveTrainEncoder();
 
-            adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredMovementInEncoders);
+            adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
 
             if(movement_direction == STRAFE) mecanumPowerDrive(adjustedMotorPower, 0, 0);
             if(movement_direction == FORWARD) mecanumPowerDrive(0, adjustedMotorPower, 0);
             if(movement_direction == ROTATION) mecanumPowerDrive(0,0, adjustedMotorPower);
 
-        } while((abs(desiredMovementInEncoders) > 20) && (abs(adjustedMotorPower) > .1)&& linearOpMode.opModeIsActive());
+        } while((abs(desiredPositionChangeInEncoders) > 20) && (abs(adjustedMotorPower) > .1)&& linearOpMode.opModeIsActive());
+    }
+
+    public void moveByInchesAndLatch(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double afterHowManyInchesDropTheLatch) {
+
+        double afterHowManyEndoderDropTheLatch = afterHowManyInchesDropTheLatch * inchesToEncoders;
+        double currentAverageEncoderValue = 0;
+        double desiredPositionChangeInEncoders = 0;
+        double adjustedMotorPower = 0;
+
+        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, 0.05, 1, 0.75);
+
+        desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
+
+        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        do {
+            if(movement_direction == STRAFE) currentAverageEncoderValue = getAverageStrafeDriveTrainEncoder();
+            if(movement_direction == FORWARD) currentAverageEncoderValue = getAverageForwardDriveTrainEncoder();
+            if(movement_direction == ROTATION) currentAverageEncoderValue = getAverageRotationDriveTrainEncoder();
+
+            adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
+
+            if(movement_direction == STRAFE) mecanumPowerDrive(adjustedMotorPower, 0, 0);
+            if(movement_direction == FORWARD) mecanumPowerDrive(0, adjustedMotorPower, 0);
+            if(movement_direction == ROTATION) mecanumPowerDrive(0,0, adjustedMotorPower);
+
+            if(afterHowManyEndoderDropTheLatch < currentAverageEncoderValue){
+                closeLatch();
+            }
+
+        } while((abs(desiredPositionChangeInEncoders) > 20) && (abs(adjustedMotorPower) > .1)&& linearOpMode.opModeIsActive());
     }
 
     //eliminates residual forces
