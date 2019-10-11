@@ -165,7 +165,7 @@ public class testOpMode extends LinearOpMode {
                 } else armPower = armProfile.RunToPositionWithAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_DOWN_POSITION);
 
             } else {
-                armPower = armProfile.V2limitWithAccel(robotLinearOpMode.getArmEncoder(), gamepad2.right_stick_y);
+                armPower = armProfile.V2limitWithAccel(robotLinearOpMode.getArmEncoder(), gamepad2.left_stick_y);
             }
 
             //this code checks to see if we are going to a new target, and of so changes the desired direction and resets the initial position
@@ -184,7 +184,7 @@ public class testOpMode extends LinearOpMode {
 
 
             //this should work but be careful
-            liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(), gamepad2.left_stick_y);
+            liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(), gamepad2.right_stick_y);
             //liftPower = gamepad2.left_stick_y / 2;
 
             latchToggle.update(gamepad2.x);
