@@ -50,6 +50,25 @@ public class testOpMode extends LinearOpMode {
     //sensor values, also exist to make the code cleaner
     double armPosition = 0;
     double liftPosition;
+    
+    /////////////////Casey's Position Shenanegins - making some runtoposition commands
+    
+    //We start with some arm positions that we will go to in the future
+    //this one is where we start, with the arm at 0 resting in the robot.
+    final double ARM_DOWN_POSITION = 0;
+    //this one is all
+    final double ARM_UP_POSITION = 0;
+    
+    //these are used to determine whether or not we are actively trying to go to a certain preset position
+    //as determined by user input
+    boolean goingToUpPosition = false;
+    boolean goingToDownPosition = false;
+    
+    //now we make a variable to use later which represents the initial position when doing a runtoposition command
+    double initialArmPosition = 0;
+    
+    /////////////////////////
+    
     boolean blockIntakeTouchSensor;
     RobotLinearOpMode robotLinearOpMode;
     Toggle latchToggle;
@@ -127,9 +146,38 @@ public class testOpMode extends LinearOpMode {
             //increments the intake power
             intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
+            ///////////The second part of Casey's arm thing
+            
+            
             //sets the arm power
-            armPower = armProfile.V2limitWitAccel(robotLinearOpMode.getArmEncoder(), gamepad2.right_stick_y);
+            armPower = armProfile.V2limitWithAccel(robotLinearOpMode.getArmEncoder(), gamepad2.right_stick_y);
 
+            if (goingToUpposition) {
+                if @ position {
+                    goingToUpPosition = false;
+                    armPower = 0;
+                } else armPower = armProfile.RunToPositionWithAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_UP_POSITION)
+                
+            }
+            
+          
+            //this code checks to see if we are going to a new target, and of so changes the desired direction and resets the initial position
+            if (gamepad2.dpad_up) {
+                goingToUpPosition = true;
+                goingToDownPosition = false;
+                initialArmPosition = robotLinearOpMode.getArmEncoder();
+            } else if (button 2) {
+                goingToDownPosition = true;
+                goingToUpPosition = false;
+                initialArmPosition = robotLinearOpMode.getArmEncoder();
+            }
+            
+            
+            
+            
+            
+            
+            
             //liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
             liftPower = -gamepad2.left_stick_y / 2;
 
