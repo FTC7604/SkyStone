@@ -58,7 +58,7 @@ public class testOpMode extends LinearOpMode {
     //this one is where we start, with the arm at 0 resting in the robot.
     final double ARM_DOWN_POSITION = 0;
     //this one is all
-    final double ARM_UP_POSITION = 0;
+    final double ARM_UP_POSITION = 1000;
 
     //these are used to determine whether or not we are actively trying to go to a certain preset position
     //as determined by user input
@@ -118,7 +118,7 @@ public class testOpMode extends LinearOpMode {
         runtime.reset();
 
 
-        //this will break the code so change it to the right thing. for now lets reset all the encoders at the start of teleop
+        //this will break the code so change it to the right thing. for now lets reset all the encoders at the start of teleop, unless we go for a reset encoders opmode
         robotlinearopmode.resetArm();
         robotlinearopmode.resetLift();
         robotlinearopmode.RESETEVERYTHING;
@@ -169,11 +169,11 @@ public class testOpMode extends LinearOpMode {
             }
 
             //this code checks to see if we are going to a new target, and of so changes the desired direction and resets the initial position
-            if (gamepad2.dpad_up) {
+            if (gamepad2.dpad_down) {
                 goingToUpPosition = true;
                 goingToDownPosition = false;
                 initialArmPosition = robotLinearOpMode.getArmEncoder();
-            } else if (gamepad2.dpad_down) {
+            } else if (gamepad2.dpad_up) {
                 goingToDownPosition = true;
                 goingToUpPosition = false;
                 initialArmPosition = robotLinearOpMode.getArmEncoder();
