@@ -64,6 +64,8 @@ public class Robot {
     private DigitalChannel openIntakeTouchSensor;
 
     private HardwareMap hardwareMap;
+    private int BLUE_LINE_VALUE;
+    private int RED_LINE_VALUE;
 
 
     public Robot(OpMode opMode) {
@@ -281,5 +283,16 @@ public class Robot {
         return !openIntakeTouchSensor.getState();
     }
 
+    COLOR_UNDER_SENSOR color_under_sensor(){
+        if(colorLineUnderLeftWingColor.blue() > BLUE_LINE_VALUE) return COLOR_UNDER_SENSOR.BLUE;
+        else if(colorLineUnderLeftWingColor.red() > RED_LINE_VALUE) return COLOR_UNDER_SENSOR.RED;
+        else return COLOR_UNDER_SENSOR.GRAY;
+    }
+
+    enum COLOR_UNDER_SENSOR {
+        GRAY,
+        BLUE,
+        RED
+    }
 
 }
