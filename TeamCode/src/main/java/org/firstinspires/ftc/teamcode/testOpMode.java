@@ -176,7 +176,7 @@ public class testOpMode extends LinearOpMode {
             }
 
             //////////////////End Casey's thing
-            
+
             //this should work but be careful
             liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(), gamepad2.right_stick_y);
             //liftPower = gamepad2.left_stick_y / 2;
