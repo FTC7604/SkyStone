@@ -54,10 +54,11 @@ public class testOpMode extends LinearOpMode {
     RobotLinearOpMode robotLinearOpMode;
     Toggle latchToggle;
     Toggle grabberToggle;
+    Toggle markerDropper;
     EverHit blockEverInIntake;
     Toggle driveMode;
     double topArmEncoder = 2700;
-    double bottomArmEncoder = -3900;
+    double bottomArmEncoder = 0;
     HumanController humanController = new HumanController(0.1, 1);
     //the amount of time that the program has run
     private ElapsedTime runtime = new ElapsedTime();
@@ -79,9 +80,10 @@ public class testOpMode extends LinearOpMode {
         robotLinearOpMode.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robotLinearOpMode.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        latchToggle = new Toggle(false);
-        grabberToggle = new Toggle(false);
+        latchToggle = new Toggle(true);
+        grabberToggle = new Toggle(true);
         driveMode = new Toggle(false);
+        markerDropper = new Toggle(true);
         blockEverInIntake = new EverHit();
 
         //BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 20000, 400, 0.05, 1, .5);
@@ -119,12 +121,16 @@ public class testOpMode extends LinearOpMode {
 
             //sets the arm power
             armPower = armProfile.limitWithoutAccel(robotLinearOpMode.getArmEncoder(), gamepad2.right_stick_y);
+            if(abs(robotLinearOpMode.getArmEncoder()) > 100){
+                blockEverInIntake.reset();
+            }
 
             //liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(),-gamepad2.left_stick_y);
             liftPower = -gamepad2.left_stick_y / 2;
 
             latchToggle.update(gamepad2.x);
             grabberToggle.update(gamepad2.y);
+            markerDropper.update(gamepad2.a);
 
             blockEverInIntake.update(robotLinearOpMode.blockInIntake());
 
@@ -134,10 +140,11 @@ public class testOpMode extends LinearOpMode {
             if (latchToggle.get()) robotLinearOpMode.openLatch();
             else robotLinearOpMode.closeLatch();
 
-            if (gamepad2.a) blockEverInIntake.reset();
+            if(markerDropper.get())robotLinearOpMode.holdMarker();
+            else robotLinearOpMode.dropMarker();
 
             //sends this to the motors.
-            robotLinearOpMode.mecPowerDrive(driveTrainController);
+            robotLinearOpMode.mecanumPowerDrive(driveTrainController);
             robotLinearOpMode.setIntakePower(intakePower);
             robotLinearOpMode.setArmPower(armPower);
             robotLinearOpMode.setLiftPower(liftPower);
