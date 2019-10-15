@@ -15,6 +15,9 @@ public class RobotLinearOpMode extends Robot {
     double encodersToInches = 69/4000;
     double inchesToEncoders = 4000/69;
 
+    //now we make a variable to use later which represents the initial position when doing a runtoposition command
+    public double initialArmPosition = 0;
+
     //constructor
     public RobotLinearOpMode(LinearOpMode linearOpMode) {
 
@@ -260,6 +263,24 @@ public class RobotLinearOpMode extends Robot {
 
     public int getArmEncoder() {
         return armMotor.getCurrentPosition();
+    }
+
+    //tells us if the arm is on targetEncoder
+    public boolean armHasArrived(double targetEncoder) {
+        boolean arrivedAtTargetEncoder;
+
+        //if the target encoder position is below the very starting one, and the current position is below that
+        if ((initialArmPosition < targetEncoder) && (targetEncoder < getArmEncoder())) {
+            arrivedAtTargetEncoder = true;
+        }
+        //the exact opposite condidion that yields essentially the same result
+        else if ((initialArmPosition > targetEncoder) && (targetEncoder > getArmEncoder())) {
+            arrivedAtTargetEncoder = true;
+        } else {
+            arrivedAtTargetEncoder = false;
+        }
+
+        return arrivedAtTargetEncoder;
     }
 
     public void closeGrabber() {

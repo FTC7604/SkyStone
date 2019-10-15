@@ -65,6 +65,7 @@ public class Robot {
 
     private HardwareMap hardwareMap;
 
+
     public Robot(OpMode opMode) {
 
         this.hardwareMap = opMode.hardwareMap;
@@ -104,12 +105,20 @@ public class Robot {
 
     }
 
-    public void resetAllEncoders(){
-        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setIntakeRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    public void setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
+        setDriveTrainZeroPowerProperty(zeroPowerBehavior);
+        setIntakeZeroPowerProperty(zeroPowerBehavior);
 
-        setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setArmZeroPowerProperty(zeroPowerBehavior);
+        setLiftZeroPowerProperty(zeroPowerBehavior);
+    }
+
+    public void setAllMotorRunMode(DcMotor.RunMode runMode){
+        setDriveTrainRunMode(runMode);
+        setIntakeRunMode(runMode);
+
+        setArmRunMode(runMode);
+        setLiftRunMode(runMode);
     }
     public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         leftFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
