@@ -104,6 +104,13 @@ public class Robot {
 
     }
 
+    public void resetAllEncoders(){
+        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setIntakeRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
     public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         leftFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
         rightFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
