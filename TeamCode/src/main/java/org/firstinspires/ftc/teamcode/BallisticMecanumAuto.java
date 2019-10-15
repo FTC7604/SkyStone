@@ -80,7 +80,7 @@ public class BallisticMecanumAuto extends LinearOpMode {
         int endAngleRev10 = (int) robotLinearOpMode.getRev10IMUAngle()[2];
 
         double startPosition = robotLinearOpMode.getAverageForwardDriveTrainEncoder();
-        robotLinearOpMode.moveByInches(24, FORWARD);
+        robotLinearOpMode.moveByInches((double)24, FORWARD,true);
         double endPosition = robotLinearOpMode.getAverageForwardDriveTrainEncoder();
 
         telemetry.addData("Start Angle REV 2: ", startAngleRev2);

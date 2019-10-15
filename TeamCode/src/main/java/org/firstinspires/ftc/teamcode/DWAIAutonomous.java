@@ -9,9 +9,10 @@ import com.qualcomm.robotcore.util.*;
 
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.*;
 
-@Autonomous(name = "Autonomous Prototype", group = "Autonomous")
+@Autonomous(name = "Will's Autonomous Prototype", group = "Autonomous")
 public class DWAIAutonomous extends LinearOpMode {
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
+    private double DISTANCE_TO_BUILD_PLATE = propertiesLoader.getDoubleProperty("DISTANCE_TO_BUILD_PLATE");
     private RobotLinearOpMode robot;
     //private int whatever = propertiesLoader.getIntegerProperty("whatever");
 
@@ -24,7 +25,7 @@ public class DWAIAutonomous extends LinearOpMode {
         initializeAutonomous();
         waitForStart();
 
-        everythingbluefountationside();
+        getPlatform();
 
         //FULL ASS AUTONOMOUS
     }
@@ -39,6 +40,14 @@ public class DWAIAutonomous extends LinearOpMode {
 
         RED_STONESIDE_,
 
+    }
+
+    void getPlatform(){
+        robot.openLatch();
+        robot.moveByInches(-24, FORWARD,true);
+        robot.closeLatch();
+        robot.moveByInches(-4, FORWARD,false);
+        robot.moveByInches(28, FORWARD,true);
     }
 
     void everythingbluefountationside(){

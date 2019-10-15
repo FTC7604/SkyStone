@@ -36,7 +36,7 @@ public class testOpMode extends LinearOpMode {
     //this one is where we start, with the arm at 0 resting in the robot.
     private final double ARM_DOWN_POSITION = 0;
     //this one is all
-    private final double ARM_UP_POSITION = 1000;
+    private final double ARM_UP_POSITION = 1600;
     //so these exist so that I do not get confused, not strictly necessary, 0 is the strafe, 1 is the forward, and 2 is the rotation
     private double[] driveTrainController = new double[3];
     /*Mini Lesson:
@@ -84,10 +84,10 @@ public class testOpMode extends LinearOpMode {
         blockEverInIntake = new EverHit();
 
         //So im gald i got ur attention // heres why the lift code was broken: the bottom limit was set to 20000 not -20000. negative goes up on the lifter, and so the bottom limit is actually the top
-        BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, -20000, 1000, 0.05, 1, .5);
+        BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 4700, 1000, 0.1, 1, .7);
 
         //I cranked up the decel distance so that it decelerates over a longer distance
-        BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.05, 1, .5);
+        BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.1, 1, .7);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -98,6 +98,8 @@ public class testOpMode extends LinearOpMode {
 
         robotLinearOpMode.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robotLinearOpMode.setAllMotorRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robotLinearOpMode.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robotLinearOpMode.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robotLinearOpMode.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
         while (opModeIsActive()) {
