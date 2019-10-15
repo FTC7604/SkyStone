@@ -29,8 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.*;
 import java.util.List;
 import java.util.ArrayList;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -44,6 +43,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
  * determine the position of the Skystone game elements.
  */
 @TeleOp(name = "Tensorflow Test", group = "Linear OpMode")
+@Disabled
 public class tensorGang extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Stone";

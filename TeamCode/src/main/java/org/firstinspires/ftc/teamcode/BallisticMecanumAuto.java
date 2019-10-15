@@ -35,8 +35,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
+
 
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 
@@ -82,6 +82,7 @@ public class BallisticMecanumAuto extends LinearOpMode {
         double startPosition = robotLinearOpMode.getAverageForwardDriveTrainEncoder();
         robotLinearOpMode.moveByInches((double)24, FORWARD,true);
         double endPosition = robotLinearOpMode.getAverageForwardDriveTrainEncoder();
+
 
         telemetry.addData("Start Angle REV 2: ", startAngleRev2);
         telemetry.addData("End Angle REV 2: ", endAngleRev2);
