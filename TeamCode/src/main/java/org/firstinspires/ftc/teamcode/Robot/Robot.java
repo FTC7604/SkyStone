@@ -275,7 +275,7 @@ public class Robot {
     }
 
     //returns the value of the touch sensor
-    public boolean blockInIntake() {
+    protected boolean blockInIntake() {
         return !blockIntakeTouchSensor.getState();
     }
 

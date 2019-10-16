@@ -19,7 +19,7 @@ public class EverHit {
         if(newValue) everHit = true;
     }
 
-    public boolean isHit(){
+    public boolean wasEverHit(){
         return everHit;
     }
 

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
+import org.firstinspires.ftc.teamcode.Control.EverHit;
 
 import static java.lang.Math.abs;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.*;
@@ -17,6 +18,18 @@ public class RobotLinearOpMode extends Robot {
 
     //now we make a variable to use later which represents the initial position when doing a runtoposition command
     public double initialArmPosition = 0;
+
+    //So im gald i got ur attention // heres why the lift code was broken: the bottom limit was set to 20000 not -20000. negative goes up on the lifter, and so the bottom limit is actually the top
+    public BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 3300, 1000, 0.15, 1, .7);
+
+    double topArmEncoder = 2300;//I changed this
+    double bottomArmEncoder = 0;//and this. no underpass
+
+    //I cranked up the decel distance so that it decelerates over a longer distance
+    public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.2, 1, .7);
+
+
+    EverHit blockEverInIntake = new EverHit(false);
 
     //constructor
     public RobotLinearOpMode(LinearOpMode linearOpMode) {
@@ -48,43 +61,24 @@ public class RobotLinearOpMode extends Robot {
         rightBackDriveMotor.setVelocity(forward - strafe - rotation);
     }
 
+    public void stopAllMotors(){
+        leftFrontDriveMotor.setPower(0);
+        leftBackDriveMotor.setPower(0);
+        rightFrontDriveMotor.setPower(0);
+        rightBackDriveMotor.setPower(0);
+
+        leftIntakeMotor.setPower(0);
+        rightIntakeMotor.setPower(0);
+
+        liftMotor.setPower(0);
+
+        armMotor.setPower(0);
+    }
+
     public void mecVelocityDrive(double[] controller) {
         mecVelocityDrive(controller[0], controller[1], controller[2]);
     }
 
-    //outputs the average of the 4 drive train motors, be sure to reset the encoders before you engage this.
-    public double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction){
-        double averageEncoderPosition = 0;
-
-        switch (movement_direction){
-
-            case STRAFE:
-                averageEncoderPosition -= leftFrontDriveMotor.getCurrentPosition();
-                averageEncoderPosition += leftBackDriveMotor.getCurrentPosition();
-                averageEncoderPosition += rightFrontDriveMotor.getCurrentPosition();
-                averageEncoderPosition -= rightBackDriveMotor.getCurrentPosition();
-
-                return averageEncoderPosition / 4;
-            case FORWARD:
-                averageEncoderPosition += leftFrontDriveMotor.getCurrentPosition();
-                averageEncoderPosition += leftBackDriveMotor.getCurrentPosition();
-                averageEncoderPosition += rightFrontDriveMotor.getCurrentPosition();
-                averageEncoderPosition += rightBackDriveMotor.getCurrentPosition();
-
-                return averageEncoderPosition / 4;
-            case ROTATION:
-
-                averageEncoderPosition += leftFrontDriveMotor.getCurrentPosition();
-                averageEncoderPosition += leftBackDriveMotor.getCurrentPosition();
-                averageEncoderPosition -= rightFrontDriveMotor.getCurrentPosition();
-                averageEncoderPosition -= rightBackDriveMotor.getCurrentPosition();
-
-                return averageEncoderPosition / 4;
-
-        }
-
-        return 0;
-    }
     public double getAverageForwardDriveTrainEncoder() {
         double averageEncoderPosition = 0;
 
@@ -188,6 +182,78 @@ public class RobotLinearOpMode extends Robot {
         } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
     }
 
+    public void moveArmByEncoder(double desiredPositionChangeInEncoders) {
+
+        double startEncoderValue = getArmEncoder();
+        double endEncoderValue = desiredPositionChangeInEncoders + startEncoderValue;
+
+        double currentEncoderValue = 0;
+        double adjustedMotorPower = 0;
+
+        do {
+            currentEncoderValue = getArmEncoder();
+
+            adjustedMotorPower = armProfile.RunToPositionWithAccel(startEncoderValue, currentEncoderValue, endEncoderValue);
+
+            setArmPower(adjustedMotorPower);
+
+        } while((abs(desiredPositionChangeInEncoders) > abs(startEncoderValue - currentEncoderValue)) && linearOpMode.opModeIsActive());
+    }
+
+    public void moveToLatch(double desiredPositionChangeInInches) {
+
+        double currentAverageEncoderValue = 0;
+        double desiredPositionChangeInEncoders = 0;
+        double adjustedMotorPower = 0;
+
+        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 8 * inchesToEncoders, 0.05, 1, 0.75);
+
+        desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
+
+        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        openLatch();
+
+        do {
+            currentAverageEncoderValue = getAverageForwardDriveTrainEncoder();
+
+            adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
+
+            mecanumPowerDrive(0, adjustedMotorPower, 0);
+
+        } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
+
+        closeLatch();
+    }
+
+    public void moveToStone(double maxBotPower, double intakePower, double extraEncoderDistance) {
+
+        double currentAverageEncoderValue = 0;
+        double desiredPositionChangeInEncoders = 1000000000;
+        double adjustedMotorPower = 0;
+        boolean hasFoundBlock = false;
+
+        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, 0.05, 1, maxBotPower);
+
+        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        blockHasLeftIntake();
+
+        do {
+            currentAverageEncoderValue = getAverageForwardDriveTrainEncoder();
+
+            adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
+
+            mecanumPowerDrive(0, adjustedMotorPower, 0);
+
+            setIntakePower(intakePower);
+
+        } while(!isBlockInIntake() && linearOpMode.opModeIsActive());
+
+    }
+
     //eliminates residual forces
     public void stopMotorsAndWait(double seconds) {
         mecanumPowerDrive(0, 0, 0);
@@ -276,5 +342,14 @@ public class RobotLinearOpMode extends Robot {
     public void openLatch() {
         leftLatchServo.setPosition(.5);
         rightLatchServo.setPosition(.65);
+    }
+
+    public boolean isBlockInIntake(){
+        blockEverInIntake.update(blockInIntake());
+        return blockEverInIntake.wasEverHit();
+    }
+
+    public void blockHasLeftIntake(){
+        blockEverInIntake.reset();
     }
 }

@@ -80,7 +80,7 @@ public class rubieAutoPaths extends LinearOpMode {
         robotLinearOpMode.moveByInches(2, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD,true);
 
 
-        while(!robotLinearOpMode.blockInIntake()) {
+        while(!robotLinearOpMode.isBlockInIntake()) {
             robotLinearOpMode.setIntakePower(1);
         }
 
