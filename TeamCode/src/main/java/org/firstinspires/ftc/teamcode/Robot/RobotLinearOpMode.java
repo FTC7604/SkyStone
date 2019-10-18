@@ -34,6 +34,14 @@ public class RobotLinearOpMode extends Robot {
         rightBackDriveMotor.setPower(forward - strafe - rotation);
     }
 
+    //compensates for change in center of gravity with arm swinging behind the robot
+    public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation, double ratio){
+        leftFrontDriveMotor.setPower(forward - strafe + rotation);
+        leftBackDriveMotor.setPower(forward + strafe * ratio + rotation);
+        rightFrontDriveMotor.setPower(forward + strafe - rotation);
+        rightBackDriveMotor.setPower(forward - strafe * ratio - rotation);
+    }
+
     public void mecanumPowerDrive(double[] controller) {
         mecanumPowerDrive(controller[0], controller[1], controller[2]);
     }

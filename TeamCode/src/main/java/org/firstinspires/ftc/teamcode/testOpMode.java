@@ -113,7 +113,11 @@ public class testOpMode extends LinearOpMode {
                 driveTrainController[1] /= 2;
                 driveTrainController[0] /= 2;
                 driveTrainController[2] /= 2;
+                robotLinearOpMode.compensatedMecanumPowerDrive(driveTrainController[0], driveTrainController[1], driveTrainController[2], 1.05);
+            } else{
+                robotLinearOpMode.mecanumPowerDrive(driveTrainController);
             }
+
             //increments the intake power
             intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
@@ -137,7 +141,6 @@ public class testOpMode extends LinearOpMode {
             if (gamepad2.a) blockEverInIntake.reset();
 
             //sends this to the motors.
-            robotLinearOpMode.mecanumPowerDrive(driveTrainController);
             robotLinearOpMode.setIntakePower(intakePower);
             robotLinearOpMode.setArmPower(armPower);
             robotLinearOpMode.setLiftPower(liftPower);
