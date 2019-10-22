@@ -57,12 +57,6 @@ public class testOpMode extends LinearOpMode {
 
     /////////////////Casey's Position Shenanegins - making some runtoposition commands
 
-    //We start with some arm positions that we will go to in the future
-    //this one is where we start, with the arm at 0 resting in the robot.
-    final double ARM_HOME_POSITION = 0;
-    //this is the socring position for the arm. not quite fully behind the robot, but as high as possible while still able to score
-    final double ARM_SCORING_POSITION = 1500;
-
     //these are used to determine whether or not we are actively trying to go to a certain preset position
     //as determined by user input
     boolean armGoingToScoringPosition = false;
@@ -77,12 +71,22 @@ public class testOpMode extends LinearOpMode {
     RobotLinearOpMode robotLinearOpMode;
     Toggle latchToggle;
     Toggle grabberToggle;
-    EverHit blockEverInIntake;
+    EverHit blockEverInIntake = new EverHit();
     Toggle driveMode;
 
     HumanController humanController = new HumanController(0.1, 1);
     //the amount of time that the program has run
     private ElapsedTime runtime = new ElapsedTime();
+
+    //PROPERTIES CONSTANTS
+    PropertiesLoader propertiesLoader = new PropertiesLoader("TeleOp");
+    //this is the ratio by which the strafe power to the back wheels is multiplied by
+    final double WEIGHT_COMP_RATIO = propertiesLoader.getDoubleProperty("WEIGHT_COMPENSATION_RATIO");
+    //We start with some arm positions that we will go to in the future
+    //this one is where we start, with the arm at 0 resting in the robot.
+    final double ARM_HOME_POSITION = propertiesLoader.getDoubleProperty("ARM_HOME_POSITION");;
+    //this is the socring position for the arm. not quite fully behind the robot, but as high as possible while still able to score
+    final double ARM_SCORING_POSITION = propertiesLoader.getDoubleProperty("ARM_SCORING_POSITION");;
 
     //this is the loop that repeats until the end of teleOp.
     @Override
@@ -127,9 +131,12 @@ public class testOpMode extends LinearOpMode {
             }
 
             if (gamepad1.left_bumper) {
-                driveTrainController[1] /= 2;
+                driveTrainController[1] /= 3;
                 driveTrainController[0] /= 2;
-                driveTrainController[2] /= 2;
+                driveTrainController[2] /= 3;
+                robotLinearOpMode.compensatedMecanumPowerDrive(driveTrainController[0], driveTrainController[1], driveTrainController[2], WEIGHT_COMP_RATIO);
+            } else {
+                robotLinearOpMode.mecanumPowerDrive(driveTrainController);
             }
 
             //increments the intake power
@@ -188,7 +195,6 @@ public class testOpMode extends LinearOpMode {
             else robotLinearOpMode.dropMarker();
 
             //sends this to the motors.
-            robotLinearOpMode.mecanumPowerDrive(driveTrainController);
             robotLinearOpMode.setIntakePower(intakePower);
             robotLinearOpMode.setArmPower(armPower);
             robotLinearOpMode.setLiftPower(liftPower);
