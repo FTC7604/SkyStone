@@ -216,7 +216,7 @@ public class BallisticMotionProfile {
     }
 
     //Use this one the same as with accel, but there is no acceleration curve, meaning it starts from full speed, no matter how close the target is
-    double RunToPositionWithoutAccel(double startPosition, double currentPosition, double neededPosition) {//this one doesn't adhere to the top and bottom limits, will tell you a motor value when you input where it started, where it is now, and where it needs to go
+    public double RunToPositionWithoutAccel(double startPosition, double currentPosition, double neededPosition) {//this one doesn't adhere to the top and bottom limits, will tell you a motor value when you input where it started, where it is now, and where it needs to go
 
         //the first step is to get the distance the desired position with regards to the bounds of this particular instance
         //this distance will always be positive and will be calculated slightly different depending on the instance

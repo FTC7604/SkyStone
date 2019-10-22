@@ -1,47 +1,146 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.*;
-import org.firstinspires.ftc.teamcode.Robot.*;
-import org.firstinspires.ftc.teamcode.Control.*;
-import org.firstinspires.ftc.teamcode.LED.*;
-import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.util.*;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.*;
+import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 
-@Autonomous(name = "Autonomous Prototype", group = "Autonomous")
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
+
+@Autonomous(name = "Will's Autonomous Prototype", group = "Autonomous")
 public class DWAIAutonomous extends LinearOpMode {
+
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
+
+    private double DISTANCE_TO_BUILD_PLATE = propertiesLoader.getDoubleProperty("DISTANCE_TO_BUILD_PLATE");
+    private double DISTANCE_PAST_BUILD_PLATE = propertiesLoader.getDoubleProperty("DISTANCE_PAST_BUILD_PLATE");
+    private double EXTRA_DISTANCE_FROM_BUILD_PLATE_TO_WALL = propertiesLoader.getDoubleProperty("EXTRA_DISTANCE_FROM_BUILD_PLATE_TO_WALL");
+
+    private double DISTANCE_FROM_BUILD_PLATE_TO_FREEDOM = propertiesLoader.getDoubleProperty("DISTANCE_FROM_BUILD_PLATE_TO_FREEDOM");
+    private double HALF_OF_THE_BUILD_PLATE = propertiesLoader.getDoubleProperty("HALF_OF_THE_BUILD_PLATE");
+
+    private double DISTANCE_FORWARD_OFF_THE_WALL = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_OFF_THE_WALL");
+    private double DISTANCE_TO_PUSH_BUILD_PLATE = propertiesLoader.getDoubleProperty("DISTANCE_TO_PUSH_BUILD_PLATE");
+
+    private long PAUSE_TIME = propertiesLoader.getLongProperty("PAUSE_TIME");
+
+    private double ARM_LIFT_UP_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_UP_ENCODER_DISTANCE");
+    private double ARM_LIFT_DOWN_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_DOWN_ENCODER_DISTANCE");
+
+    private double MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING = propertiesLoader.getDoubleProperty("MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING");
+    private double MAX_BOT_INTAKE_POWER_WHEN_INTAKING = propertiesLoader.getDoubleProperty("MAX_BOT_INTAKE_POWER_WHEN_INTAKING");
+    private double EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING = propertiesLoader.getDoubleProperty("EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING");
+
+    private double ARM_HEIGHT_WHEN_INTAKING = propertiesLoader.getDoubleProperty("ARM_HEIGHT_WHEN_INTAKING");
+
+    private ElapsedTime runtime = new ElapsedTime();
+
     private RobotLinearOpMode robot;
     //private int whatever = propertiesLoader.getIntegerProperty("whatever");
 
-    public void initializeAutonomous(){
+    public void initializeAutonomous() {
         robot = new RobotLinearOpMode(this);
+
+        robot.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    @Override
-    public void runOpMode(){
-        initializeAutonomous();
-        waitForStart();
 
-        everythingbluefountationside();
+
+    @Override
+    public void runOpMode() {
+        initializeAutonomous();
+
+
+
+        print("Initialized!!!!");
+        waitForStart();
+        runtime.reset();
+
+        //getPlatform();
+        //openIntake();
+
+        pickUpBlock();
 
         //FULL ASS AUTONOMOUS
     }
 
-    enum AUTO_PATHS {
-        BLUE_FOUNDATIONSIDE_PARK,
-        BLUE_FOUNDATIONSIDE_,
 
-        BLUE_STONESIDE_,
+    private void pickUpBlock(){
+        robot.closeGrabber();
+        print("Opening the grabber");
 
-        RED_FOUNDATIONSIDE_,
+        robot.moveToStone(MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING,MAX_BOT_INTAKE_POWER_WHEN_INTAKING,EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING);
+        print("Moving to Stone");
 
-        RED_STONESIDE_,
+        robot.openGrabber();
+        robot.blockHasLeftIntake();
+        print("Closing the grabber and stating that the block has left");
 
+        robot.moveArmByEncoder(ARM_HEIGHT_WHEN_INTAKING);
+        print("Raise the arm by 1000");
+
+        robot.moveByInches(-10, FORWARD, true);
+        print("Moves backward for 10 inches");
     }
 
-    void everythingbluefountationside(){
+    private void openIntake() {
+        robot.moveArmByEncoder(ARM_LIFT_UP_ENCODER_DISTANCE);
+        print("Lifting the arm up");
+
+        robot.moveArmByEncoder(ARM_LIFT_DOWN_ENCODER_DISTANCE);
+        print("Putting the arm down");
+    }
+
+    void getPlatform() {
+        robot.openLatch();
+        print("Opening Latch");
+
+        robot.moveByInches(DISTANCE_TO_BUILD_PLATE, FORWARD, true);
+        print("Moving to build plate");
+
+        robot.moveToLatch(DISTANCE_PAST_BUILD_PLATE);
+        print("Moving and latching build plate");
+
+        robot.moveByInches(-DISTANCE_TO_BUILD_PLATE - DISTANCE_PAST_BUILD_PLATE + EXTRA_DISTANCE_FROM_BUILD_PLATE_TO_WALL, FORWARD, true);
+        print("Dragging the build plate to the wall");
+
+        robot.moveByInches(DISTANCE_FORWARD_OFF_THE_WALL, FORWARD, true);
+        print("Pushing off of the wall");
+
+        robot.openLatch();
+        print("Opening Latch");
+
+        robot.moveByInches(DISTANCE_FROM_BUILD_PLATE_TO_FREEDOM, STRAFE, true);
+        print("Strafing away from the platform");
+
+        robot.moveByInches(HALF_OF_THE_BUILD_PLATE, FORWARD, true);
+        print("Moving up parrelel with platform");
+
+        robot.moveByInches(DISTANCE_TO_PUSH_BUILD_PLATE, STRAFE, true);
+        print("Strafing the platform into the wall");
+    }
+
+    void print(String printString) {
+        telemetry.addLine(printString);
+        telemetry.update();
+
+        pause(PAUSE_TIME);
+    }
+
+    void pause(double time){
+        double currentTime = runtime.milliseconds();
+
+        while(runtime.milliseconds() - currentTime < time){
+            robot.stopAllMotors();
+        }
+    }
+
+    void everythingbluefountationside() {
 //        //intake facing away from the field
 //        //strafe right to align with build platform
 //        robot.moveByInches(24, X);
@@ -71,9 +170,7 @@ public class DWAIAutonomous extends LinearOpMode {
 //        robot.moveByInches(-6, Y);
 
 
-
         //or
-
 
 
         //turn right by x degrees
@@ -86,7 +183,6 @@ public class DWAIAutonomous extends LinearOpMode {
         ///turn 90 deg to the left
 
 
-
         //forward until start of blocks
         //slow down but forward until a block is seen
         //backward enough so I won't knock over the stystone when strafing
@@ -94,10 +190,7 @@ public class DWAIAutonomous extends LinearOpMode {
         //move forward and intake until one block has been intook
 
 
-
-
         //2 paths:
-
 
 
         //grip with the grabber
@@ -105,16 +198,10 @@ public class DWAIAutonomous extends LinearOpMode {
         //
 
 
-
-
         //or
 
 
-
-
         //continuously intake so that the brick never leaves
-
-
 
 
         //backward to move away from the other bricks
@@ -127,10 +214,7 @@ public class DWAIAutonomous extends LinearOpMode {
         //drop the block and close the grabber
 
 
-
         //2 paths:
-
-
 
 
         //don't lift the arm and drive under the bridge
@@ -138,11 +222,7 @@ public class DWAIAutonomous extends LinearOpMode {
         //start to lift the arm once you go under the bridge and continue to do so
 
 
-
-
         //or
-
-
 
 
         //start putting down the lift immediately
@@ -150,10 +230,21 @@ public class DWAIAutonomous extends LinearOpMode {
         //wait for the raminder of the lift to go down
 
 
-
-
         //drive forward the necessary amount to collide into the next set of stones
         //strafe to the left the correct amount to do so
+
+    }
+
+
+    enum AUTO_PATHS {
+        BLUE_FOUNDATIONSIDE_PARK,
+        BLUE_FOUNDATIONSIDE_,
+
+        BLUE_STONESIDE_,
+
+        RED_FOUNDATIONSIDE_,
+
+        RED_STONESIDE_,
 
     }
 

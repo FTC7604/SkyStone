@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-import android.graphics.Color;
-
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -11,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
@@ -35,7 +32,9 @@ liftMotor -> "lx"
 
 leftLatchServo -> "ll"
 rightLatchServo -> "rl"
+
 blockGrabberServo -> "bg"
+markerLatchServo -> "ml"
 
 
 blockIntakeTouchSensor -> "bt"
@@ -45,22 +44,19 @@ colorLineUnderLeftWing -> "cd"
  */
 
 public class Robot {
-    private BNO055IMU imu1 = null, imu2 = null;
     DcMotorEx rightFrontDriveMotor;
     DcMotorEx leftFrontDriveMotor;
     DcMotorEx rightBackDriveMotor;
     DcMotorEx leftBackDriveMotor;
-
     DcMotorEx rightIntakeMotor;
     DcMotorEx leftIntakeMotor;
-
     DcMotorEx armMotor;
     DcMotorEx liftMotor;
-
     Servo leftLatchServo;
     Servo rightLatchServo;
     Servo blockGrabberServo;
-
+    Servo markerLatchServo;
+    private BNO055IMU imu1 = null, imu2 = null;
     private ColorSensor colorLineUnderLeftWingColor;
     private DistanceSensor colorLineUnderLeftWingDistance;
 
@@ -68,6 +64,9 @@ public class Robot {
     private DigitalChannel openIntakeTouchSensor;
 
     private HardwareMap hardwareMap;
+    private int BLUE_LINE_VALUE;
+    private int RED_LINE_VALUE;
+
 
     public Robot(OpMode opMode) {
 
@@ -84,7 +83,7 @@ public class Robot {
         liftHardwareMap();
 
         latchHardwareMap();
-        blockGrabberHardwareMap();
+        combinedGrabberHardwareMap();
 
         imuHardwareMap();
 
@@ -108,6 +107,21 @@ public class Robot {
 
     }
 
+    public void setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
+        setDriveTrainZeroPowerProperty(zeroPowerBehavior);
+        setIntakeZeroPowerProperty(zeroPowerBehavior);
+
+        setArmZeroPowerProperty(zeroPowerBehavior);
+        setLiftZeroPowerProperty(zeroPowerBehavior);
+    }
+
+    public void setAllMotorRunMode(DcMotor.RunMode runMode){
+        setDriveTrainRunMode(runMode);
+        setIntakeRunMode(runMode);
+
+        setArmRunMode(runMode);
+        setLiftRunMode(runMode);
+    }
     public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         leftFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
         rightFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
@@ -181,8 +195,9 @@ public class Robot {
         rightLatchServo.setDirection(Servo.Direction.REVERSE);
     }
 
-    private void blockGrabberHardwareMap() {
+    private void combinedGrabberHardwareMap() {
         blockGrabberServo = hardwareMap.get(Servo.class, "bg");
+        markerLatchServo = hardwareMap.get(Servo.class, "ml");
     }
 
 
@@ -192,7 +207,7 @@ public class Robot {
         imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");
     }
 
-    private void colorLineUnderLeftWingHardwareMap(){
+    private void colorLineUnderLeftWingHardwareMap() {
         //gets the right sensor
         colorLineUnderLeftWingColor = hardwareMap.get(ColorSensor.class, "cd");
         colorLineUnderLeftWingDistance = hardwareMap.get(DistanceSensor.class, "cd");
@@ -202,6 +217,7 @@ public class Robot {
         blockIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "bt");
         blockIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
     }
+
     private void openIntakeTouchSensorHardwareMap() {
         openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
         openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
@@ -259,7 +275,7 @@ public class Robot {
     }
 
     //returns the value of the touch sensor
-    public boolean blockInIntake() {
+    protected boolean blockInIntake() {
         return !blockIntakeTouchSensor.getState();
     }
 
@@ -267,5 +283,16 @@ public class Robot {
         return !openIntakeTouchSensor.getState();
     }
 
+    COLOR_UNDER_SENSOR color_under_sensor(){
+        if(colorLineUnderLeftWingColor.blue() > BLUE_LINE_VALUE) return COLOR_UNDER_SENSOR.BLUE;
+        else if(colorLineUnderLeftWingColor.red() > RED_LINE_VALUE) return COLOR_UNDER_SENSOR.RED;
+        else return COLOR_UNDER_SENSOR.GRAY;
+    }
+
+    enum COLOR_UNDER_SENSOR {
+        GRAY,
+        BLUE,
+        RED
+    }
 
 }
