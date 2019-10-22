@@ -176,7 +176,7 @@ public class testOpMode extends LinearOpMode {
             grabberIsEngaged.update(gamepad2.y);
             markerDropper.update(gamepad2.a);
 
-            blockEverInIntake.update(robotLinearOpMode.isBlockInIntake());
+            //blockEverInIntake.update(robotLinearOpMode.isBlockInIntake());
 
             if (grabberIsEngaged.get()) robotLinearOpMode.closeGrabber();
             else robotLinearOpMode.openGrabber();
@@ -196,7 +196,7 @@ public class testOpMode extends LinearOpMode {
             //gets the position arm encoder
             armPosition = robotLinearOpMode.getArmEncoder();
             liftPosition = robotLinearOpMode.getLiftEncoder();
-            blockIntakeTouchSensor = robotLinearOpMode.isBlockInIntake();
+            //blockIntakeTouchSensor = robotLinearOpMode.isBlockInIntake();
 
             sendTelemetry();
         }
@@ -220,7 +220,6 @@ public class testOpMode extends LinearOpMode {
     void sendTelemetry() {
         telemetry.addData("Arm Position: ", armPosition);
         telemetry.addData("Lift Position: ", liftPosition);
-        telemetry.addData("Block Intake Touch Boolean: ", blockEverInIntake.wasEverHit());
         telemetry.addData("Open Intake Touch Boolean", robotLinearOpMode.intakeIsOpen());
         telemetry.update();
     }
