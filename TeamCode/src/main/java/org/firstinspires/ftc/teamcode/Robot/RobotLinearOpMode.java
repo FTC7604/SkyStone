@@ -87,37 +87,60 @@ public class RobotLinearOpMode extends Robot {
         mecVelocityDrive(controller[0], controller[1], controller[2]);
     }
 
-    public double getAverageForwardDriveTrainEncoder() {
+    public double getAverageForwardDriveTrainEncoder(double[] startEncoderValues) {
         double averageEncoderPosition = 0;
 
-        averageEncoderPosition += leftFrontDriveMotor.getCurrentPosition();
-        averageEncoderPosition += leftBackDriveMotor.getCurrentPosition();
-        averageEncoderPosition += rightFrontDriveMotor.getCurrentPosition();
-        averageEncoderPosition += rightBackDriveMotor.getCurrentPosition();
+        averageEncoderPosition += leftFrontDriveMotor.getCurrentPosition() - startEncoderValues[0];
+        averageEncoderPosition += leftBackDriveMotor.getCurrentPosition() - startEncoderValues[1];
+        averageEncoderPosition += rightFrontDriveMotor.getCurrentPosition() - startEncoderValues[2];
+        averageEncoderPosition += rightBackDriveMotor.getCurrentPosition() - startEncoderValues[3];
 
         return averageEncoderPosition / 4;
     }
 
-    public double getAverageStrafeDriveTrainEncoder() {
+    public double[] getForwardDriveTrainEncoders() {
+        return new double[]{leftFrontDriveMotor.getCurrentPosition(),
+                leftBackDriveMotor.getCurrentPosition(),
+                rightFrontDriveMotor.getCurrentPosition(),
+                rightBackDriveMotor.getCurrentPosition(),
+        };
+    }
+
+    public double getAverageStrafeDriveTrainEncoder(double[] startEncoderValues) {
         double averageEncoderPosition = 0;
 
-        averageEncoderPosition -= leftFrontDriveMotor.getCurrentPosition();
-        averageEncoderPosition += leftBackDriveMotor.getCurrentPosition();
-        averageEncoderPosition += rightFrontDriveMotor.getCurrentPosition();
-        averageEncoderPosition -= rightBackDriveMotor.getCurrentPosition();
+        averageEncoderPosition -= leftFrontDriveMotor.getCurrentPosition() - startEncoderValues[0];
+        averageEncoderPosition += leftBackDriveMotor.getCurrentPosition() - startEncoderValues[1];
+        averageEncoderPosition += rightFrontDriveMotor.getCurrentPosition() - startEncoderValues[2];
+        averageEncoderPosition -= rightBackDriveMotor.getCurrentPosition() - startEncoderValues[3];
 
         return averageEncoderPosition / 4;
     }
 
-    public double getAverageRotationDriveTrainEncoder() {
+    public double[] getStrafeDriveTrainEncoders() {
+        return new double[]{ -1 * leftFrontDriveMotor.getCurrentPosition(),
+                leftBackDriveMotor.getCurrentPosition(),
+                rightFrontDriveMotor.getCurrentPosition(),
+                -1 * rightBackDriveMotor.getCurrentPosition(),
+        };
+    }
+
+    public double getAverageRotationDriveTrainEncoder(double[] startEncoderValues) {
         double averageEncoderPosition = 0;
 
-        averageEncoderPosition += leftFrontDriveMotor.getCurrentPosition();
-        averageEncoderPosition += leftBackDriveMotor.getCurrentPosition();
-        averageEncoderPosition -= rightFrontDriveMotor.getCurrentPosition();
-        averageEncoderPosition -= rightBackDriveMotor.getCurrentPosition();
-
+        averageEncoderPosition += leftFrontDriveMotor.getCurrentPosition() - startEncoderValues[0];
+        averageEncoderPosition += leftBackDriveMotor.getCurrentPosition() - startEncoderValues[1];
+        averageEncoderPosition -= rightFrontDriveMotor.getCurrentPosition() - startEncoderValues[2];
+        averageEncoderPosition -= rightBackDriveMotor.getCurrentPosition() - startEncoderValues[3];
         return averageEncoderPosition / 4;
+    }
+
+    public double[] getRotationDriveTrainEncoders() {
+        return new double[]{leftFrontDriveMotor.getCurrentPosition(),
+                leftBackDriveMotor.getCurrentPosition(),
+                -1 * rightFrontDriveMotor.getCurrentPosition(),
+                -1 * rightBackDriveMotor.getCurrentPosition(),
+        };
     }
 
     //two methods that turn precisely, which Casey made and I don't fully understand
@@ -167,6 +190,7 @@ public class RobotLinearOpMode extends Robot {
         double currentAverageEncoderValue = 0;
         double desiredPositionChangeInEncoders = 0;
         double adjustedMotorPower = 0;
+        double[] currentEncoderValues = new double[4];
 
         BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, 0.05, 1, 0.75);
 
@@ -175,10 +199,14 @@ public class RobotLinearOpMode extends Robot {
         setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        if(movement_direction == STRAFE)currentEncoderValues = getStrafeDriveTrainEncoders();
+        if(movement_direction == FORWARD)currentEncoderValues = getForwardDriveTrainEncoders();
+        if(movement_direction == ROTATION)currentEncoderValues = getRotationDriveTrainEncoders();
+
         do {
-            if(movement_direction == STRAFE) currentAverageEncoderValue = getAverageStrafeDriveTrainEncoder();
-            if(movement_direction == FORWARD) currentAverageEncoderValue = getAverageForwardDriveTrainEncoder();
-            if(movement_direction == ROTATION) currentAverageEncoderValue = getAverageRotationDriveTrainEncoder();
+            if(movement_direction == STRAFE) currentAverageEncoderValue = getAverageStrafeDriveTrainEncoder(currentEncoderValues);
+            if(movement_direction == FORWARD) currentAverageEncoderValue = getAverageForwardDriveTrainEncoder(currentEncoderValues);
+            if(movement_direction == ROTATION) currentAverageEncoderValue = getAverageRotationDriveTrainEncoder(currentEncoderValues);
 
             if(withAccel)adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
             else adjustedMotorPower = DriveProfile.RunToPositionWithoutAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
@@ -223,8 +251,10 @@ public class RobotLinearOpMode extends Robot {
 
         openLatch();
 
+        double[] emptyArray = new double[4];
+
         do {
-            currentAverageEncoderValue = getAverageForwardDriveTrainEncoder();
+            currentAverageEncoderValue = getAverageForwardDriveTrainEncoder(emptyArray);
 
             adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
 
@@ -249,8 +279,10 @@ public class RobotLinearOpMode extends Robot {
 
         blockHasLeftIntake();
 
+        double[] emptyArray = new double[4];
+
         do {
-            currentAverageEncoderValue = getAverageForwardDriveTrainEncoder();
+            currentAverageEncoderValue = getAverageForwardDriveTrainEncoder(emptyArray);
 
             adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
 

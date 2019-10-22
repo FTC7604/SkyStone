@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -36,55 +37,69 @@ public class DWAIAutonomous extends LinearOpMode {
 
     private double ARM_HEIGHT_WHEN_INTAKING = propertiesLoader.getDoubleProperty("ARM_HEIGHT_WHEN_INTAKING");
 
+    private double FORWARD_TO_STONE = propertiesLoader.getDoubleProperty("FORWARD_TO_STONE");
+    private double STRAFE_TO_STONE = propertiesLoader.getDoubleProperty("STRAFE_TO_STONE");
+    private double BACKWARD_TO_STONE = propertiesLoader.getDoubleProperty("BACKWARD_TO_STONE");
+
     private ElapsedTime runtime = new ElapsedTime();
 
     private RobotLinearOpMode robot;
     //private int whatever = propertiesLoader.getIntegerProperty("whatever");
 
-    public void initializeAutonomous() {
+
+
+    @Override
+    public void runOpMode() {
+
         robot = new RobotLinearOpMode(this);
 
         robot.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
 
-
-
-    @Override
-    public void runOpMode() {
-        initializeAutonomous();
-
-
-
-        print("Initialized!!!!");
         waitForStart();
         runtime.reset();
 
         //getPlatform();
         //openIntake();
 
-        pickUpBlock();
+        //getPlatform();
 
+        //pickUpBlock();
         //FULL ASS AUTONOMOUS
+
+        robot.moveByInches(FORWARD_TO_STONE, FORWARD, true);
+        print("It moved forward");
+
+        robot.moveByInches(STRAFE_TO_STONE, STRAFE, true);
+        print("It moved left");
+
+        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
+        print("It moved backward");
+
+        openIntake();
+        pickUpBlock();
+        print("It opened the intake");
+
+
     }
 
 
     private void pickUpBlock(){
-        robot.closeGrabber();
+        robot.openGrabber();
         print("Opening the grabber");
 
         robot.moveToStone(MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING,MAX_BOT_INTAKE_POWER_WHEN_INTAKING,EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING);
         print("Moving to Stone");
 
-        robot.openGrabber();
+        robot.closeGrabber();
         robot.blockHasLeftIntake();
         print("Closing the grabber and stating that the block has left");
 
         robot.moveArmByEncoder(ARM_HEIGHT_WHEN_INTAKING);
         print("Raise the arm by 1000");
 
-        robot.moveByInches(-10, FORWARD, true);
+        robot.moveByInches(-9, FORWARD, true);
         print("Moves backward for 10 inches");
     }
 
