@@ -137,7 +137,7 @@ public class testOpMode extends LinearOpMode {
             if (gamepad2.a) blockEverInIntake.reset();
 
             //sends this to the motors.
-            robotLinearOpMode.mecPowerDrive(driveTrainController);
+            robotLinearOpMode.mecanumPowerDrive(driveTrainController);
             robotLinearOpMode.setIntakePower(intakePower);
             robotLinearOpMode.setArmPower(armPower);
             robotLinearOpMode.setLiftPower(liftPower);

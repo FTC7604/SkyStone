@@ -75,15 +75,21 @@ public class rubieAutoPaths extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+
         robotLinearOpMode.moveByInches(-36, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
         robotLinearOpMode.moveByInches(2, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
 
-        while(!robotLinearOpMode.blockInIntake()) {
+
+        while (!robotLinearOpMode.blockInIntake()) {
             robotLinearOpMode.setIntakePower(1);
+
         }
 
         robotLinearOpMode.moveByInches(18, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
-    }
+
+
+        robotLinearOpMode.moveByInches(18, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+
 //    enum AUTOPATHNAMES {
 //    R1FOUNDATIONPARKR, R1FOUNDATIONSTONEPARKR, R1FOUNDATIONSTONESTONE2PARKR, R1FOUNDATIONPARKL, R1FOUNDATIONSTONEPARKL, R1FOUNDATIONSTONESTONE2PARKL,
 //    R1PARKL, R1PARKR, R1STONEFOUNDATIONPARKL, R1STONEFOUNDATIONPARKR, R1STONESTONE2FOUNDATIONPARKL, R1STONESTONE2FOUNDATIONPARKR, R1STONEPARKL, R1STONEPARKR,
@@ -100,7 +106,7 @@ public class rubieAutoPaths extends LinearOpMode {
 //
 //    }
 
-}
+
 /* foundation from start (starting facing the wall)
         back up ~2 feet
         latch
@@ -108,4 +114,8 @@ public class rubieAutoPaths extends LinearOpMode {
         start next thing
  */
 
-/* foundatioin from stone ()*/
+        /* foundation from stone ()*/
+
+    }
+
+}
