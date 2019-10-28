@@ -11,25 +11,25 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
 
 public class RobotLinearOpMode extends Robot {
 
-    LinearOpMode linearOpMode;
+    private LinearOpMode linearOpMode;
 
-    double encodersToInches = 69/4000;
-    double inchesToEncoders = 4000/69;
+    private double encodersToInches = 69/4000;
+    private double inchesToEncoders = 4000/69;
 
     //now we make a variable to use later which represents the initial position when doing a runtoposition command
-    public double initialArmPosition = 0;
+    private  double initialArmPosition = 0;
 
     //So im gald i got ur attention // heres why the lift code was broken: the bottom limit was set to 20000 not -20000. negative goes up on the lifter, and so the bottom limit is actually the top
     public BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 3300, 1000, 0.15, 1, .7);
 
-    double topArmEncoder = 2300;//I changed this
-    double bottomArmEncoder = 0;//and this. no underpass
+    private double topArmEncoder = 2300;//I changed this
+    private double bottomArmEncoder = 0;//and this. no underpass
 
     //I cranked up the decel distance so that it decelerates over a longer distance
     public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.2, 1, .7);
 
 
-    EverHit blockEverInIntake = new EverHit(false);
+    private EverHit blockEverInIntake = new EverHit(false);
 
     //constructor
     public RobotLinearOpMode(LinearOpMode linearOpMode) {
@@ -379,7 +379,7 @@ public class RobotLinearOpMode extends Robot {
         rightLatchServo.setPosition(.45);
     }
 
-    public void openLatch() {
+    private void openLatch() {
         leftLatchServo.setPosition(.5);
         rightLatchServo.setPosition(.65);
     }

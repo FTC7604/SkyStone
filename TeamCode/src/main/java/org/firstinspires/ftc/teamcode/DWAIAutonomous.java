@@ -77,22 +77,31 @@ public class DWAIAutonomous extends LinearOpMode {
         robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
         print("It moved backward");
 
-        openIntake();
         pickUpBlock();
-        print("It opened the intake");
+        print("It picked up the block");
+
+        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
+        print("It moved backward, but opposite");
+
+        robot.moveByInches(-STRAFE_TO_STONE, STRAFE, true);
+        print("It moved left, but opposite");
+
+
+
+
 
 
     }
 
 
     private void pickUpBlock(){
-        robot.openGrabber();
+        robot.closeGrabber();
         print("Opening the grabber");
 
         robot.moveToStone(MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING,MAX_BOT_INTAKE_POWER_WHEN_INTAKING,EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING);
         print("Moving to Stone");
 
-        robot.closeGrabber();
+        robot.openGrabber();
         robot.blockHasLeftIntake();
         print("Closing the grabber and stating that the block has left");
 
