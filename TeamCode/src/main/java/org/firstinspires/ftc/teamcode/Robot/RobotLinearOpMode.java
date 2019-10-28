@@ -379,7 +379,7 @@ public class RobotLinearOpMode extends Robot {
         rightLatchServo.setPosition(.45);
     }
 
-    private void openLatch() {
+    public void openLatch() {
         leftLatchServo.setPosition(.5);
         rightLatchServo.setPosition(.65);
     }
