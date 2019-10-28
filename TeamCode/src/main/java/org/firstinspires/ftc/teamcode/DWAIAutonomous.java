@@ -41,6 +41,9 @@ public class DWAIAutonomous extends LinearOpMode {
     private double STRAFE_TO_STONE = propertiesLoader.getDoubleProperty("STRAFE_TO_STONE");
     private double BACKWARD_TO_STONE = propertiesLoader.getDoubleProperty("BACKWARD_TO_STONE");
 
+    private double DISTANCE_TO_BE_ABLE_TO_TURN = propertiesLoader.getDoubleProperty("DISTANCE_TO_BE_ABLE_TO_TURN");
+    private double DISTANCE_TO_BRIDGE = propertiesLoader.getDoubleProperty("DISTANCE_TO_BRIDGE");
+
     private ElapsedTime runtime = new ElapsedTime();
 
     private RobotLinearOpMode robot;
@@ -65,9 +68,15 @@ public class DWAIAutonomous extends LinearOpMode {
 
         //getPlatform();
 
+        getTheBlock();
         //pickUpBlock();
         //FULL ASS AUTONOMOUS
 
+
+
+    }
+
+    private void getTheBlock(){
         robot.moveByInches(FORWARD_TO_STONE, FORWARD, true);
         print("It moved forward");
 
@@ -85,14 +94,7 @@ public class DWAIAutonomous extends LinearOpMode {
 
         robot.moveByInches(-STRAFE_TO_STONE, STRAFE, true);
         print("It moved left, but opposite");
-
-
-
-
-
-
     }
-
 
     private void pickUpBlock(){
         robot.closeGrabber();
@@ -146,6 +148,15 @@ public class DWAIAutonomous extends LinearOpMode {
         print("Moving up parrelel with platform");
 
         robot.moveByInches(DISTANCE_TO_PUSH_BUILD_PLATE, STRAFE, true);
+        print("Strafing the platform into the wall");
+
+        robot.moveByInches(DISTANCE_TO_BE_ABLE_TO_TURN, STRAFE, true);
+        print("Strafing the platform into the wall");
+
+        robot.turnByDegree(90);
+        print("Strafing the platform into the wall");
+
+        robot.moveByInches(DISTANCE_TO_BRIDGE, FORWARD, true);
         print("Strafing the platform into the wall");
     }
 
