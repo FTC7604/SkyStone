@@ -107,6 +107,8 @@ public class vuforiaGang extends LinearOpMode {
     private static final float mmPerInch        = 25.4f;
     private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
 
+
+
     // Constant for Stone Target
     private static final float stoneZ = 2.00f * mmPerInch;
 
@@ -126,6 +128,7 @@ public class vuforiaGang extends LinearOpMode {
          */
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
         parameters.useExtendedTracking = false;
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraDirection   = CAMERA_CHOICE;
