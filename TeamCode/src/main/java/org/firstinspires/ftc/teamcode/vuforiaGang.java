@@ -60,11 +60,9 @@ public class vuforiaGang extends LinearOpMode {
     // IMPORTANT:  For Phone Camera, set 1) the camera source and 2) the orientation, based on how your phone is mounted:
     // 1) Camera Source.  Valid choices are:  BACK (behind screen) or FRONT (selfie side)
     // 2) Phone Orientation. Choices are: PHONE_IS_PORTRAIT = true (portrait) or PHONE_IS_PORTRAIT = false (landscape)
-    //
-    // NOTE: If you are running on a CONTROL HUB, with only one USB WebCam, you must select CAMERA_CHOICE = BACK; and PHONE_IS_PORTRAIT = false;
-    //
+
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = VuforiaLocalizer.CameraDirection.BACK;
-    private static final boolean PHONE_IS_PORTRAIT = false;
+    private static final boolean PHONE_IS_PORTRAIT = true;
     private static final String VUFORIA_KEY =
             "Adw59PP/////AAABmSngvZTKXktpu+nuzpPLAFUc6w406s2RYiPPvJaY9A1k2/zyXeM83mHvqT14sWp9QlghcCK1akohLb6SHQv4cXvD8AbeO1a9sRhhchx1X5eL6ttrRE5PH6g517XhKI0dvKsoeYhZu6k4ln6dacQOC11xv/AHSEi/VipxqOMXlNesBfv/jmCc48H6LTFTOHLVDEb9vkk7btw6StRcwle0PUdbCh5aPIkRI2pTh+0R1hY5FyGGrdyZltrBoUusodgwQW0sIai/V21YZGgKaN5QYZLOhO3Fv0ZhjWsnj52e/BivDb3RJyPF1loygTBADo6YZoki1S/oDzoqcP3VmjIaEIFr6RfIGrnVZtkVbjWZP+Zs";
 
@@ -97,44 +95,45 @@ public class vuforiaGang extends LinearOpMode {
         waitForStart();
 
         targetsSkyStone.activate();
-        while (!isStopRequested() && !targetVisible) {
+        //31, 7
+        robot.moveByInches(31, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD, false);
+        sleep(2000);
 
-            if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
+        if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
+            telemetry.addData("Visible Target", stoneTarget.getName());
+            targetVisible = true;
+        }
+
+        // Provide feedback as to where the robot is located (if we know).
+        if (targetVisible) {
+
+        } else {
+            telemetry.addData("Visible Target", "none");
+        }
+
+        telemetry.update();
+
+        if(!targetVisible) {
+            robot.moveByInches(7, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD, false);
+            sleep(1000);
+
+            if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
                 telemetry.addData("Visible Target", stoneTarget.getName());
                 targetVisible = true;
-
-                // getUpdatedRobotLocation() will return null if no new information is available since
-                // the last time that call was made, or if the trackable is not currently visible.
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getUpdatedRobotLocation();
-                OpenGLMatrix cameraPos = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getFtcCameraFromTarget();
-
-                // attempting to get the pixel positions of the recognition
-                // may need to just use field positioning
-                if(cameraPos != null){
-                    VectorF camPos = cameraPos.getTranslation();
-                    telemetry.addLine("Pos: " + camPos.get(0) + " " + camPos.get(1));
-                    telemetry.addLine("Dims: " + camPos.length());
-                }
-
-                if (robotLocationTransform != null) {
-                    lastLocation = robotLocationTransform;
-                }
-
             }
 
             // Provide feedback as to where the robot is located (if we know).
             if (targetVisible) {
 
-            }
-            else {
-                robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
+            } else {
                 telemetry.addData("Visible Target", "none");
             }
 
             telemetry.update();
         }
 
-        // Disable Tracking when we are done;
+        sleep(2000);
+
         targetsSkyStone.deactivate();
     }
 
@@ -261,3 +260,46 @@ public class vuforiaGang extends LinearOpMode {
     }
 
 }
+
+class comment {
+        /*while (!isStopRequested() && !targetVisible) {
+
+            if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
+                telemetry.addData("Visible Target", stoneTarget.getName());
+                targetVisible = true;
+
+                // getUpdatedRobotLocation() will return null if no new information is available since
+                // the last time that call was made, or if the trackable is not currently visible.
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getUpdatedRobotLocation();
+                OpenGLMatrix cameraPos = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getFtcCameraFromTarget();
+
+                // attempting to get the pixel positions of the recognition
+                // may need to just use field positioning
+                if(cameraPos != null){
+                    VectorF camPos = cameraPos.getTranslation();
+                    //telemetry.addLine("Pos: " + camPos.get(0) + " " + camPos.get(1));
+                    //telemetry.addLine("Dims: " + camPos.length());
+                }
+
+                if (robotLocationTransform != null) {
+                    lastLocation = robotLocationTransform;
+                }
+
+            }
+
+            // Provide feedback as to where the robot is located (if we know).
+            if (targetVisible) {
+                telemetry.addData("Visible Target", "SKYSTONE");
+            }
+            else {
+                robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
+                telemetry.addData("Visible Target", "none");
+            }
+
+            telemetry.addData("Encoder", robot.getAverageForwardDriveTrainEncoder());
+            //1900, 2500
+            telemetry.update();
+        }
+
+// Disable Tracking when we are done;*/
+}   //Contains old code

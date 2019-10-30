@@ -216,6 +216,8 @@ public class RobotLinearOpMode extends Robot {
             if(movement_direction == ROTATION) mecanumPowerDrive(0,0, adjustedMotorPower);
 
         } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
+
+        stopAllMotors();
     }
 
     public void moveArmByEncoder(double desiredPositionChangeInEncoders) {

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.io.File;
 
@@ -295,6 +296,16 @@ public class Robot {
 
     public boolean intakeIsOpen() {
         return !openIntakeTouchSensor.getState();
+    }
+
+    public double[] getColors(){
+        colorLineUnderLeftWingColor.enableLed(true);
+        double[] colors = {colorLineUnderLeftWingColor.red(), colorLineUnderLeftWingColor.green(), colorLineUnderLeftWingColor.blue(), colorLineUnderLeftWingColor.alpha()};
+        return colors;
+    }
+
+    public double getDistance(){
+        return colorLineUnderLeftWingDistance.getDistance(DistanceUnit.MM);
     }
 
     COLOR_UNDER_SENSOR color_under_sensor(){
