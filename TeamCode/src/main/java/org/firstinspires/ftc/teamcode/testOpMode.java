@@ -154,10 +154,10 @@ public class testOpMode extends LinearOpMode {
                 if (liftHasArrived(robotLinearOpMode.getArmEncoder(), LIFT_HOME_POSITION)) {
                     liftGoingToHomePosition = false;
                     liftPower = 0;
-                } else liftPower = liftProfile.RunToPositionWithAccel(initialLiftPosition, robotLinearOpMode.getLiftEncoder(), LIFT_HOME_POSITION);
+                } else liftPower = robotLinearOpMode.liftProfile.RunToPositionWithAccel(initialLiftPosition, robotLinearOpMode.getLiftEncoder(), LIFT_HOME_POSITION);
             } else {
                 //this should work but be careful
-                liftPower = liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(), gamepad2.right_stick_y);      
+                liftPower = robotLinearOpMode.liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(), gamepad2.right_stick_y);
             }
 
 
@@ -166,17 +166,17 @@ public class testOpMode extends LinearOpMode {
                 if (armHasArrived(robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION)) {
                     armGoingToScoringPosition = false;
                     armPower = 0;
-                } else armPower = armProfile.RunToPositionWithAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION);
+                } else armPower = robotLinearOpMode.armProfile.RunToPositionWithAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION);
 
             } else if (armGoingToHomePosition) {
 
                 if (armHasArrived(robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION)) {
                     armGoingToHomePosition = false;
                     armPower = 0;
-                } else armPower = armProfile.RunToPositionWithAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION);
+                } else armPower = robotLinearOpMode.armProfile.RunToPositionWithAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION);
 
             } else {
-                armPower = armProfile.V2limitWithAccel(robotLinearOpMode.getArmEncoder(), gamepad2.left_stick_y);
+                armPower = robotLinearOpMode.armProfile.V2limitWithAccel(robotLinearOpMode.getArmEncoder(), gamepad2.left_stick_y);
             }
 
             //this code checks to see if we are going to a new target, and of so changes the desired direction and resets the initial position
@@ -200,8 +200,8 @@ public class testOpMode extends LinearOpMode {
 
             //blockEverInIntake.update(robotLinearOpMode.isBlockInIntake());
 
-            if (grabberIsEngaged.get()) robotLinearOpMode.closeGrabber();
-            else robotLinearOpMode.openGrabber();
+            if (grabberIsEngaged.get()) robotLinearOpMode.openGrabber();
+            else robotLinearOpMode.closeGrabber();
 
             if (latchIsDown.get()) robotLinearOpMode.closeLatch();
             else robotLinearOpMode.openLatch();
