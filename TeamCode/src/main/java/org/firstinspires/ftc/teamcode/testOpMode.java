@@ -112,8 +112,8 @@ public class testOpMode extends LinearOpMode {
         robotLinearOpMode.setAllMotorRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robotLinearOpMode.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robotLinearOpMode.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robotLinearOpMode.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        robotLinearOpMode.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);    //ORIGINALLY BRAKE
+                                                                                            //CHANGE SO ONLY FLOAT ON TURN
 
         while (opModeIsActive()) {
 
