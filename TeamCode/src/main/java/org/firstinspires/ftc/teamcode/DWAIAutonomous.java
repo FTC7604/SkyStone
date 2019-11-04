@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -66,22 +65,30 @@ public class DWAIAutonomous extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        getPlatform();
+        getFoundation();
 
         robot.moveByInches(DISTANCE_TO_GET_STONE, FORWARD, true);
         print("It moved forward");
 
-        getTheBlock(1);
+        getTheSecondOrThirdBlock(1);
 
-        robot.moveByInches(-DISTANCE_TO_GET_STONE-DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
+        robot.moveByInches(-DISTANCE_TO_GET_STONE - DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
         print("It moved forward");
 
         dropOffBlock();
 
+        robot.moveByInches(DISTANCE_TO_GET_STONE + DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
+        print("It moved forward");
 
+        getTheFourthFifthOrSixthBlock(4);
 
+        robot.moveByInches(-DISTANCE_TO_GET_STONE - DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
+        print("It moved forward");
+
+        dropOffBlock();
 
     }
+
 
     private void dropOffBlock() {
         robot.moveArmByEncoder(ENCODER_TO_DROP_OFF_BLOCK);
@@ -91,7 +98,7 @@ public class DWAIAutonomous extends LinearOpMode {
         robot.moveArmByEncoder(-ENCODER_TO_DROP_OFF_BLOCK);
     }
 
-    private void getTheBlock(int stoneNumber){
+    private void getTheSecondOrThirdBlock(int stoneNumber){
         robot.moveByInches(8 * stoneNumber,FORWARD,true);
         print("moving to Stone");
 
@@ -102,6 +109,29 @@ public class DWAIAutonomous extends LinearOpMode {
         print("It moved backward");
 
         openIntake();
+
+        pickUpBlock();
+
+        robot.setIntakePower(-1);
+        print("It removed the block from the intake");
+
+
+        robot.moveByInches(-8 * stoneNumber,FORWARD,true);
+        print("moving to Stone");
+
+
+        robot.moveByInches(-STRAFE_TO_STONE, STRAFE, true);
+        print("It moved left, but opposite");
+    }
+    private void getTheFourthFifthOrSixthBlock(int stoneNumber){
+        robot.moveByInches(8 * stoneNumber,FORWARD,true);
+        print("moving to Stone");
+
+        robot.moveByInches(STRAFE_TO_STONE, STRAFE, true);
+        print("It moved left");
+
+        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
+        print("It moved backward");
 
         pickUpBlock();
 
@@ -143,7 +173,7 @@ public class DWAIAutonomous extends LinearOpMode {
         print("Putting the arm down");
     }
 
-    void getPlatform() {
+    void getFoundation() {
         robot.openLatch();
         print("Opening Latch");
 
