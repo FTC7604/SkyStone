@@ -190,6 +190,7 @@ public class testOpMode extends LinearOpMode {
                 liftGoingToHomePosition = true;
                 armGoingToScoringPosition = false;
                 initialArmPosition = robotLinearOpMode.getArmEncoder();
+                initialLiftPosition = robotLinearOpMode.getLiftEncoder();
             }
             
             ////END CASEY'S THING
