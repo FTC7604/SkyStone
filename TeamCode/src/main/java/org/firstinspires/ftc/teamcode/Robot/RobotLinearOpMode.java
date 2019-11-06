@@ -20,13 +20,13 @@ public class RobotLinearOpMode extends Robot {
     private  double initialArmPosition = 0;
 
     //So im gald i got ur attention // heres why the lift code was broken: the bottom limit was set to 20000 not -20000. negative goes up on the lifter, and so the bottom limit is actually the top
-    public BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 3300, 1000, 0.15, 1, .7);
+    public BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 3300, 1000, 0.25, 1, .7);
 
     private double topArmEncoder = 2300;//I changed this
     private double bottomArmEncoder = 0;//and this. no underpass
 
     //I cranked up the decel distance so that it decelerates over a longer distance
-    public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.2, 1, .7);
+    public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.25, 1, .7);
 
 
     private EverHit blockEverInIntake = new EverHit(false);
