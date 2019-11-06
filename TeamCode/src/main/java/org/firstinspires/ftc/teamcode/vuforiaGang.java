@@ -85,8 +85,8 @@ public class vuforiaGang extends LinearOpMode {
     private float phoneZRotate    = 0;
 
     private RobotLinearOpMode robot;
-    private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
-    private double BLOCK_POWER = propertiesLoader.getDoubleProperty("BLOCK_POWER");
+    //private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
+    //private double BLOCK_POWER = propertiesLoader.getDoubleProperty("BLOCK_POWER");
 
     @Override public void runOpMode() {
         configureVuforia();

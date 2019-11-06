@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -11,38 +11,38 @@ import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
-@Autonomous(name = "Will's Autonomous Prototype", group = "Autonomous")
+@TeleOp(name = "Will's Autonomous Prototype", group = "TeleOp")
 public class DWAIAutonomous extends LinearOpMode {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
 
-    private double DISTANCE_TO_BUILD_PLATE = propertiesLoader.getDoubleProperty("DISTANCE_TO_BUILD_PLATE");
-    private double DISTANCE_PAST_BUILD_PLATE = propertiesLoader.getDoubleProperty("DISTANCE_PAST_BUILD_PLATE");
-    private double EXTRA_DISTANCE_FROM_BUILD_PLATE_TO_WALL = propertiesLoader.getDoubleProperty("EXTRA_DISTANCE_FROM_BUILD_PLATE_TO_WALL");
+    private double DISTANCE_FORWARD_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_TO_GET_FOUNDATION");
+    private double DISTANCE_FORWARD_TO_PUSH_FOUNDATION_FOR_LATCH = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_TO_PUSH_FOUNDATION_FOR_LATCH");
 
-    private double DISTANCE_FROM_BUILD_PLATE_TO_FREEDOM = propertiesLoader.getDoubleProperty("DISTANCE_FROM_BUILD_PLATE_TO_FREEDOM");
-    private double HALF_OF_THE_BUILD_PLATE = propertiesLoader.getDoubleProperty("HALF_OF_THE_BUILD_PLATE");
+    private double DISTANCE_BACKWARD_TO_DEPOT = propertiesLoader.getDoubleProperty("DISTANCE_BACKWARD_TO_DEPOT");
 
-    private double DISTANCE_FORWARD_OFF_THE_WALL = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_OFF_THE_WALL");
-    private double DISTANCE_TO_PUSH_BUILD_PLATE = propertiesLoader.getDoubleProperty("DISTANCE_TO_PUSH_BUILD_PLATE");
+    private double DISTANCE_RIGHT_TO_CLEAR_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_RIGHT_TO_CLEAR_FOUNDATION");
+    private double DISTANCE_FORWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_TO_MIDDLE_OF_FOUNDATION");
 
     private long PAUSE_TIME = propertiesLoader.getLongProperty("PAUSE_TIME");
 
-    private double ARM_LIFT_UP_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_UP_ENCODER_DISTANCE");
-    private double ARM_LIFT_DOWN_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_DOWN_ENCODER_DISTANCE");
+//    private double ARM_LIFT_UP_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_UP_ENCODER_DISTANCE");
+//    private double ARM_LIFT_DOWN_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_DOWN_ENCODER_DISTANCE");
+//
+//    private double MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING = propertiesLoader.getDoubleProperty("MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING");
+//    private double MAX_BOT_INTAKE_POWER_WHEN_INTAKING = propertiesLoader.getDoubleProperty("MAX_BOT_INTAKE_POWER_WHEN_INTAKING");
+//    private double EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING = propertiesLoader.getDoubleProperty("EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING");
+//
+//    private double ARM_HEIGHT_WHEN_INTAKING = propertiesLoader.getDoubleProperty("ARM_HEIGHT_WHEN_INTAKING");
+//
+//    private double STRAFE_TO_STONE = propertiesLoader.getDoubleProperty("STRAFE_TO_STONE");
+//    private double BACKWARD_TO_STONE = propertiesLoader.getDoubleProperty("BACKWARD_TO_STONE");
+//
+//    private double ENCODER_TO_DROP_OFF_BLOCK = propertiesLoader.getDoubleProperty("ENCODER_TO_DROP_OFF_BLOCK");
+//
+//    //private double DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL = propertiesLoader.getDoubleProperty("DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL");
+//    //private double DISTANCE_TO_GET_STONE = propertiesLoader.getDoubleProperty("DISTANCE_TO_GET_STONE");
 
-    private double MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING = propertiesLoader.getDoubleProperty("MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING");
-    private double MAX_BOT_INTAKE_POWER_WHEN_INTAKING = propertiesLoader.getDoubleProperty("MAX_BOT_INTAKE_POWER_WHEN_INTAKING");
-    private double EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING = propertiesLoader.getDoubleProperty("EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING");
-
-    private double ARM_HEIGHT_WHEN_INTAKING = propertiesLoader.getDoubleProperty("ARM_HEIGHT_WHEN_INTAKING");
-
-    private double FORWARD_TO_STONE = propertiesLoader.getDoubleProperty("FORWARD_TO_STONE");
-    private double STRAFE_TO_STONE = propertiesLoader.getDoubleProperty("STRAFE_TO_STONE");
-    private double BACKWARD_TO_STONE = propertiesLoader.getDoubleProperty("BACKWARD_TO_STONE");
-
-    private double DISTANCE_TO_BE_ABLE_TO_TURN = propertiesLoader.getDoubleProperty("DISTANCE_TO_BE_ABLE_TO_TURN");
-    private double DISTANCE_TO_BRIDGE = propertiesLoader.getDoubleProperty("DISTANCE_TO_BRIDGE");
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -60,104 +60,144 @@ public class DWAIAutonomous extends LinearOpMode {
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
         waitForStart();
         runtime.reset();
 
-        //getPlatform();
-        //openIntake();
+        getFoundation();
 
-        //getPlatform();
-
-        getTheBlock();
-        //pickUpBlock();
-        //FULL ASS AUTONOMOUS
-
-
+//        robot.moveByInches(DISTANCE_TO_GET_STONE, FORWARD, true);
+//        print("It moved forward");
+//
+//        getTheSecondOrThirdBlock(1);
+//
+//        robot.moveByInches(-DISTANCE_TO_GET_STONE - DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
+//        print("It moved forward");
+//
+//        dropOffBlock();
+//
+//        robot.moveByInches(DISTANCE_TO_GET_STONE + DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
+//        print("It moved forward");
+//
+//        getTheFourthFifthOrSixthBlock(4);
+//
+//        robot.moveByInches(-DISTANCE_TO_GET_STONE - DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
+//        print("It moved forward");
+//
+//        dropOffBlock();
 
     }
 
-    private void getTheBlock(){
-        robot.moveByInches(FORWARD_TO_STONE, FORWARD, true);
-        print("It moved forward");
 
-        robot.moveByInches(STRAFE_TO_STONE, STRAFE, true);
-        print("It moved left");
+//    private void dropOffBlock() {
+//        robot.moveArmByEncoder(ENCODER_TO_DROP_OFF_BLOCK);
+//
+//        robot.openGrabber();
+//
+//        robot.moveArmByEncoder(-ENCODER_TO_DROP_OFF_BLOCK);
+//    }
+//
+//    private void getTheSecondOrThirdBlock(int stoneNumber){
+//        robot.moveByInches(8 * stoneNumber,FORWARD,true);
+//        print("moving to Stone");
+//
+//        robot.moveByInches(STRAFE_TO_STONE, STRAFE, true);
+//        print("It moved left");
+//
+//        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
+//        print("It moved backward");
+//
+//        openIntake();
+//
+//        pickUpBlock();
+//
+//        robot.setIntakePower(-1);
+//        print("It removed the block from the intake");
+//
+//
+//        robot.moveByInches(-8 * stoneNumber,FORWARD,true);
+//        print("moving to Stone");
+//
+//
+//        robot.moveByInches(-STRAFE_TO_STONE, STRAFE, true);
+//        print("It moved left, but opposite");
+//    }
+//    private void getTheFourthFifthOrSixthBlock(int stoneNumber){
+//        robot.moveByInches(8 * stoneNumber,FORWARD,true);
+//        print("moving to Stone");
+//
+//        robot.moveByInches(STRAFE_TO_STONE, STRAFE, true);
+//        print("It moved left");
+//
+//        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
+//        print("It moved backward");
+//
+//        pickUpBlock();
+//
+//        robot.setIntakePower(-1);
+//        print("It removed the block from the intake");
+//
+//
+//        robot.moveByInches(-8 * stoneNumber,FORWARD,true);
+//        print("moving to Stone");
+//
+//
+//        robot.moveByInches(-STRAFE_TO_STONE, STRAFE, true);
+//        print("It moved left, but opposite");
+//    }
+//
+//    private void pickUpBlock(){
+//        robot.openGrabber();
+//        print("Opening the grabber");
+//
+//        robot.moveToStone(MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING,MAX_BOT_INTAKE_POWER_WHEN_INTAKING,EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING);
+//        print("Moving to Stone");
+//
+//        robot.closeGrabber();
+//
+//        robot.blockHasLeftIntake();
+//        print("Closing the grabber and stating that the block has left");
+//
+//        robot.moveArmByEncoder(ARM_HEIGHT_WHEN_INTAKING);
+//        print("Raise the arm by 1000");
+//
+//        robot.setIntakePower(-MAX_BOT_INTAKE_POWER_WHEN_INTAKING);
+//        print("It removed the block from the intake");
+//    }
+//
+//    private void openIntake() {
+//        robot.moveArmByEncoder(ARM_LIFT_UP_ENCODER_DISTANCE);
+//        print("Lifting the arm up");
+//
+//        robot.moveArmByEncoder(ARM_LIFT_DOWN_ENCODER_DISTANCE);
+//        print("Putting the arm down");
+//    }
 
-        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
-        print("It moved backward");
-
-        pickUpBlock();
-        print("It picked up the block");
-
-        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
-        print("It moved backward, but opposite");
-
-        robot.moveByInches(-STRAFE_TO_STONE, STRAFE, true);
-        print("It moved left, but opposite");
-    }
-
-    private void pickUpBlock(){
-        robot.closeGrabber();
-        print("Opening the grabber");
-
-        robot.moveToStone(MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING,MAX_BOT_INTAKE_POWER_WHEN_INTAKING,EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING);
-        print("Moving to Stone");
-
-        robot.openGrabber();
-        robot.blockHasLeftIntake();
-        print("Closing the grabber and stating that the block has left");
-
-        robot.moveArmByEncoder(ARM_HEIGHT_WHEN_INTAKING);
-        print("Raise the arm by 1000");
-
-        robot.moveByInches(-9, FORWARD, true);
-        print("Moves backward for 10 inches");
-    }
-
-    private void openIntake() {
-        robot.moveArmByEncoder(ARM_LIFT_UP_ENCODER_DISTANCE);
-        print("Lifting the arm up");
-
-        robot.moveArmByEncoder(ARM_LIFT_DOWN_ENCODER_DISTANCE);
-        print("Putting the arm down");
-    }
-
-    void getPlatform() {
+    void getFoundation() {
         robot.openLatch();
         print("Opening Latch");
 
-        robot.moveByInches(DISTANCE_TO_BUILD_PLATE, FORWARD, true);
+        robot.moveByInches(DISTANCE_FORWARD_TO_GET_FOUNDATION, FORWARD, true);
         print("Moving to build plate");
 
-        robot.moveToLatch(DISTANCE_PAST_BUILD_PLATE);
+        robot.moveToLatch(DISTANCE_FORWARD_TO_PUSH_FOUNDATION_FOR_LATCH);
         print("Moving and latching build plate");
 
-        robot.moveByInches(-DISTANCE_TO_BUILD_PLATE - DISTANCE_PAST_BUILD_PLATE + EXTRA_DISTANCE_FROM_BUILD_PLATE_TO_WALL, FORWARD, true);
+        robot.moveByInches(DISTANCE_BACKWARD_TO_DEPOT, FORWARD, true);
         print("Dragging the build plate to the wall");
-
-        robot.moveByInches(DISTANCE_FORWARD_OFF_THE_WALL, FORWARD, true);
-        print("Pushing off of the wall");
 
         robot.openLatch();
         print("Opening Latch");
 
-        robot.moveByInches(DISTANCE_FROM_BUILD_PLATE_TO_FREEDOM, STRAFE, true);
+        robot.moveByInches(DISTANCE_RIGHT_TO_CLEAR_FOUNDATION, STRAFE, true);
         print("Strafing away from the platform");
 
-        robot.moveByInches(HALF_OF_THE_BUILD_PLATE, FORWARD, true);
+        robot.moveByInches(DISTANCE_FORWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD, true);
         print("Moving up parrelel with platform");
 
-        robot.moveByInches(DISTANCE_TO_PUSH_BUILD_PLATE, STRAFE, true);
+        robot.turnByDegree(85);
         print("Strafing the platform into the wall");
 
-        robot.moveByInches(DISTANCE_TO_BE_ABLE_TO_TURN, STRAFE, true);
-        print("Strafing the platform into the wall");
-
-        robot.turnByDegree(90);
-        print("Strafing the platform into the wall");
-
-        robot.moveByInches(DISTANCE_TO_BRIDGE, FORWARD, true);
-        print("Strafing the platform into the wall");
     }
 
     void print(String printString) {
@@ -170,7 +210,7 @@ public class DWAIAutonomous extends LinearOpMode {
     void pause(double time){
         double currentTime = runtime.milliseconds();
 
-        while(runtime.milliseconds() - currentTime < time){
+        while(opModeIsActive() && runtime.milliseconds() - currentTime < time){
             robot.stopAllMotors();
         }
     }
