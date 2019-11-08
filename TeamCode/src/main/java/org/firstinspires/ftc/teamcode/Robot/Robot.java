@@ -95,12 +95,13 @@ public class Robot {
     }
 
     private void driveTrainHardwareMap() {
+        //assigns it to the config
         rightFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");
         leftFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rf");
         rightBackDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lb");
         leftBackDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rb");
 
-        //dir
+        //sets the direction
         rightFrontDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftFrontDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
         rightBackDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -109,28 +110,39 @@ public class Robot {
     }
 
     public void setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
+        //sets the drive train and the intake
         setDriveTrainZeroPowerProperty(zeroPowerBehavior);
         setIntakeZeroPowerProperty(zeroPowerBehavior);
 
+        //sets the arm and the lift
         setArmZeroPowerProperty(zeroPowerBehavior);
         setLiftZeroPowerProperty(zeroPowerBehavior);
     }
 
     public void setAllMotorRunMode(DcMotor.RunMode runMode){
+        //sets the drive train and the intake
         setDriveTrainRunMode(runMode);
         setIntakeRunMode(runMode);
 
+        //sets the arm and the lift
         setArmRunMode(runMode);
         setLiftRunMode(runMode);
     }
+
     public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+        //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
         leftFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
         rightFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
         leftBackDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
         rightBackDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
+    //1. 560
+    //2. 450
+    //3. 210
+
     public void setDriveTrainRunMode(DcMotor.RunMode runMode) {
+        //sets the run mode for the drive train, RUN_WITH_ENCODERS, STOP_AND_RESET_ENCODERS, etc.
         leftFrontDriveMotor.setMode(runMode);
         rightFrontDriveMotor.setMode(runMode);
         leftBackDriveMotor.setMode(runMode);
@@ -138,37 +150,39 @@ public class Robot {
     }
 
     private void intakeHardwareMap() {
-        //intake
+        //assigns it to the config
         rightIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ri");
         leftIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "li");
 
-        //sets the direction of the intake
+        //sets the direction
         rightIntakeMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftIntakeMotor.setDirection(DcMotorEx.Direction.FORWARD);
     }
 
     public void setIntakeZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
-        //so that it floats by at 0, could also be stop
+        //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
         rightIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
         leftIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
     public void setIntakeRunMode(DcMotor.RunMode runMode) {
+        //sets the run mode for the drive train, RUN_WITH_ENCODERS, STOP_AND_RESET_ENCODERS, etc.
         rightIntakeMotor.setMode(runMode);
         leftIntakeMotor.setMode(runMode);
     }
 
     private void armHardwareMap() {
-        //intake
+        //assigns it from the config
         armMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ax");
     }
 
     public void setArmZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
-        //so that it floats by at 0, could also be stop
+        //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
         armMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
     public void setArmRunMode(DcMotor.RunMode runMode) {
+        //sets the run mode for the drive train, RUN_WITH_ENCODERS, STOP_AND_RESET_ENCODERS, etc.
         armMotor.setMode(runMode);
     }
 
@@ -225,7 +239,7 @@ public class Robot {
     }
 
     //initalializes the imu
-    public void initIMU() {
+    void initIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
         parameters.loggingEnabled = true;
@@ -258,7 +272,7 @@ public class Robot {
     }
 
     //gets the angle from the one imu
-    public double[] getRev2IMUAngle() {
+    double[] getRev2IMUAngle() {
         return new double[]{
                 (imu1.getAngularOrientation().secondAngle),
                 (imu1.getAngularOrientation().thirdAngle),

@@ -33,9 +33,10 @@ public class testOpMode extends LinearOpMode {
 
     //We start with some arm positions that we will go to in the future
     //this one is where we start, with the arm at 0 resting in the robot.
-    private final double ARM_DOWN_POSITION = 0;
-    //this one is all
-    private final double ARM_UP_POSITION = 1600;
+
+
+    private final double LIFT_HOME_POSITION = 0;//for controlling the lifter
+
     //so these exist so that I do not get confused, not strictly necessary, 0 is the strafe, 1 is the forward, and 2 is the rotation
     private double[] driveTrainController = new double[3];
     /*Mini Lesson:
@@ -61,9 +62,11 @@ public class testOpMode extends LinearOpMode {
     //as determined by user input
     boolean armGoingToScoringPosition = false;
     boolean armGoingToHomePosition = false;
+    boolean liftGoingToHomePosition = false;//added new
 
     //now we make a variable to use later which represents the initial position when doing a runtoposition command
     double initialArmPosition = 0;
+    double initialLiftPosition = 0;
 
     /////////////////////////
 
@@ -143,50 +146,66 @@ public class testOpMode extends LinearOpMode {
             intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
 
             ///////////The second part of Casey's arm thing
+            if (liftGoingToHomePosition) {
+
+                if (liftHasArrived(robotLinearOpMode.getArmEncoder(), LIFT_HOME_POSITION)) {
+                    liftGoingToHomePosition = false;
+                    liftPower = 0;
+                } else liftPower = robotLinearOpMode.liftProfile.RunToPositionWithoutAccel(initialLiftPosition, robotLinearOpMode.getLiftEncoder(), LIFT_HOME_POSITION);
+            } else {
+                //this should work but be careful
+                liftPower = robotLinearOpMode.liftProfile.limitWithoutAccel(robotLinearOpMode.getLiftEncoder(), gamepad2.right_stick_y);
+            }
+
 
             if (armGoingToScoringPosition) {
 
                 if (armHasArrived(robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION)) {
                     armGoingToScoringPosition = false;
                     armPower = 0;
-                } else armPower = robotLinearOpMode.armProfile.RunToPositionWithAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION);
+                } else armPower = robotLinearOpMode.armProfile.RunToPositionWithoutAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION);
 
             } else if (armGoingToHomePosition) {
 
                 if (armHasArrived(robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION)) {
                     armGoingToHomePosition = false;
                     armPower = 0;
-                } else armPower = robotLinearOpMode.armProfile.RunToPositionWithAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION);
+                } else armPower = robotLinearOpMode.armProfile.RunToPositionWithoutAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION);
 
             } else {
-                armPower = robotLinearOpMode.armProfile.V2limitWithAccel(robotLinearOpMode.getArmEncoder(), gamepad2.left_stick_y);
+                armPower = robotLinearOpMode.armProfile.limitWithoutAccel(robotLinearOpMode.getArmEncoder(), gamepad2.left_stick_y);
             }
 
             //this code checks to see if we are going to a new target, and of so changes the desired direction and resets the initial position
-            if (gamepad2.dpad_down) {
+            if (gamepad2.dpad_down) {//this one makes the arm go up
                 armGoingToScoringPosition = true;
                 armGoingToHomePosition = false;
+                liftGoingToHomePosition = false;
                 initialArmPosition = robotLinearOpMode.getArmEncoder();
-            } else if (gamepad2.dpad_up) {
+            } else if (gamepad2.dpad_up) {//this one makes the lifter go down and the arm go home (basically a reset)
                 armGoingToHomePosition = true;
+                liftGoingToHomePosition = true;
                 armGoingToScoringPosition = false;
                 initialArmPosition = robotLinearOpMode.getArmEncoder();
+                initialLiftPosition = robotLinearOpMode.getLiftEncoder();
             }
 
-            //////////////////End Casey's thing
-
-            //this should work but be careful
-            liftPower = robotLinearOpMode.liftProfile.V2limitWithAccel(robotLinearOpMode.getLiftEncoder(), gamepad2.right_stick_y);
-            //liftPower = gamepad2.left_stick_y / 2;
+            ////END CASEY'S THING
 
             latchIsDown.update(gamepad2.x);
             grabberIsEngaged.update(gamepad2.y);
             markerDropper.update(gamepad2.a);
 
-            blockEverInIntake.update(robotLinearOpMode.isBlockInIntake());
+            //Grabber update with new logic
+            if ((armPosition > ARM_HOME_POSITION) && (armPosition < ARM_SCORING_POSITION)) {
+                robotLinearOpMode.closeGrabber();
+            } else if (intakePower != 0) {
+                robotLinearOpMode.openGrabber();
+            } else {
+                if (grabberIsEngaged.get()) robotLinearOpMode.openGrabber();
+                else robotLinearOpMode.closeGrabber();
+            }
 
-            if (grabberIsEngaged.get()) robotLinearOpMode.closeGrabber();
-            else robotLinearOpMode.openGrabber();
 
             if (latchIsDown.get()) robotLinearOpMode.closeLatch();
             else robotLinearOpMode.openLatch();
@@ -202,7 +221,7 @@ public class testOpMode extends LinearOpMode {
             //gets the position arm encoder
             armPosition = robotLinearOpMode.getArmEncoder();
             liftPosition = robotLinearOpMode.getLiftEncoder();
-            blockIntakeTouchSensor = robotLinearOpMode.isBlockInIntake();
+            //blockIntakeTouchSensor = robotLinearOpMode.isBlockInIntake();
 
             sendTelemetry();
         }
@@ -223,10 +242,24 @@ public class testOpMode extends LinearOpMode {
         return arrived;
     }
 
+
+    boolean liftHasArrived (double current, double target) {
+        boolean arrived;
+
+        //make sure we made it depending on which way we came
+        if ((initialLiftPosition < target) && (target < current)) {
+            arrived = true;
+        } else if ((initialLiftPosition > target) && (target > current)){
+            arrived = true;
+        } else {
+            arrived = false;
+        }
+        return arrived;
+    }
+
     void sendTelemetry() {
         telemetry.addData("Arm Position: ", armPosition);
         telemetry.addData("Lift Position: ", liftPosition);
-        telemetry.addData("Block Intake Touch Boolean: ", blockEverInIntake.wasEverHit());
         telemetry.addData("Open Intake Touch Boolean", robotLinearOpMode.intakeIsOpen());
         telemetry.update();
     }
