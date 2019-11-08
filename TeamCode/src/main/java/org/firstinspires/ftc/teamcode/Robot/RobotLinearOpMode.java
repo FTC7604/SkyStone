@@ -211,25 +211,14 @@ public class RobotLinearOpMode extends Robot {
         setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-//        if(movement_direction == STRAFE)currentEncoderValues = getStrafeDriveTrainEncoders();
-//        if(movement_direction == FORWARD)currentEncoderValues = getForwardDriveTrainEncoders();
-//        if(movement_direction == ROTATION)currentEncoderValues = getRotationDriveTrainEncoders();
-
         currentEncoderValues = getDriveTrainEncoders(movement_direction);
 
         do {
-//            if(movement_direction == STRAFE) currentAverageEncoderValue = getAverageStrafeDriveTrainEncoder(currentEncoderValues);
-//            if(movement_direction == FORWARD) currentAverageEncoderValue = getAverageForwardDriveTrainEncoder(currentEncoderValues);
-//            if(movement_direction == ROTATION) currentAverageEncoderValue = getAverageRotationDriveTrainEncoder(currentEncoderValues);
 
             currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction, currentEncoderValues);
 
             if(withAccel)adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
             else adjustedMotorPower = DriveProfile.RunToPositionWithoutAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
-
-//            if(movement_direction == STRAFE) mecanumPowerDrive(adjustedMotorPower, 0, 0);
-//            if(movement_direction == FORWARD) mecanumPowerDrive(0, adjustedMotorPower, 0);
-//            if(movement_direction == ROTATION) mecanumPowerDrive(0,0, adjustedMotorPower);
 
             mecanumPowerDrive(movement_direction, adjustedMotorPower);
 
@@ -281,6 +270,32 @@ public class RobotLinearOpMode extends Robot {
         } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
 
         closeLatch();
+    }
+
+    public void moveByInchesFast(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
+
+        double currentAverageEncoderValue;
+        double[] currentEncoderValues;
+
+        double desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
+
+        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        currentEncoderValues = getDriveTrainEncoders(movement_direction);
+
+        do {
+            currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction, currentEncoderValues);
+
+            mecanumPowerDrive(movement_direction, 1);
+
+            linearOpMode.telemetry.addData("Current Encoder Value:", currentAverageEncoderValue);
+            linearOpMode.telemetry.addData("Desired Encoder value:", desiredPositionChangeInEncoders);
+            linearOpMode.telemetry.update();
+
+        } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
+
+        mecanumPowerDrive(movement_direction, 0);
     }
 
     public void moveToStone(double maxBotPower, double intakePower, double extraEncoderDistance) {
