@@ -25,14 +25,22 @@ public class ColorCalibration extends LinearOpMode {
         telemetry.update();
         waitForStart();
         telemetry.clearAll();
-        //RBLOCK_THRESHOLD = scaleArray(robot.getColors())[0];
         double[] colors;
-        double minDist;
+        double minDist = 0;
         double newValue = scaleArray(robot.getColors())[0];
+        double dist;
 
         while(!isStopRequested() && !detected){
             colors = scaleArray(robot.getColors());
-            distances.add(robot.getDistance());
+            dist = robot.getDistance();
+
+            if(dist > 0) {
+                distances.add(dist);
+            }
+
+            while(distances.size() > 5){
+                distances.poll();
+            }
 
             /*if(distances.size() == NUM_VALS){
                 double compDistance = distances.poll();
@@ -55,16 +63,18 @@ public class ColorCalibration extends LinearOpMode {
                 robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
             }*/
 
-            //0.3 at 54, 0.25 at 200+
+            //0.28 at 150, .32 at 75
 
-            minDist = minVal(distances);
+            if(minDist == 0 || minVal(distances) < minDist) {
+                minDist = minVal(distances);
+            }
 
             newValue = 0.3 * newValue + 0.7 * colors[0];
             telemetry.addData("Distance", robot.getDistance());
             telemetry.addData("Smooth R", newValue);
             telemetry.addData("B", colors[2]);
 
-            if(newValue <= RBLOCK_THRESHOLD * 0.95 + DIST_SCALE_FACTOR / minDist){
+            if(newValue <= RBLOCK_THRESHOLD + DIST_SCALE_FACTOR / minDist){
                 telemetry.addData("Status", "Detected");
                 robot.mecanumPowerDrive(0, 0, 0);
                 //detected = true;
