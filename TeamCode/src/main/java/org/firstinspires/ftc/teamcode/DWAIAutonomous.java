@@ -60,6 +60,8 @@ public class DWAIAutonomous extends LinearOpMode {
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        robot.initIMU();
+
 
         waitForStart();
         runtime.reset();
@@ -69,7 +71,7 @@ public class DWAIAutonomous extends LinearOpMode {
 //        robot.moveByInches(DISTANCE_TO_GET_STONE, FORWARD, true);
 //        print("It moved forward");
 //
-//        getTheSecondOrThirdBlock(1);
+//        //getTheSecondOrThirdBlock(1);
 //
 //        robot.moveByInches(-DISTANCE_TO_GET_STONE - DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
 //        print("It moved forward");
@@ -79,12 +81,12 @@ public class DWAIAutonomous extends LinearOpMode {
 //        robot.moveByInches(DISTANCE_TO_GET_STONE + DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
 //        print("It moved forward");
 //
-//        getTheFourthFifthOrSixthBlock(4);
+//        //getTheFourthFifthOrSixthBlock(4);
 //
 //        robot.moveByInches(-DISTANCE_TO_GET_STONE - DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
 //        print("It moved forward");
-//
-//        dropOffBlock();
+
+        //dropOffBlock();
 
     }
 
