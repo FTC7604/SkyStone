@@ -100,7 +100,7 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction){
-       return getAverageDriveTrainEncoder(movement_direction,new double[]{});
+       return getAverageDriveTrainEncoder(movement_direction,new double[]{0,0,0,0});
     }
     public double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction, double[] startEncoderValues){
         double averageEncoderPosition = 0;
@@ -197,7 +197,7 @@ public class RobotLinearOpMode extends Robot {
         ROTATION,
     }
 
-    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, boolean withAccel) {
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
 
         double currentAverageEncoderValue = 0;
         double desiredPositionChangeInEncoders = 0;
@@ -217,8 +217,7 @@ public class RobotLinearOpMode extends Robot {
 
             currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction, currentEncoderValues);
 
-            if(withAccel)adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
-            else adjustedMotorPower = DriveProfile.RunToPositionWithoutAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
+            adjustedMotorPower = DriveProfile.RunToPositionWithAccel(0, currentAverageEncoderValue, desiredPositionChangeInEncoders);
 
             mecanumPowerDrive(movement_direction, adjustedMotorPower);
 
@@ -255,8 +254,8 @@ public class RobotLinearOpMode extends Robot {
 
         desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
 
-        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         openLatch();
 
@@ -270,32 +269,6 @@ public class RobotLinearOpMode extends Robot {
         } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
 
         closeLatch();
-    }
-
-    public void moveByInchesFast(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
-
-        double currentAverageEncoderValue;
-        double[] currentEncoderValues;
-
-        double desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
-
-        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        currentEncoderValues = getDriveTrainEncoders(movement_direction);
-
-        do {
-            currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction, currentEncoderValues);
-
-            mecanumPowerDrive(movement_direction, 1);
-
-            linearOpMode.telemetry.addData("Current Encoder Value:", currentAverageEncoderValue);
-            linearOpMode.telemetry.addData("Desired Encoder value:", desiredPositionChangeInEncoders);
-            linearOpMode.telemetry.update();
-
-        } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
-
-        mecanumPowerDrive(movement_direction, 0);
     }
 
     public void moveToStone(double maxBotPower, double intakePower, double extraEncoderDistance) {

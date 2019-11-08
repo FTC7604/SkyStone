@@ -16,15 +16,20 @@ public class DWAIAutonomous extends LinearOpMode {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
 
-    private double DISTANCE_FORWARD_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_TO_GET_FOUNDATION");
-    private double DISTANCE_FORWARD_TO_PUSH_FOUNDATION_FOR_LATCH = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_TO_PUSH_FOUNDATION_FOR_LATCH");
+    private double DISTANCE_RIGHT_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_RIGHT_TO_GET_FOUNDATION");
+    private double DISTANCE_BACKWARD_TO_GET_OFF_WALL = propertiesLoader.getDoubleProperty("DISTANCE_BACKWARD_TO_GET_OFF_WALL");
 
-    private double DISTANCE_BACKWARD_TO_DEPOT = propertiesLoader.getDoubleProperty("DISTANCE_BACKWARD_TO_DEPOT");
+    private double DISTANCE_BACKWARD_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_BACKWARD_TO_GET_FOUNDATION");
+    private double DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH = propertiesLoader.getDoubleProperty("DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH");
 
-    private double DISTANCE_RIGHT_TO_CLEAR_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_RIGHT_TO_CLEAR_FOUNDATION");
-    private double DISTANCE_FORWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_TO_MIDDLE_OF_FOUNDATION");
+    private double DISTANCE_FORWARD_TO_DEPOT = propertiesLoader.getDoubleProperty("DISTANCE_FORWARD_TO_DEPOT");
+
+    private double DISTANCE_LEFT_TO_CLEAR_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_LEFT_TO_CLEAR_FOUNDATION");
+    private double DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getDoubleProperty("DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION");
 
     private long PAUSE_TIME = propertiesLoader.getLongProperty("PAUSE_TIME");
+
+    private boolean MOVE_BY_INCHES_FAST = propertiesLoader.getBooleanProperty("MOVE_BY_INCHES_FAST");
 
 //    private double ARM_LIFT_UP_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_UP_ENCODER_DISTANCE");
 //    private double ARM_LIFT_DOWN_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_DOWN_ENCODER_DISTANCE");
@@ -66,7 +71,13 @@ public class DWAIAutonomous extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        getFoundation();
+        if(MOVE_BY_INCHES_FAST){
+            getFoundationFast();
+        }
+        else {
+            getFoundation();
+        }
+
 
 //        robot.moveByInches(DISTANCE_TO_GET_STONE, FORWARD, true);
 //        print("It moved forward");
@@ -176,29 +187,65 @@ public class DWAIAutonomous extends LinearOpMode {
 //    }
 
     void getFoundation() {
+
         robot.openLatch();
         print("Opening Latch");
 
-        robot.moveByInches(DISTANCE_FORWARD_TO_GET_FOUNDATION, FORWARD, true);
+        robot.moveByInches(DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD, true);
         print("Moving to build plate");
 
-        robot.moveToLatch(DISTANCE_FORWARD_TO_PUSH_FOUNDATION_FOR_LATCH);
+        robot.moveToLatch(DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH);
         print("Moving and latching build plate");
 
-        robot.moveByInches(DISTANCE_BACKWARD_TO_DEPOT, FORWARD, true);
+        robot.moveByInches(DISTANCE_FORWARD_TO_DEPOT, FORWARD, true);
         print("Dragging the build plate to the wall");
 
         robot.openLatch();
         print("Opening Latch");
 
-        robot.moveByInches(DISTANCE_RIGHT_TO_CLEAR_FOUNDATION, STRAFE, true);
+        robot.moveByInches(DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE, true);
         print("Strafing away from the platform");
 
-        robot.moveByInches(DISTANCE_FORWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD, true);
+        robot.moveByInches(DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD, true);
         print("Moving up parrelel with platform");
 
         robot.turnByDegree(85);
         print("Strafing the platform into the wall");
+
+    }
+
+    void getFoundationFast() {
+
+        print("Moving off of the wall");
+        robot.moveByInches(DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD, false);
+
+        print("Moving right to foundation");
+        robot.moveByInches(DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE,false);
+
+        print("Opening Latch");
+        robot.openLatch();
+
+        print("Moving to build plate");
+        robot.moveByInches(DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD,false);
+
+        print("Moving and latching build plate");
+        robot.moveToLatch(DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH);
+
+        print("Dragging the build plate to the wall");
+        robot.moveByInches(DISTANCE_FORWARD_TO_DEPOT, FORWARD,false);
+
+        print("Opening Latch");
+        robot.openLatch();
+
+        print("Strafing away from the platform");
+        robot.moveByInches(DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE,false);
+
+        print("Moving up parrelel with platform");
+        robot.moveByInches(DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD,false);
+
+        print("Strafing the platform into the wall");
+        robot.turnByDegree(85);
+
 
     }
 
