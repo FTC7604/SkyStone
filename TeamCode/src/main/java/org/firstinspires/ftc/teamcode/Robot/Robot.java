@@ -41,7 +41,9 @@ markerLatchServo -> "ml"
 blockIntakeTouchSensor -> "bt"
 openIntakeTouchSensor -> "it"
 
-colorLineUnderLeftWing -> "cd"
+leftWingCS -> "cd"
+leftCS -> "lcs"
+rightCS -> "rcs"
  */
 
 public class Robot {
@@ -58,8 +60,13 @@ public class Robot {
     Servo blockGrabberServo;
     Servo markerLatchServo;
     private BNO055IMU imu1 = null, imu2 = null;
-    private ColorSensor colorLineUnderLeftWingColor;
-    private DistanceSensor colorLineUnderLeftWingDistance;
+
+    private ColorSensor leftWingCS;
+    private DistanceSensor leftWingDS;
+    private ColorSensor leftCS;
+    private DistanceSensor leftDS;
+    private ColorSensor rightCS;
+    private DistanceSensor rightDS;
 
     private DigitalChannel blockIntakeTouchSensor;
     private DigitalChannel openIntakeTouchSensor;
@@ -91,7 +98,7 @@ public class Robot {
         blockIntakeTouchSensorHardwareMap();
         openIntakeTouchSensorHardwareMap();
 
-        colorLineUnderLeftWingHardwareMap();
+        CDHardwareMap();
     }
 
     private void driveTrainHardwareMap() {
@@ -222,10 +229,16 @@ public class Robot {
         imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");
     }
 
-    private void colorLineUnderLeftWingHardwareMap() {
+    private void CDHardwareMap() {
         //gets the right sensor
-        colorLineUnderLeftWingColor = hardwareMap.get(ColorSensor.class, "cd");
-        colorLineUnderLeftWingDistance = hardwareMap.get(DistanceSensor.class, "cd");
+        leftWingCS = hardwareMap.get(ColorSensor.class, "cd");
+        leftWingDS = hardwareMap.get(DistanceSensor.class, "cd");
+
+        leftCS = hardwareMap.get(ColorSensor.class, "lcd");
+        leftDS = hardwareMap.get(DistanceSensor.class, "lcd");
+
+        rightCS = hardwareMap.get(ColorSensor.class, "rcd");
+        rightDS = hardwareMap.get(DistanceSensor.class, "rcd");
     }
 
     private void blockIntakeTouchSensorHardwareMap() {
@@ -298,26 +311,52 @@ public class Robot {
         return !openIntakeTouchSensor.getState();
     }
 
-    public double[] getColors(){
-        colorLineUnderLeftWingColor.enableLed(true);
-        double[] colors = {colorLineUnderLeftWingColor.red(), colorLineUnderLeftWingColor.green(), colorLineUnderLeftWingColor.blue(), colorLineUnderLeftWingColor.alpha()};
+    public double[] getColors(COLOR_SENSOR location){
+        double[] colors = new double[4];
+
+        switch(location){
+            case LEFT:
+                leftCS.enableLed(true);
+                double[] tempC = {leftCS.red(), leftCS.green(), leftCS.blue(), leftCS.alpha()};
+                colors = tempC;
+                break;
+            case RIGHT:
+                rightCS.enableLed(true);
+                double[] tempD = {rightCS.red(), rightCS.green(), rightCS.blue(), rightCS.alpha()};
+                colors = tempD;
+                break;
+            case LEFT_WING:
+                leftWingCS.enableLed(true);
+                double[] tempE = {leftWingCS.red(), leftWingCS.green(), leftWingCS.blue(), leftWingCS.alpha()};
+                colors = tempE;
+                break;
+        }
+
         return colors;
     }
 
-    public double getDistance(){
-        return colorLineUnderLeftWingDistance.getDistance(DistanceUnit.MM);
+    public double getDistance(COLOR_SENSOR location){
+        double distance = 0;
+
+        switch(location){
+            case LEFT:
+                distance = leftDS.getDistance(DistanceUnit.MM);
+                break;
+            case RIGHT:
+                distance = rightDS.getDistance(DistanceUnit.MM);
+                break;
+            case LEFT_WING:
+                distance = leftWingDS.getDistance(DistanceUnit.MM);
+                break;
+        }
+
+        return distance;
     }
 
     COLOR_UNDER_SENSOR color_under_sensor(){
-        if(colorLineUnderLeftWingColor.blue() > BLUE_LINE_VALUE) return COLOR_UNDER_SENSOR.BLUE;
-        else if(colorLineUnderLeftWingColor.red() > RED_LINE_VALUE) return COLOR_UNDER_SENSOR.RED;
+        if(leftWingCS.blue() > BLUE_LINE_VALUE) return COLOR_UNDER_SENSOR.BLUE;
+        else if(leftWingCS.red() > RED_LINE_VALUE) return COLOR_UNDER_SENSOR.RED;
         else return COLOR_UNDER_SENSOR.GRAY;
-    }
-
-    enum COLOR_UNDER_SENSOR {
-        GRAY,
-        BLUE,
-        RED
     }
 
 }

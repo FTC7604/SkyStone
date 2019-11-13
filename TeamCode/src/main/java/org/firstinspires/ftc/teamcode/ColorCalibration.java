@@ -14,11 +14,12 @@ public class ColorCalibration extends LinearOpMode {
     int NUM_VALS = propertiesLoader.getIntegerProperty("NUM_VALS");
     double DIST_THRESHOLD = propertiesLoader.getDoubleProperty("DIST_THRESHOLD");
     double DIST_SCALE_FACTOR = propertiesLoader.getDoubleProperty("DIST_SCALE_FACTOR");
+    int DETECT_COUNT = propertiesLoader.getIntegerProperty("DETECT_COUNT");
 
     @Override
     public void runOpMode(){
         LinkedList<Double> distances = new LinkedList();
-        Boolean detected = false;
+        int detected = 0;
 
         robot = new RobotLinearOpMode(this);
         telemetry.addData("Status", "Initialized");
@@ -27,30 +28,31 @@ public class ColorCalibration extends LinearOpMode {
         telemetry.clearAll();
         double[] colors;
         double minDist = 0;
-        double newValue = scaleArray(robot.getColors())[0];
+        double newValue = scaleArray(robot.getColors(COLOR_SENSOR.LEFT))[0];
         double dist;
 
-        while(!isStopRequested() && !detected){
-            colors = scaleArray(robot.getColors());
-            dist = robot.getDistance();
+        while(!isStopRequested() && detected < DETECT_COUNT){
+            dist = robot.getDistance(COLOR_SENSOR.LEFT);
 
             if(dist > 0) {
                 distances.add(dist);
             }
 
-            while(distances.size() > 5){
-                distances.poll();
-            }
+            //DISTANCE CODE
 
-            /*if(distances.size() == NUM_VALS){
+            if(distances.size() == NUM_VALS){
                 double compDistance = distances.poll();
                 double avg = averageQueue(distances);
                 double percentChange = Math.abs((avg - compDistance) / compDistance);
 
                 if(percentChange > DIST_THRESHOLD){
                     telemetry.addData("Status", "Detected");
-                    robot.mecanumPowerDrive(0, 0, 0);
-                    detected = true;
+                    detected++;
+
+                    if(detected >= DETECT_COUNT) {
+                        robot.mecanumPowerDrive(0, 0, 0);
+                    }
+
                 } else{
                     telemetry.addData("Status", "Not Detected");
                     robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
@@ -58,21 +60,26 @@ public class ColorCalibration extends LinearOpMode {
 
                 telemetry.addData("Percent change", percentChange);
                 telemetry.addData("Avg. distance", avg);
-            } else{
+            } else if(distances.size() < NUM_VALS){
                 telemetry.addData("Status", "Not Detected");
                 robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
-            }*/
+            } else{
 
-            //0.28 at 150, .32 at 75
+                while(distances.size() > NUM_VALS){distances.poll();}
 
-            if(minDist == 0 || minVal(distances) < minDist) {
-                minDist = minVal(distances);
             }
 
+            //COLOR CODE
+
+            /*while(distances.size() > 5){
+                distances.poll();
+            }
+
+            colors = scaleArray(robot.getColors(COLOR_SENSOR.LEFT));
+            minDist = minVal(distances);
             newValue = 0.3 * newValue + 0.7 * colors[0];
-            telemetry.addData("Distance", robot.getDistance());
+            telemetry.addData("Distance", robot.getDistance(COLOR_SENSOR.LEFT));
             telemetry.addData("Smooth R", newValue);
-            telemetry.addData("B", colors[2]);
 
             if(newValue <= RBLOCK_THRESHOLD + DIST_SCALE_FACTOR / minDist){
                 telemetry.addData("Status", "Detected");
@@ -83,10 +90,7 @@ public class ColorCalibration extends LinearOpMode {
                 robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
             }
 
-            telemetry.addData("Augmented Threshold", RBLOCK_THRESHOLD + DIST_SCALE_FACTOR / minDist);
-            /*telemetry.addData("Red", colors[0]);
-            telemetry.addData("Green", colors[1]);
-            telemetry.addData("Blue", colors[2]);*/
+            telemetry.addData("Augmented Threshold", RBLOCK_THRESHOLD + DIST_SCALE_FACTOR / minDist);*/
             telemetry.update();
         }
 
