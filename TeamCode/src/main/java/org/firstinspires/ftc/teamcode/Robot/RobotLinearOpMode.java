@@ -13,7 +13,7 @@ public class RobotLinearOpMode extends Robot {
 
     private LinearOpMode linearOpMode;
 
-    private double encodersToInches = 69/4000;
+    //private double encodersToInches = 69/4000;
     private double inchesToEncoders = 4000/69;
 
     //now we make a variable to use later which represents the initial position when doing a runtoposition command
@@ -44,7 +44,7 @@ public class RobotLinearOpMode extends Robot {
 
     //sets the powers on either a power or velocity, and with variables or an array, where 0 is strafe, 1 is forward, and 2 is rotation
     //if I control it using an array, then it just sends it into an earlier method
-    public void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power) {
+    private void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power) {
         switch (movement_direction){
             case STRAFE: mecanumPowerDrive(power,0,0);
                 break;
@@ -74,7 +74,7 @@ public class RobotLinearOpMode extends Robot {
         mecanumPowerDrive(controller[0], controller[1], controller[2]);
     }
 
-    public void mecVelocityDrive(double strafe, double forward, double rotation) {
+    private void mecVelocityDrive(double strafe, double forward, double rotation) {
         leftFrontDriveMotor.setVelocity(forward - strafe + rotation);
         leftBackDriveMotor.setVelocity(forward + strafe + rotation);
         rightFrontDriveMotor.setVelocity(forward + strafe - rotation);
@@ -99,10 +99,10 @@ public class RobotLinearOpMode extends Robot {
         mecVelocityDrive(controller[0], controller[1], controller[2]);
     }
 
-    public double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction){
+    private double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction){
        return getAverageDriveTrainEncoder(movement_direction,new double[]{0,0,0,0});
     }
-    public double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction, double[] startEncoderValues){
+    private double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction, double[] startEncoderValues){
         double averageEncoderPosition = 0;
 
         switch (movement_direction){
@@ -128,7 +128,7 @@ public class RobotLinearOpMode extends Robot {
 
         return averageEncoderPosition/4;
     }
-    public double [] getDriveTrainEncoders(MOVEMENT_DIRECTION movement_direction){
+    private double [] getDriveTrainEncoders(MOVEMENT_DIRECTION movement_direction){
         switch (movement_direction){
             case FORWARD:
                 return new double[]{
@@ -199,12 +199,12 @@ public class RobotLinearOpMode extends Robot {
 
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
 
-        double currentAverageEncoderValue = 0;
-        double desiredPositionChangeInEncoders = 0;
-        double adjustedMotorPower = 0;
-        double[] currentEncoderValues = new double[4];
+        double currentAverageEncoderValue;
+        double desiredPositionChangeInEncoders;
+        double adjustedMotorPower;
+        double[] currentEncoderValues;
 
-        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 200, 0.05, 1, 0.75);
+        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 200, 0.05, 1, 0.8);
 
         desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
 
