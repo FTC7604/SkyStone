@@ -96,7 +96,7 @@ public class vuforiaGang extends LinearOpMode {
 
         targetsSkyStone.activate();
         //31, 7
-        robot.moveByInches(31, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD, false);
+        robot.moveByInches(31, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
         sleep(2000);
 
         if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
@@ -114,7 +114,7 @@ public class vuforiaGang extends LinearOpMode {
         telemetry.update();
 
         if(!targetVisible) {
-            robot.moveByInches(7, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD, false);
+            robot.moveByInches(7, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
             sleep(1000);
 
             if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {

@@ -71,12 +71,8 @@ public class DWAIAutonomous extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        if(MOVE_BY_INCHES_FAST){
-            getFoundationFast();
-        }
-        else {
-            getFoundation();
-        }
+        alignToFoundationFromFoundationSide();
+        getFoundation();
 
 
 //        robot.moveByInches(DISTANCE_TO_GET_STONE, FORWARD, true);
@@ -186,62 +182,36 @@ public class DWAIAutonomous extends LinearOpMode {
 //        print("Putting the arm down");
 //    }
 
-    void getFoundation() {
-
-        robot.openLatch();
-        print("Opening Latch");
-
-        robot.moveByInches(DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD, true);
-        print("Moving to build plate");
-
-        robot.moveToLatch(DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH);
-        print("Moving and latching build plate");
-
-        robot.moveByInches(DISTANCE_FORWARD_TO_DEPOT, FORWARD, true);
-        print("Dragging the build plate to the wall");
-
-        robot.openLatch();
-        print("Opening Latch");
-
-        robot.moveByInches(DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE, true);
-        print("Strafing away from the platform");
-
-        robot.moveByInches(DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD, true);
-        print("Moving up parrelel with platform");
-
-        robot.turnByDegree(85);
-        print("Strafing the platform into the wall");
-
-    }
-
-    void getFoundationFast() {
-
+    void alignToFoundationFromFoundationSide(){
         print("Moving off of the wall");
-        robot.moveByInches(DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD, false);
+        robot.moveByInches(DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD);
 
         print("Moving right to foundation");
-        robot.moveByInches(DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE,false);
+        robot.moveByInches(DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
+    }
+
+    void getFoundation() {
 
         print("Opening Latch");
         robot.openLatch();
 
         print("Moving to build plate");
-        robot.moveByInches(DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD,false);
+        robot.moveByInches(DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD);
 
         print("Moving and latching build plate");
         robot.moveToLatch(DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH);
 
         print("Dragging the build plate to the wall");
-        robot.moveByInches(DISTANCE_FORWARD_TO_DEPOT, FORWARD,false);
+        robot.moveByInches(DISTANCE_FORWARD_TO_DEPOT, FORWARD);
 
         print("Opening Latch");
         robot.openLatch();
 
         print("Strafing away from the platform");
-        robot.moveByInches(DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE,false);
+        robot.moveByInches(DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE);
 
         print("Moving up parrelel with platform");
-        robot.moveByInches(DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD,false);
+        robot.moveByInches(DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
 
         print("Strafing the platform into the wall");
         robot.turnByDegree(85);
