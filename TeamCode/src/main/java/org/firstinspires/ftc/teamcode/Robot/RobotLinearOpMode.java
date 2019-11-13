@@ -40,8 +40,6 @@ public class RobotLinearOpMode extends Robot {
 
         //needs the linear opmode so that I can use telemetry and opModeIsActive()
         this.linearOpMode = linearOpMode;
-
-        initIMU();
     }
 
     //sets the powers on either a power or velocity, and with variables or an array, where 0 is strafe, 1 is forward, and 2 is rotation
@@ -102,7 +100,7 @@ public class RobotLinearOpMode extends Robot {
     }
 
     private double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction){
-       return getAverageDriveTrainEncoder(movement_direction,new double[]{0,0,0,0});
+        return getAverageDriveTrainEncoder(movement_direction,new double[]{0,0,0,0});
     }
     private double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction, double[] startEncoderValues){
         double averageEncoderPosition = 0;
@@ -154,7 +152,7 @@ public class RobotLinearOpMode extends Robot {
                         -1 * rightBackDriveMotor.getCurrentPosition(),
                 };
 
-                default: return new double[]{};
+            default: return new double[]{};
         }
     }
 
@@ -182,8 +180,8 @@ public class RobotLinearOpMode extends Robot {
 
                 mecanumPowerDrive(0, 0, adjustedMotorPower);
             }
-        } else if (currentAngle > neededAngle) {
-            while ((currentAngle > neededAngle)  && linearOpMode.opModeIsActive()) {//will run until we get there
+        } else if (currentAngle > neededAngle && linearOpMode.opModeIsActive()) {
+            while ((currentAngle > neededAngle)) {//will run until we get there
                 currentAngle = getRev2IMUAngle()[2];////IMU something
 
                 adjustedMotorPower = TurnProfile.RunToPositionWithAccel(startAngle, currentAngle, neededAngle);//get a rotation
@@ -223,12 +221,9 @@ public class RobotLinearOpMode extends Robot {
 
             mecanumPowerDrive(movement_direction, adjustedMotorPower);
 
-            linearOpMode.telemetry.addData("Start Position:", 0);
-            linearOpMode.telemetry.addData("Current Position:", changeInAverageEncoderValue);
-            linearOpMode.telemetry.addData("End Position:", desiredPositionChangeInEncoders);
-            linearOpMode.telemetry.update();
+        } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
 
-        } while((abs(desiredPositionChangeInEncoders - changeInAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
+        stopAllMotors();
     }
 
     public void moveArmByEncoder(double desiredPositionChangeInEncoders) {
@@ -251,7 +246,6 @@ public class RobotLinearOpMode extends Robot {
 
     public void moveToLatch(double desiredPositionChangeInInches) {
 
-        double[] currentEncoderValues = new double[4];
         double currentAverageEncoderValue = 0;
         double desiredPositionChangeInEncoders = 0;
         double adjustedMotorPower = 0;
@@ -279,13 +273,15 @@ public class RobotLinearOpMode extends Robot {
 
     public void moveToStone(double maxBotPower, double intakePower, double extraEncoderDistance) {
 
-        double[] currentEncoderValues = new double[4];
         double currentAverageEncoderValue = 0;
         double desiredPositionChangeInEncoders = 1000000000;
         double adjustedMotorPower = 0;
         boolean hasFoundBlock = false;
 
         BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, 0.05, 1, maxBotPower);
+
+        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         blockHasLeftIntake();
 
@@ -366,12 +362,12 @@ public class RobotLinearOpMode extends Robot {
         return arrivedAtTargetEncoder;
     }
 
-    public void openGrabber() {
+    public void closeGrabber() {
         blockGrabberServo.setPosition(.7);
     }
 
-    public void closeGrabber() {
-        blockGrabberServo.setPosition(.3);
+    public void openGrabber() {
+        blockGrabberServo.setPosition(.4);
     }
 
     public void dropMarker() {
