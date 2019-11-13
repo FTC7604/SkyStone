@@ -252,7 +252,7 @@ public class Robot {
     }
 
     //initalializes the imu
-    void initIMU() {
+    public void initIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
         parameters.loggingEnabled = true;

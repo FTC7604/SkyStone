@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode;
 
 
 //all the imports that come from qualcomm, mainly needing to do with the Hardware and the phone running
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //all the imports that come from Casey and I in the Package
+import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
 import org.firstinspires.ftc.teamcode.Control.EverHit;
 import org.firstinspires.ftc.teamcode.Control.HumanController;
 import org.firstinspires.ftc.teamcode.Control.Toggle;
@@ -33,9 +35,12 @@ public class testOpMode extends LinearOpMode {
 
     //We start with some arm positions that we will go to in the future
     //this one is where we start, with the arm at 0 resting in the robot.
+    private final double ARM_DOWN_POSITION = 0;
+    //this one is all
+    private final double ARM_UP_POSITION = 1600;
 
 
-    private final double LIFT_HOME_POSITION = 0;//for controlling the lifter
+    final double LIFT_HOME_POSITION = 0;//for controlling the lifter
 
     //so these exist so that I do not get confused, not strictly necessary, 0 is the strafe, 1 is the forward, and 2 is the rotation
     private double[] driveTrainController = new double[3];
@@ -47,6 +52,11 @@ public class testOpMode extends LinearOpMode {
     Char - Character, the basis of a word
     Boolean - True/False
      */
+
+
+    //public BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 3300, 1000, 0.25, 1, .7);
+    //public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.25, 1, .7);
+
     private double intakePower = 0;
     private double armPower = 0;
     private double liftPower = 0;
@@ -87,9 +97,11 @@ public class testOpMode extends LinearOpMode {
     final double WEIGHT_COMP_RATIO = propertiesLoader.getDoubleProperty("WEIGHT_COMPENSATION_RATIO");
     //We start with some arm positions that we will go to in the future
     //this one is where we start, with the arm at 0 resting in the robot.
-    final double ARM_HOME_POSITION = propertiesLoader.getDoubleProperty("ARM_HOME_POSITION");;
+    final double ARM_HOME_POSITION = propertiesLoader.getDoubleProperty("ARM_HOME_POSITION");
+    ;
     //this is the socring position for the arm. not quite fully behind the robot, but as high as possible while still able to score
-    final double ARM_SCORING_POSITION = propertiesLoader.getDoubleProperty("ARM_SCORING_POSITION");;
+    final double ARM_SCORING_POSITION = propertiesLoader.getDoubleProperty("ARM_SCORING_POSITION");
+    ;
 
     //this is the loop that repeats until the end of teleOp.
     @Override
@@ -103,7 +115,6 @@ public class testOpMode extends LinearOpMode {
         Toggle markerDropper = new Toggle(true);
 
 
-
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -112,11 +123,13 @@ public class testOpMode extends LinearOpMode {
         runtime.reset();
 
         robotLinearOpMode.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robotLinearOpMode.setAllMotorRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        robotLinearOpMode.setDriveTrainRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robotLinearOpMode.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robotLinearOpMode.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robotLinearOpMode.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);    //ORIGINALLY BRAKE
-                                                                                            //CHANGE SO ONLY FLOAT ON TURN
+
+        robotLinearOpMode.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         while (opModeIsActive()) {
 
@@ -151,9 +164,10 @@ public class testOpMode extends LinearOpMode {
                 if (liftHasArrived(robotLinearOpMode.getArmEncoder(), LIFT_HOME_POSITION)) {
                     liftGoingToHomePosition = false;
                     liftPower = 0;
-                } else liftPower = robotLinearOpMode.liftProfile.RunToPositionWithoutAccel(initialLiftPosition, robotLinearOpMode.getLiftEncoder(), LIFT_HOME_POSITION);
+                } else
+                    liftPower = robotLinearOpMode.liftProfile.RunToPositionWithAccel(initialLiftPosition, robotLinearOpMode.getLiftEncoder(), LIFT_HOME_POSITION);
             } else {
-                //this should work but be careful
+                //this s hould work but be careful
                 liftPower = robotLinearOpMode.liftProfile.limitWithoutAccel(robotLinearOpMode.getLiftEncoder(), gamepad2.right_stick_y);
             }
 
@@ -163,14 +177,16 @@ public class testOpMode extends LinearOpMode {
                 if (armHasArrived(robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION)) {
                     armGoingToScoringPosition = false;
                     armPower = 0;
-                } else armPower = robotLinearOpMode.armProfile.RunToPositionWithoutAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION);
+                } else
+                    armPower = robotLinearOpMode.armProfile.RunToPositionWithoutAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_SCORING_POSITION);
 
             } else if (armGoingToHomePosition) {
 
                 if (armHasArrived(robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION)) {
                     armGoingToHomePosition = false;
                     armPower = 0;
-                } else armPower = robotLinearOpMode.armProfile.RunToPositionWithoutAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION);
+                } else
+                    armPower = robotLinearOpMode.armProfile.RunToPositionWithoutAccel(initialArmPosition, robotLinearOpMode.getArmEncoder(), ARM_HOME_POSITION);
 
             } else {
                 armPower = robotLinearOpMode.armProfile.limitWithoutAccel(robotLinearOpMode.getArmEncoder(), gamepad2.left_stick_y);
@@ -206,6 +222,16 @@ public class testOpMode extends LinearOpMode {
                 else robotLinearOpMode.closeGrabber();
             }
 
+            if (armPosition > ARM_HOME_POSITION && armPosition < ARM_SCORING_POSITION - 500) {
+                robotLinearOpMode.openGrabber();
+            } else if (intakePower != 0) {
+                robotLinearOpMode.closeGrabber();
+            } else if (armPosition < ARM_HOME_POSITION) {
+                robotLinearOpMode.openGrabber();
+            } else {
+                if (grabberIsEngaged.get()) robotLinearOpMode.closeGrabber();
+                else robotLinearOpMode.openGrabber();
+            }
 
             if (latchIsDown.get()) robotLinearOpMode.closeLatch();
             else robotLinearOpMode.openLatch();
@@ -228,13 +254,13 @@ public class testOpMode extends LinearOpMode {
     }
 
     //tells us if the arm is on target
-    boolean armHasArrived ( double current, double target) {
+    boolean armHasArrived(double current, double target) {
         boolean arrived;
 
         //make sure we made it depending on which way we came
         if ((initialArmPosition < target) && (target < current)) {
             arrived = true;
-        } else if ((initialArmPosition > target) && (target > current)){
+        } else if ((initialArmPosition > target) && (target > current)) {
             arrived = true;
         } else {
             arrived = false;
@@ -243,13 +269,13 @@ public class testOpMode extends LinearOpMode {
     }
 
 
-    boolean liftHasArrived (double current, double target) {
+    boolean liftHasArrived(double current, double target) {
         boolean arrived;
 
         //make sure we made it depending on which way we came
         if ((initialLiftPosition < target) && (target < current)) {
             arrived = true;
-        } else if ((initialLiftPosition > target) && (target > current)){
+        } else if ((initialLiftPosition > target) && (target > current)) {
             arrived = true;
         } else {
             arrived = false;
