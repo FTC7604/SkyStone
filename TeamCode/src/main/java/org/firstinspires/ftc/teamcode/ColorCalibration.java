@@ -7,7 +7,6 @@ import java.util.*;
 @TeleOp(name="Color Test", group="TeleOp")
 public class ColorCalibration extends LinearOpMode {
     RobotLinearOpMode robot;
-
     PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
     double RBLOCK_THRESHOLD = propertiesLoader.getDoubleProperty("RBLOCK_THRESHOLD");
     double BLOCK_POWER = propertiesLoader.getDoubleProperty("BLOCK_POWER");
@@ -15,6 +14,7 @@ public class ColorCalibration extends LinearOpMode {
     double DIST_THRESHOLD = propertiesLoader.getDoubleProperty("DIST_THRESHOLD");
     double DIST_SCALE_FACTOR = propertiesLoader.getDoubleProperty("DIST_SCALE_FACTOR");
     int DETECT_COUNT = propertiesLoader.getIntegerProperty("DETECT_COUNT");
+    RuntimeLogger logger = new RuntimeLogger("colorVals");
 
     @Override
     public void runOpMode(){
@@ -60,6 +60,9 @@ public class ColorCalibration extends LinearOpMode {
 
                 telemetry.addData("Percent change", percentChange);
                 telemetry.addData("Avg. distance", avg);
+
+                logger.write("Percent Change: " + percentChange + " Average Distance: " + avg
+                + " Current Distance: " + compDistance);
             } else if(distances.size() < NUM_VALS){
                 telemetry.addData("Status", "Not Detected");
                 robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
@@ -97,7 +100,7 @@ public class ColorCalibration extends LinearOpMode {
         telemetry.clearAll();
         telemetry.addData("Status", "Finished");
         telemetry.update();
-
+        logger.close();
         sleep(2000);
     }
 
