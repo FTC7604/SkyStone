@@ -15,6 +15,8 @@ import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 
 //imports all of the math function
 import static java.lang.Math.*;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
 //name that appears on the phone and the group that it is a part of
 @Autonomous(name="Rubie Test OpMode", group="Linear Opmode")
@@ -74,8 +76,12 @@ public class rubieAutoPaths extends LinearOpMode {
         //this is when the robot receives the 'play' command
         waitForStart();
         runtime.reset();
-
         
+
+
+
+
+
 
 
 
