@@ -67,6 +67,7 @@ public class Robot {
     private DistanceSensor leftDS;
     private ColorSensor rightCS;
     private DistanceSensor rightDS;
+    private COLOR_SENSOR activatedSensor;
 
     private DigitalChannel blockIntakeTouchSensor;
     private DigitalChannel openIntakeTouchSensor;
@@ -76,9 +77,9 @@ public class Robot {
     private int RED_LINE_VALUE;
 
 
-    public Robot(OpMode opMode) {
-
+    public Robot(OpMode opMode, COLOR_SENSOR activatedSensor) {
         this.hardwareMap = opMode.hardwareMap;
+        this.activatedSensor = activatedSensor;
         mapHardware();
     }
 
@@ -231,14 +232,23 @@ public class Robot {
 
     private void CDHardwareMap() {
         //gets the right sensor
-        leftWingCS = hardwareMap.get(ColorSensor.class, "cd");
-        leftWingDS = hardwareMap.get(DistanceSensor.class, "cd");
+        switch(activatedSensor) {
+            case UNDER:
+                leftWingCS = hardwareMap.get(ColorSensor.class, "cd");
+                leftWingDS = hardwareMap.get(DistanceSensor.class, "cd");
+                break;
+            case LEFT:
+                leftCS = hardwareMap.get(ColorSensor.class, "lcd");
+                leftDS = hardwareMap.get(DistanceSensor.class, "lcd");
+                break;
+            case RIGHT:
+                rightCS = hardwareMap.get(ColorSensor.class, "rcd");
+                rightDS = hardwareMap.get(DistanceSensor.class, "rcd");
+                break;
+            case NONE:
+                break;
+        }
 
-        leftCS = hardwareMap.get(ColorSensor.class, "lcd");
-        leftDS = hardwareMap.get(DistanceSensor.class, "lcd");
-
-        rightCS = hardwareMap.get(ColorSensor.class, "rcd");
-        rightDS = hardwareMap.get(DistanceSensor.class, "rcd");
     }
 
     private void blockIntakeTouchSensorHardwareMap() {
@@ -311,42 +321,43 @@ public class Robot {
         return !openIntakeTouchSensor.getState();
     }
 
-    public double[] getColors(COLOR_SENSOR location){
+    public double[] getColors(){
         double[] colors = new double[4];
 
-        switch(location){
+        switch(activatedSensor){
             case LEFT:
-                leftCS.enableLed(true);
                 double[] tempC = {leftCS.red(), leftCS.green(), leftCS.blue(), leftCS.alpha()};
                 colors = tempC;
                 break;
             case RIGHT:
-                rightCS.enableLed(true);
                 double[] tempD = {rightCS.red(), rightCS.green(), rightCS.blue(), rightCS.alpha()};
                 colors = tempD;
                 break;
-            case LEFT_WING:
-                leftWingCS.enableLed(true);
+            case UNDER:
                 double[] tempE = {leftWingCS.red(), leftWingCS.green(), leftWingCS.blue(), leftWingCS.alpha()};
                 colors = tempE;
+                break;
+            case NONE:
                 break;
         }
 
         return colors;
     }
 
-    public double getDistance(COLOR_SENSOR location){
+    public double getDistance(){
         double distance = 0;
 
-        switch(location){
+        switch(activatedSensor){
             case LEFT:
                 distance = leftDS.getDistance(DistanceUnit.MM);
                 break;
             case RIGHT:
                 distance = rightDS.getDistance(DistanceUnit.MM);
                 break;
-            case LEFT_WING:
+            case UNDER:
                 distance = leftWingDS.getDistance(DistanceUnit.MM);
+                break;
+            case NONE:
                 break;
         }
 

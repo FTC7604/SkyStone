@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Control.Toggle;
-import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
+import org.firstinspires.ftc.teamcode.Robot.*;
 
 @TeleOp(name = "I am Speed", group = "Linear Opmode")
 
@@ -35,7 +35,7 @@ public class Test2Teleop extends LinearOpMode {
             directions[i] = new Toggle(false);
         }
 
-        robotLinearOpMode = new RobotLinearOpMode(this);
+        robotLinearOpMode = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
 
         robotLinearOpMode.setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 

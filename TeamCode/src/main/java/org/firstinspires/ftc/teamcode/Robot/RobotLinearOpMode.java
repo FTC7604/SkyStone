@@ -33,10 +33,10 @@ public class RobotLinearOpMode extends Robot {
 
 
     //constructor
-    public RobotLinearOpMode(LinearOpMode linearOpMode) {
+    public RobotLinearOpMode(LinearOpMode linearOpMode, COLOR_SENSOR activatedSensor) {
 
         //creates the robot so that I can use all of the motors
-        super(linearOpMode);
+        super(linearOpMode, activatedSensor);
 
         //needs the linear opmode so that I can use telemetry and opModeIsActive()
         this.linearOpMode = linearOpMode;

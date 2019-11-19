@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
+import org.firstinspires.ftc.teamcode.Robot.*;
 
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
@@ -71,7 +71,7 @@ public class DWAIAutonomous extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        robot = new RobotLinearOpMode(this);
+        robot = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
 
         robot.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);

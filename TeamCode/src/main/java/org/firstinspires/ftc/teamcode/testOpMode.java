@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
 import org.firstinspires.ftc.teamcode.Control.EverHit;
 import org.firstinspires.ftc.teamcode.Control.HumanController;
 import org.firstinspires.ftc.teamcode.Control.Toggle;
-import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
+import org.firstinspires.ftc.teamcode.Robot.*;
 
 //all the imports that come from java, abs is absolute value
 import static java.lang.Math.abs;
@@ -106,7 +106,7 @@ public class testOpMode extends LinearOpMode {
     //this is the loop that repeats until the end of teleOp.
     @Override
     public void runOpMode() {
-        robotLinearOpMode = new RobotLinearOpMode(this);
+        robotLinearOpMode = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
 
         Toggle latchIsDown = new Toggle(false);
         Toggle grabberIsEngaged = new Toggle(false);

@@ -77,7 +77,7 @@ public class vuforiaGang extends LinearOpMode {
 
     @Override public void runOpMode() {
         configureVuforia();
-        robot = new RobotLinearOpMode(this);
+        robot = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
         waitForStart();
         targetsSkyStone.activate();
 

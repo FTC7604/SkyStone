@@ -8,68 +8,75 @@ import java.util.*;
 public class ColorCalibration extends LinearOpMode {
     RobotLinearOpMode robot;
     PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
-    double RBLOCK_THRESHOLD = propertiesLoader.getDoubleProperty("RBLOCK_THRESHOLD");
     double BLOCK_POWER = propertiesLoader.getDoubleProperty("BLOCK_POWER");
     int NUM_VALS = propertiesLoader.getIntegerProperty("NUM_VALS");
     double DIST_THRESHOLD = propertiesLoader.getDoubleProperty("DIST_THRESHOLD");
-    double DIST_SCALE_FACTOR = propertiesLoader.getDoubleProperty("DIST_SCALE_FACTOR");
     int DETECT_COUNT = propertiesLoader.getIntegerProperty("DETECT_COUNT");
     RuntimeLogger logger = new RuntimeLogger("colorVals");
+
+    double DIST_SCALE_FACTOR = propertiesLoader.getDoubleProperty("DIST_SCALE_FACTOR");
+    double RBLOCK_THRESHOLD = propertiesLoader.getDoubleProperty("RBLOCK_THRESHOLD");
 
     @Override
     public void runOpMode(){
         LinkedList<Double> distances = new LinkedList();
         int detected = 0;
+        double[] colors;
+        double minDist = 0;
+        double dist = 0;
+        double prevDist;
 
-        robot = new RobotLinearOpMode(this);
+        robot = new RobotLinearOpMode(this, COLOR_SENSOR.LEFT);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         waitForStart();
         telemetry.clearAll();
-        double[] colors;
-        double minDist = 0;
-        double newValue = scaleArray(robot.getColors(COLOR_SENSOR.LEFT))[0];
-        double dist;
+        double newValue = scaleArray(robot.getColors())[0];
+        robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
 
         while(!isStopRequested() && detected < DETECT_COUNT){
-            dist = robot.getDistance(COLOR_SENSOR.LEFT);
+            prevDist = dist;
+            dist = robot.getDistance();
 
-            if(dist > 0) {
+            if(dist > 0 && dist != prevDist) {
                 distances.add(dist);
-            }
-
-            //DISTANCE CODE
-
-            if(distances.size() == NUM_VALS){
-                double compDistance = distances.poll();
-                double avg = averageQueue(distances);
-                double percentChange = Math.abs((avg - compDistance) / compDistance);
-
-                if(percentChange > DIST_THRESHOLD){
-                    telemetry.addData("Status", "Detected");
-                    detected++;
-
-                    if(detected >= DETECT_COUNT) {
-                        robot.mecanumPowerDrive(0, 0, 0);
-                    }
-
-                } else{
-                    telemetry.addData("Status", "Not Detected");
-                    robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
-                }
-
-                telemetry.addData("Percent change", percentChange);
-                telemetry.addData("Avg. distance", avg);
-
-                logger.write("Percent Change: " + percentChange + " Average Distance: " + avg
-                + " Current Distance: " + compDistance);
-            } else if(distances.size() < NUM_VALS){
-                telemetry.addData("Status", "Not Detected");
-                robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
-            } else{
-
                 while(distances.size() > NUM_VALS){distances.poll();}
 
+                //DISTANCE CODE
+
+                if(distances.size() == NUM_VALS){
+                    double compDistance = distances.peekLast();
+                    double avg = averageQueue(distances);
+                    double percentChange = Math.abs((avg - compDistance) / compDistance);
+
+                    if(percentChange > DIST_THRESHOLD){
+                        telemetry.addData("Status", "Detected");
+                        detected++;
+
+                        if(detected >= DETECT_COUNT) {
+                            robot.mecanumPowerDrive(0, 0, 0);
+                        }
+
+                        logger.write("Percent Change: " + percentChange + " Average Distance: " + avg
+                                + " Current Distance: " + compDistance + " DETECTED " + "(" + detected + ")");
+                    } else{
+                        telemetry.addData("Status", "Not Detected");
+                        robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
+
+                        logger.write("Percent Change: " + percentChange + " Average Distance: " + avg
+                                + " Current Distance: " + compDistance);
+                    }
+
+                    telemetry.addData("Percent change", percentChange);
+                    telemetry.addData("Avg. distance", avg);
+                } else if(distances.size() < NUM_VALS){
+                    telemetry.addData("Status", "Not Detected");
+                    robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
+
+                    logger.write("Current Distance: " + distances.peek());
+                }
+
+                logger.write(toString(distances));
             }
 
             //COLOR CODE
@@ -97,11 +104,27 @@ public class ColorCalibration extends LinearOpMode {
             telemetry.update();
         }
 
+        robot.mecanumPowerDrive(0, 0, 0);
         telemetry.clearAll();
         telemetry.addData("Status", "Finished");
         telemetry.update();
         logger.close();
         sleep(2000);
+    }
+
+    public String toString(Queue q){
+        Object[] vals = q.toArray();
+        String n = "";
+
+        for(int i = 0; i < vals.length; i++){
+
+            if(vals[i] != null){
+                n += i + ": " + vals[i] + " ";
+            }
+
+        }
+
+        return n;
     }
 
     public double minVal(Queue q){
