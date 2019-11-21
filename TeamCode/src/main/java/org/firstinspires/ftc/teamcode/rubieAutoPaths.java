@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode;
 
 //all the import
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -19,7 +20,7 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
 //name that appears on the phone and the group that it is a part of
-@Autonomous(name="Rubie Test OpMode", group="Linear Opmode")
+@Autonomous(name = "Rubie Test OpMode", group = "Linear Opmode")
 
 //class name that corresponds with the file, it is a linear opMode that I then changed
 public class rubieAutoPaths extends LinearOpMode {
@@ -76,14 +77,105 @@ public class rubieAutoPaths extends LinearOpMode {
         //this is when the robot receives the 'play' command
         waitForStart();
         runtime.reset();
-        
+
+        boolean lastGamepad1a = false;
+        boolean lastGamepad1b = false;
+
+        while (opModeIsActive()) {
+            // enter using lb, exit using rb
+            // ++rt --lt
+            telemetry.addData("Status", "auxiliary mode: " + mode.toString());
+            telemetry.addData("Status", "level " + stackingLevel);
+            telemetry.update();
+
+            if (gamepad2.left_bumper)
+                mode = TeleStackingMode.stacking;
+            //fixme code how to exit mode
 
 
 
 
+            {
+                boolean dpadUp = gamepad2.dpad_up;
+                if (dpadUp != lastGamepad1a && dpadUp)
+                    stackingLevel = (stackingLevel < 3 ? stackingLevel + 1 : 3);
+                lastGamepad1a = dpadUp;
+            }
+            {
+                boolean dpadDown = gamepad2.dpad_down;
+                if (dpadDown != lastGamepad1b && dpadDown)
+                    stackingLevel = (stackingLevel > 0 ? stackingLevel - 1 : 0);
+                lastGamepad1b = dpadDown;
+            }
 
 
+            switch (mode) {
+                default:
+                    mode = TeleStackingMode.normal;
+                    //  fall through
+                case normal:
+                    //  do nothing
+                    break;
+                case stacking:
 
+
+                    //  prepare for stacking
+                    switch (stackingLevel) {
+                        default:
+                            stackingLevel = 0;
+                            //  fall through
+                        case 0:
+                            robotLinearOpMode.closeGrabber();
+                            timeoutReset();
+                            stackingLevel++;
+                            break;
+                        case 1:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel++;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
+
+                            break;
+                        case 2:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 0;
+
+
+                            }
+                            break;
+                        case 3:
+                            break;
+                    }
+                    break;
+            }
+        }
+    }
+
+    private enum TeleStackingMode {
+        normal,
+        stacking;
+    }
+
+    private void timeoutReset() {
+        t0 = System.currentTimeMillis();
+    }
+
+    private boolean timeoutHasBeenAtLeast(long ms) {
+        return (System.currentTimeMillis() - t0) >= ms;
+    }
+
+    private void armGoesOverTheSame() {
+
+    }
+
+    private long t0 = System.currentTimeMillis();
+
+    private static final long timeOutDurationForGrabber = 3000;
+
+    private TeleStackingMode mode = TeleStackingMode.normal;
+    private int stackingLevel = 0;
+}
 
 
 //    enum AUTOPATHNAMES {
@@ -110,8 +202,7 @@ public class rubieAutoPaths extends LinearOpMode {
         start next thing
  */
 
-        /* foundation from stone ()*/
+/* foundation from stone ()*/
 
-    }
 
-}
+
