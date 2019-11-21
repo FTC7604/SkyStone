@@ -12,6 +12,7 @@ public class ColorCalibration extends LinearOpMode {
     int NUM_VALS = propertiesLoader.getIntegerProperty("NUM_VALS");
     double DIST_THRESHOLD = propertiesLoader.getDoubleProperty("DIST_THRESHOLD");
     int DETECT_COUNT = propertiesLoader.getIntegerProperty("DETECT_COUNT");
+    double SMOOTH_RATIO = propertiesLoader.getDoubleProperty("SMOOTH_RATIO");
     RuntimeLogger logger = new RuntimeLogger("colorVals");
     int logCount = 0;
 
@@ -26,6 +27,9 @@ public class ColorCalibration extends LinearOpMode {
         double minDist = 0;
         double dist = 0;
         double prevDist;
+        double prevChange = 0;
+        double currentChange = 0;
+        double smoothChange = 0;
 
         robot = new RobotLinearOpMode(this, COLOR_SENSOR.LEFT);
         telemetry.addData("Status", "Initialized");
@@ -58,9 +62,11 @@ public class ColorCalibration extends LinearOpMode {
                 if(distances.size() == NUM_VALS){
                     double compDistance = distances.pollLast();
                     double avg = averageQueue(distances);
-                    double percentChange = Math.abs((avg - compDistance) / compDistance);
+                    currentChange = Math.abs((avg - compDistance) / compDistance);
+                    smoothChange = SMOOTH_RATIO * currentChange + (1 - SMOOTH_RATIO) * prevChange;
+                    prevChange = currentChange;
 
-                    if(percentChange > DIST_THRESHOLD){
+                    if(smoothChange > DIST_THRESHOLD){
                         telemetry.addData("Status", "Detected");
                         detected++;
 
@@ -78,7 +84,7 @@ public class ColorCalibration extends LinearOpMode {
                         //        + " Current Distance: " + compDistance);
                     }
 
-                    telemetry.addData("Percent change", percentChange);
+                    telemetry.addData("Smooth change", smoothChange);
                     telemetry.addData("Avg. distance", avg);
                 } else if(distances.size() < NUM_VALS){
                     telemetry.addData("Status", "Not Detected");

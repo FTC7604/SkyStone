@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Robot.*;
 
 @TeleOp(name = "I am Speed", group = "Linear Opmode")
 
-public class Test2Teleop extends LinearOpMode {
+public class SpeedTest extends LinearOpMode {
 
     RobotLinearOpMode robotLinearOpMode;
 
