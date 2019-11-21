@@ -13,6 +13,7 @@ public class ColorCalibration extends LinearOpMode {
     double DIST_THRESHOLD = propertiesLoader.getDoubleProperty("DIST_THRESHOLD");
     int DETECT_COUNT = propertiesLoader.getIntegerProperty("DETECT_COUNT");
     RuntimeLogger logger = new RuntimeLogger("colorVals");
+    int logCount = 0;
 
     double DIST_SCALE_FACTOR = propertiesLoader.getDoubleProperty("DIST_SCALE_FACTOR");
     double RBLOCK_THRESHOLD = propertiesLoader.getDoubleProperty("RBLOCK_THRESHOLD");
@@ -37,6 +38,16 @@ public class ColorCalibration extends LinearOpMode {
         while(!isStopRequested() && detected < DETECT_COUNT){
             prevDist = dist;
             dist = robot.getDistance();
+            colors = robot.getColors();
+
+            if(prevDist != dist || (Double.isNaN(dist) && logCount % 2 == 0)) {
+                logger.write("D: " + dist + " R: " + colors[0] + " G: " + colors[1] + " B: " + colors[2]);
+
+                if(Double.isNaN(dist)) {
+                    logCount++;
+                }
+
+            }
 
             if(dist > 0 && dist != prevDist) {
                 distances.add(dist);
@@ -45,7 +56,7 @@ public class ColorCalibration extends LinearOpMode {
                 //DISTANCE CODE
 
                 if(distances.size() == NUM_VALS){
-                    double compDistance = distances.peekLast();
+                    double compDistance = distances.pollLast();
                     double avg = averageQueue(distances);
                     double percentChange = Math.abs((avg - compDistance) / compDistance);
 
@@ -57,14 +68,14 @@ public class ColorCalibration extends LinearOpMode {
                             robot.mecanumPowerDrive(0, 0, 0);
                         }
 
-                        logger.write("Percent Change: " + percentChange + " Average Distance: " + avg
-                                + " Current Distance: " + compDistance + " DETECTED " + "(" + detected + ")");
+                        //logger.write("Percent Change: " + percentChange + " Average Distance: " + avg
+                        //        + " Current Distance: " + compDistance + " DETECTED " + "(" + detected + ")");
                     } else{
                         telemetry.addData("Status", "Not Detected");
                         robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
 
-                        logger.write("Percent Change: " + percentChange + " Average Distance: " + avg
-                                + " Current Distance: " + compDistance);
+                        //logger.write("Percent Change: " + percentChange + " Average Distance: " + avg
+                        //        + " Current Distance: " + compDistance);
                     }
 
                     telemetry.addData("Percent change", percentChange);
@@ -73,10 +84,10 @@ public class ColorCalibration extends LinearOpMode {
                     telemetry.addData("Status", "Not Detected");
                     robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
 
-                    logger.write("Current Distance: " + distances.peek());
+                    //logger.write("Current Distance: " + distances.peekLast());
                 }
 
-                logger.write(toString(distances));
+                //logger.write(toString(distances));
             }
 
             //COLOR CODE
