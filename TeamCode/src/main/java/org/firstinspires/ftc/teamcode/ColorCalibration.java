@@ -44,7 +44,7 @@ public class ColorCalibration extends LinearOpMode {
             dist = robot.getDistance();
             colors = robot.getColors();
 
-            if(prevDist != dist || (Double.isNaN(dist) && logCount % 2 == 0)) {
+            if(prevDist != dist || (logCount % 2 == 0 && Double.isNaN(dist))) {
                 logger.write("D: " + dist + " R: " + colors[0] + " G: " + colors[1] + " B: " + colors[2]);
 
                 if(Double.isNaN(dist)) {
@@ -61,7 +61,7 @@ public class ColorCalibration extends LinearOpMode {
 
                 if(distances.size() == NUM_VALS){
                     double compDistance = distances.pollLast();
-                    double avg = averageQueue(distances);
+                    double avg = averageQueue(distances, 1);
                     currentChange = Math.abs((avg - compDistance) / compDistance);
                     smoothChange = SMOOTH_RATIO * currentChange + (1 - SMOOTH_RATIO) * prevChange;
                     prevChange = currentChange;
@@ -163,12 +163,12 @@ public class ColorCalibration extends LinearOpMode {
         return min;
     }
 
-    public double averageQueue(Queue q){
+    public double averageQueue(Queue q, int offset){
         Object[] vals = q.toArray();
         double avg = 0;
-        double actualSize = vals.length;
+        double actualSize = vals.length - offset;
 
-        for(int i = 0; i < vals.length; i++){
+        for(int i = 0; i < vals.length - offset; i++){
 
             if(vals[i] != null) {
                 avg += (double) vals[i];
