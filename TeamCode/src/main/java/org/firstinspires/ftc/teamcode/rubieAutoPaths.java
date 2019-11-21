@@ -89,10 +89,10 @@ public class rubieAutoPaths extends LinearOpMode {
             telemetry.update();
 
             if (gamepad2.left_bumper)
-                mode = TeleStackingMode.stacking;
-            //fixme code how to exit mode
+                mode = TeleStackingMode.stacking; // this enters the stacking mode
 
-
+            if (gamepad2.right_bumper)
+                mode = TeleStackingMode.normal; // this exits the stacking mode
 
 
             {
@@ -100,13 +100,13 @@ public class rubieAutoPaths extends LinearOpMode {
                 if (dpadUp != lastGamepad1a && dpadUp)
                     stackingLevel = (stackingLevel < 3 ? stackingLevel + 1 : 3);
                 lastGamepad1a = dpadUp;
-            }
+            } // if up is pressed, higher level
             {
                 boolean dpadDown = gamepad2.dpad_down;
                 if (dpadDown != lastGamepad1b && dpadDown)
                     stackingLevel = (stackingLevel > 0 ? stackingLevel - 1 : 0);
                 lastGamepad1b = dpadDown;
-            }
+            } // if down is pressed, lower level
 
 
             switch (mode) {
@@ -146,6 +146,27 @@ public class rubieAutoPaths extends LinearOpMode {
                             break;
                         case 3:
                             break;
+
+                        case 4:
+                            break;
+
+                        case 5:
+                            break;
+
+                        case 6:
+                            break;
+
+                        case 7:
+                            break;
+
+                        case 8:
+                            break;
+
+                        case 9:
+                            break;
+
+                        case 10:
+                            break;
                     }
                     break;
             }
@@ -165,7 +186,8 @@ public class rubieAutoPaths extends LinearOpMode {
         return (System.currentTimeMillis() - t0) >= ms;
     }
 
-    private void armGoesOverTheSame() {
+    public void armGoesOverTheSame() {
+
 
     }
 
