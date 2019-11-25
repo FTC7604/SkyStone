@@ -41,6 +41,8 @@ public class opencvSkystoneDetector extends LinearOpMode {
     private static int valLeft = -1;
     private static int valRight = -1;
 
+    private static int radius = 5;//denotes the radius of the area to be averaged
+
     private static float rectHeight = .6f/8f;
     private static float rectWidth = 1.5f/8f;
 
@@ -61,7 +63,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
         phoneCam.openCameraDevice();//open camera
         phoneCam.setPipeline(new StageSwitchingPipeline());//different stages
         phoneCam.startStreaming(rows, cols, OpenCvCameraRotation.UPRIGHT);//display on RC
@@ -119,6 +121,20 @@ public class opencvSkystoneDetector extends LinearOpMode {
             stageToRenderToViewport = stages[nextStageNum];
         }
 
+        private int radialAverage(float[] pos, Mat input){
+            int sum = 0;
+
+            for(int i = -radius; i <= radius; i++){
+
+                for(int j = -radius; j <= radius; j++){
+                    sum += thresholdMat.get((int)(input.rows() * pos[1]), (int)(input.cols() * pos[0]))[0];
+                }
+
+            }
+
+            return sum / (4 * radius * radius);
+        }
+
         @Override
         public Mat processFrame(Mat input)
         {
@@ -146,12 +162,15 @@ public class opencvSkystoneDetector extends LinearOpMode {
             //get values from frame
             double[] pixMid = thresholdMat.get((int)(input.rows()* midPos[1]), (int)(input.cols()* midPos[0]));//gets value at circle
             valMid = (int)pixMid[0];
+            //valMid = radialAverage(midPos, input);
 
             double[] pixLeft = thresholdMat.get((int)(input.rows()* leftPos[1]), (int)(input.cols()* leftPos[0]));//gets value at circle
             valLeft = (int)pixLeft[0];
+            //valMid = radialAverage(leftPos, input);
 
             double[] pixRight = thresholdMat.get((int)(input.rows()* rightPos[1]), (int)(input.cols()* rightPos[0]));//gets value at circle
             valRight = (int)pixRight[0];
+            //valRight = radialAverage(rightPos, input);
 
             //create three points
             Point pointMid = new Point((int)(input.cols()* midPos[0]), (int)(input.rows()* midPos[1]));
@@ -159,9 +178,9 @@ public class opencvSkystoneDetector extends LinearOpMode {
             Point pointRight = new Point((int)(input.cols()* rightPos[0]), (int)(input.rows()* rightPos[1]));
 
             //draw circles on those points
-            Imgproc.circle(all, pointMid,5, new Scalar( 255, 0, 0 ),1 );//draws circle
-            Imgproc.circle(all, pointLeft,5, new Scalar( 255, 0, 0 ),1 );//draws circle
-            Imgproc.circle(all, pointRight,5, new Scalar( 255, 0, 0 ),1 );//draws circle
+            Imgproc.circle(all, pointMid,radius, new Scalar( 255, 0, 0 ),1 );//draws circle
+            Imgproc.circle(all, pointLeft,radius, new Scalar( 255, 0, 0 ),1 );//draws circle
+            Imgproc.circle(all, pointRight,radius, new Scalar( 255, 0, 0 ),1 );//draws circle
 
             //draw 3 rectangles
             Imgproc.rectangle(//1-3
@@ -204,7 +223,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
                     return all;
                 }
 
-                case RAW_IMAGE:
+                default:
                 {
                     return input;
                 }
