@@ -71,17 +71,17 @@ public class vuforiaGang extends LinearOpMode {
     private VuforiaLocalizer vuforia = null;
     private boolean targetVisible = false;
 
-    private RobotLinearOpMode robot;
+    //private RobotLinearOpMode robot;
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
     private double BLOCK_POWER = propertiesLoader.getDoubleProperty("BLOCK_POWER");
 
     @Override public void runOpMode() {
         configureVuforia();
-        robot = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
+        //robot = new RobotLinearOpMode(this, COLOR_SENSOR.UNDER);
         waitForStart();
         targetsSkyStone.activate();
 
-        while (!isStopRequested() && !targetVisible) {
+        while (!isStopRequested()) { // && !targetVisible
             targetVisible = false;
 
             if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
@@ -98,13 +98,13 @@ public class vuforiaGang extends LinearOpMode {
 
             }
 
-            if (targetVisible) {
+            /*if (targetVisible) {
                 robot.mecanumPowerDrive(0, 0, 0);
             }
             else {
                 robot.mecanumPowerDrive(0, BLOCK_POWER, 0);
                 telemetry.addData("Visible Target", "none");
-            }
+            }*/
 
             telemetry.update();
         }
