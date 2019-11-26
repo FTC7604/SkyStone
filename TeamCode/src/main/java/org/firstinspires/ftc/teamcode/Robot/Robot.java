@@ -40,6 +40,7 @@ markerLatchServo -> "ml"
 
 blockIntakeTouchSensor -> "bt"
 openIntakeTouchSensor -> "it"
+foundationTouchSensor -> "ft"
 
 leftWingCS -> "cd"
 leftCS -> "lcs"
@@ -70,6 +71,7 @@ public class Robot {
 
     private DigitalChannel blockIntakeTouchSensor;
     private DigitalChannel openIntakeTouchSensor;
+    private DigitalChannel foundationTouchSensor;
 
     private HardwareMap hardwareMap;
     private int BLUE_LINE_VALUE;
@@ -97,6 +99,7 @@ public class Robot {
 
         blockIntakeTouchSensorHardwareMap();
         openIntakeTouchSensorHardwareMap();
+        foundationTouchSensorHardwareMap();
 
         CDHardwareMap();
     }
@@ -251,6 +254,11 @@ public class Robot {
         openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
     }
 
+    private void foundationTouchSensorHardwareMap() {
+        foundationTouchSensor = hardwareMap.get(DigitalChannel.class, "ft");
+        foundationTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+    }
+
     //initalializes the imu
     public void initIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -309,6 +317,10 @@ public class Robot {
 
     public boolean intakeIsOpen() {
         return !openIntakeTouchSensor.getState();
+    }
+
+    public boolean foundationIsNear() {
+        return !foundationTouchSensor.getState();
     }
 
     public double[] getColors(COLOR_SENSOR location){

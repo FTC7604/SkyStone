@@ -132,7 +132,7 @@ public class vuforiaGang extends LinearOpMode {
 
 }
 
-class comment {
+//class comment {
         /*while (!isStopRequested() && !targetVisible) {
 
             if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
@@ -214,4 +214,4 @@ class comment {
         targetsSkyStone.deactivate();*/
 
 // Disable Tracking when we are done;*/
-}   //Contains old code
+//}   //Contains old code

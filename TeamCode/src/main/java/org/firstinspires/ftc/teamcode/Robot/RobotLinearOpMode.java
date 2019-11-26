@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
+import org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile;
 import org.firstinspires.ftc.teamcode.Control.EverHit;
 
 import static java.lang.Math.abs;
@@ -195,6 +196,19 @@ public class RobotLinearOpMode extends Robot {
         STRAFE,
         FORWARD,
         ROTATION,
+    }
+
+    public void moveByInchesWill(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction){
+        BetterBalisticProfile betterBalisticProfile = new BetterBalisticProfile(
+                getAverageDriveTrainEncoder(movement_direction),
+                desiredPositionChangeInInches * inchesToEncoders,
+                BetterBalisticProfile.CURVE.PROPORTIONAL
+        );
+
+        while(!betterBalisticProfile.isComplete()){
+            betterBalisticProfile.update(getAverageDriveTrainEncoder(movement_direction));
+            mecanumPowerDrive(movement_direction, betterBalisticProfile.getAllVelocity());
+        }
     }
 
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {

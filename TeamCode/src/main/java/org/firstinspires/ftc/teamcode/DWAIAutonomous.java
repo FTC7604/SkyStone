@@ -83,8 +83,18 @@ public class DWAIAutonomous extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        alignToFoundationFromFoundationSide();
-        getFoundation();
+        //alignToFoundationFromFoundationSide();
+        //getFoundation();
+
+        robot.moveByInchesWill(36,FORWARD);
+
+//        robot.openLatch();
+//        while (!robot.foundationIsNear()){
+//            robot.mecanumPowerDrive(0,-1,0);
+//        }
+//        robot.closeLatch();
+
+
 
 
 //        robot.moveByInches(DISTANCE_TO_GET_STONE, FORWARD, true);
