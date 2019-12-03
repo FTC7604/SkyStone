@@ -35,23 +35,22 @@ import java.util.List;
 public class opencvSkystoneDetector extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
+    private static PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
+
     //0 means skystone, 1 means yellow stone
     //-1 for debug, but we can keep it like this because if it works, it should change to either 0 or 255
     private static int valMid = -1;
     private static int valLeft = -1;
     private static int valRight = -1;
 
-    private static int radius = 5;//denotes the radius of the area to be averaged
+    private static int radius = 5;
 
     private static float rectHeight = .6f/8f;
     private static float rectWidth = 1.5f/8f;
 
-    private static float offsetX = 0f/8f;//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
-    private static float offsetY = 0f/8f;//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
-
-    private static float[] midPos = {4f/8f+offsetX, 4f/8f+offsetY};//0 = col, 1 = row
-    private static float[] leftPos = {2f/8f+offsetX, 4f/8f+offsetY};
-    private static float[] rightPos = {6f/8f+offsetX, 4f/8f+offsetY};
+    private static float[] midPos = new float[2];
+    private static float[] leftPos = new float[2];
+    private static float[] rightPos = new float[2];
     //moves all rectangles right or left by amount. units are in ratio to monitor
 
     private final int rows = 640;
@@ -60,7 +59,18 @@ public class opencvSkystoneDetector extends LinearOpMode {
     OpenCvCamera phoneCam;
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
+
+        float offsetX = propertiesLoader.getFloatProperty("OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
+        float offsetY = propertiesLoader.getFloatProperty("OFFSET_Y");//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
+        float distScale = propertiesLoader.getFloatProperty("DIST_SCALE");
+
+        midPos[0] = (4f + offsetX) / 8f;
+        midPos[1] = (4f + offsetY) / 8f;
+        leftPos[0] = (4f + offsetX - distScale * 2f) / 8f;
+        leftPos[1] = (4f + offsetY) / 8f;
+        rightPos[0] = (4f + offsetX + distScale * 2f) / 8f;
+        rightPos[1] = (4f + offsetY) / 8f;
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
@@ -76,6 +86,10 @@ public class opencvSkystoneDetector extends LinearOpMode {
             telemetry.addData("Values", valLeft+"   "+valMid+"   "+valRight);
             telemetry.addData("Height", rows);
             telemetry.addData("Width", cols);
+
+            telemetry.addData("Point mid: ", midPos[0] + ", " + midPos[1]);
+            telemetry.addData("Point left: ", leftPos[0] + ", " + leftPos[1]);
+            telemetry.addData("Point right: ", rightPos[0] + ", " + rightPos[1]);
 
             telemetry.update();
             sleep(100);
@@ -157,7 +171,6 @@ public class opencvSkystoneDetector extends LinearOpMode {
             Imgproc.findContours(thresholdMat, contoursList, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
             yCbCrChan2Mat.copyTo(all);//copies mat object
             //Imgproc.drawContours(all, contoursList, -1, new Scalar(255, 0, 0), 3, 8);//draws blue contours
-
 
             //get values from frame
             double[] pixMid = thresholdMat.get((int)(input.rows()* midPos[1]), (int)(input.cols()* midPos[0]));//gets value at circle
