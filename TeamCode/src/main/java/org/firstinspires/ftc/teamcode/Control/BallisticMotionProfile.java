@@ -5,23 +5,26 @@ package org.firstinspires.ftc.teamcode.Control;
 public class BallisticMotionProfile {
 
     //this is the top limit of the system in regards to position, angle, etc. top and bottom limits set the bounds
-    private double TOP_LIMIT = 0;
-    private double BOTTOM_LIMIT = 0;
+    private double TOP_LIMIT;
+    private double BOTTOM_LIMIT;
 
     //This distance value describes how close the system must be to a limit to start decelerating
     //It can be thought of as the distance needed for a full deceleration for max power
     //Larger deceldistance = flatter curve, vice versa
-    private double DECELERATION_DISTANCE = 0;
+    private double DECELERATION_DISTANCE;
 
     //These parameters are about motor powers, They describe the minimum and maximum powers for the motors expressed as aboslute values
     //MIN_POWER is the minimum power needed for the system to move. When a curve is applied it will never be below MIN_POWER because otherwise the system would stall and not move at all.
-    private double MIN_POWER = 0;
+    private double MIN_POWER;
     //MAX_POWER describes the maximum power that will ever be returned by a non-private method in this class. This is defaulted to 1 for full power,
     //but should be lowered if a system is under constant load so the curve can be properly shaped.
-    private double MAX_POWER = 1;
+    private double MAX_POWER;
 
     //This is used to change the shape of the curve, See my desmos or keep at 1 for now.
-    private double EXP_POWER = 1;
+    private double EXP_POWER;
+
+    //Adjusts the power from between 0-1 to between minPower-MaxPower.
+    private double POWER_ADJUSTMENT_MULTIPLIER;
 
     //we keep all the parameter names consistant
     public BallisticMotionProfile(final double LIMIT_1, final double LIMIT_2, final double DECELERATION_DISTANCE, final double MIN_POWER, final double EXP_POWER, final double MAX_POWER) {
@@ -39,6 +42,7 @@ public class BallisticMotionProfile {
         this.MIN_POWER = MIN_POWER;
         this.EXP_POWER = EXP_POWER;
         this.MAX_POWER = MAX_POWER;
+        this.POWER_ADJUSTMENT_MULTIPLIER = MAX_POWER - MIN_POWER;
     }
 
     //This is the heart of the ballistic class. It takes in the distance to a limit,
@@ -49,9 +53,6 @@ public class BallisticMotionProfile {
 
         //this gets set to a value between 0 and 1 based on the sin curve. we get raw curve before we apply max, min, exponents, and adjustment powers
         double rawCurve;
-
-        //this represents the highest possible power value before we consider the min power.
-        final double POWER_ADJUSTMENT_MULTIPLIER = MAX_POWER - MIN_POWER;
 
         ///first we get the raw curve power value between 0 and 1
         rawCurve = (Math.sin(Math.PI * distanceToLimit / (2 * DECELERATION_DISTANCE)));
@@ -76,9 +77,6 @@ public class BallisticMotionProfile {
 
         //This one is calculated when we combine the two curves, and apply power limits
         double netProcessedCurve;
-
-        //this represents the highest possible power value before we consider the min power.
-        final double POWER_ADJUSTMENT_MULTIPLIER = MAX_POWER - MIN_POWER;
 
         //we use these two curves to find the combined net curve based on the two distances
         //We only take the curve IF IT IS WITHIN THE DECELERATION DISTANCE

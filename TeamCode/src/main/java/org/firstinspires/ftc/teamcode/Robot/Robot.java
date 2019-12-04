@@ -40,6 +40,7 @@ markerLatchServo -> "ml"
 
 blockIntakeTouchSensor -> "bt"
 openIntakeTouchSensor -> "it"
+foundationTouchSensor -> "ft"
 
 leftWingCS -> "cd"
 leftCS -> "lcs"
@@ -71,6 +72,7 @@ public class Robot {
 
     private DigitalChannel blockIntakeTouchSensor;
     private DigitalChannel openIntakeTouchSensor;
+    private DigitalChannel foundationTouchSensor;
 
     private HardwareMap hardwareMap;
     private int BLUE_LINE_VALUE;
@@ -265,6 +267,10 @@ public class Robot {
 
     public boolean intakeIsOpen() {
         return openIntakeTouchSensor.getState();
+    }
+
+    public boolean foundationIsNear() {
+        return !foundationTouchSensor.getState();
     }
 
     public double[] getColors(){
