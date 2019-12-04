@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Control;
 
 
+import static java.lang.Math.*;
 
 public class BallisticMotionProfile {
 
@@ -45,27 +46,32 @@ public class BallisticMotionProfile {
         this.POWER_ADJUSTMENT_MULTIPLIER = MAX_POWER - MIN_POWER;
     }
 
-    //This is the heart of the ballistic class. It takes in the distance to a limit,
-    //and by using this value in comparison to DECELERATION_DISTANCE, it can return a positive power value between MAX_POWER, and MIN_POWER
+    //this is the heart of the ballistic class, it returns power based on the distance from something
+    //PI/2 makes the period 4 times it would otherwise be, so it peaks at deceleration distance on the positive and negative ends
+    //distance to limit is like the x value of the curve
+    double rawCurve(double distanceToLimit){
+        return sin((PI/2) * (1/DECELERATION_DISTANCE) * (distanceToLimit));
+    }
+
+    double processedCurve(double rawCurve){
+         return (POWER_ADJUSTMENT_MULTIPLIER * pow(rawCurve, EXP_POWER) + MIN_POWER);
+    }
+
+    //it returns a power between minimum and maximum power that can actually be used.
     private double singleCurveLimit(double distanceToLimit) {
-        //we eventually return this motorpower
+        //motorpower to be returned.
         double motorPower;
 
-        //this gets set to a value between 0 and 1 based on the sin curve. we get raw curve before we apply max, min, exponents, and adjustment powers
-        double rawCurve;
+        //this gets set to a value between 0 and 1 based on the sin curve.
+        double rawCurve = rawCurve(distanceToLimit);
 
-        ///first we get the raw curve power value between 0 and 1
-        rawCurve = (Math.sin(Math.PI * distanceToLimit / (2 * DECELERATION_DISTANCE)));
+        //we then adjust the power between Min and Max power and can change the shape with the exponentional power
+        motorPower = processedCurve(rawCurve);
 
-        //then we apply our exponent multiplier, add on the floor power, but scale it so that it doesn't exceed the MAX_POWER
-        motorPower = (POWER_ADJUSTMENT_MULTIPLIER * Math.pow(rawCurve, EXP_POWER) + MIN_POWER);//use this curve to then apply additional exponents, then scale it by 0.9, then add the floor value to even it out.
-
-        //return the curved power as a positive value, this gets made negative if needed outside of this method
         return motorPower;
     }
 
-    //This is very similar to the single curve version, but instead it considers more than one limit.
-    //The singlecurve only thinks about the distance to one limit, whereas the double curve considers the distance to both, multiplying the two curves together
+    //This is very similar to the single curve version, but instead it considers more than one limit by multiplying two single curves together
     private double doubleCurveLimit(double distanceToTop, double distanceToBottom){
         //what we end up returning
         double motorPower;
@@ -80,15 +86,15 @@ public class BallisticMotionProfile {
 
         //we use these two curves to find the combined net curve based on the two distances
         //We only take the curve IF IT IS WITHIN THE DECELERATION DISTANCE
-        if (distanceToTop < DECELERATION_DISTANCE) rawTopCurve = (Math.sin(Math.PI * distanceToTop / (2 * DECELERATION_DISTANCE)));
+        if (distanceToTop < DECELERATION_DISTANCE) rawTopCurve = rawCurve(distanceToTop);
         else rawTopCurve = 1;
         //Otherwise we give back 1 because it isn't close enough to its limit to slow it down
 
-        if (distanceToBottom < DECELERATION_DISTANCE) rawBottomCurve =   (Math.sin(Math.PI * distanceToBottom / (2 * DECELERATION_DISTANCE)));
+        if (distanceToBottom < DECELERATION_DISTANCE) rawBottomCurve = rawCurve(distanceToBottom);
         else rawBottomCurve = 1;
 
         //this multiplies the two curves together, applies the floor calculations, and applies exponential multipliers if used
-        netProcessedCurve = (POWER_ADJUSTMENT_MULTIPLIER * Math.pow((rawTopCurve * rawBottomCurve), EXP_POWER)) + MIN_POWER;
+        netProcessedCurve = processedCurve(rawBottomCurve * rawTopCurve);
 
         motorPower = netProcessedCurve;
 
@@ -166,7 +172,7 @@ public class BallisticMotionProfile {
 
         //Now that we have a maximum allowed power we need to think about what the user is asking for
         //we limit if needed, otherwise the user gets what they want
-        if (Math.abs(requestedPower) > allowedABSPower) {
+        if (abs(requestedPower) > allowedABSPower) {
             if (requestedPower > 0) return allowedABSPower;
             else if (requestedPower < 0) return -allowedABSPower;
             else return 0;

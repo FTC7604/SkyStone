@@ -1,19 +1,9 @@
-//imports the package so that all the code can be used
 package org.firstinspires.ftc.teamcode;
 
-
-//all the imports that come from qualcomm, mainly needing to do with the Hardware and the phone running
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-//all the imports that come from Casey and I in the Package
-import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
-import org.firstinspires.ftc.teamcode.Control.EverHit;
-import org.firstinspires.ftc.teamcode.Control.HumanController;
-import org.firstinspires.ftc.teamcode.Control.Toggle;
+import com.qualcomm.robotcore.eventloop.opmode.*;
+import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.*;
+import org.firstinspires.ftc.teamcode.Control.*;
 import org.firstinspires.ftc.teamcode.Robot.*;
 
 //all the imports that come from java, abs is absolute value
@@ -21,22 +11,10 @@ import static java.lang.Math.abs;
 
 //name that appears on the phone and the group that it is a part of
 @TeleOp(name = "Test OpMode", group = "Linear Opmode")
-
-//class name that corresponds with the file, it is a linear opMode that I then changed
+@Disabled
 public class testOpMode extends LinearOpMode {
 
-
-    /*Mini Lesson:
-    Public - Can be accessed from anywhere
-    Private - Can be accessed from within the class
-    *Nothing* - Can be accessed from within the package (package private)
-    Proteccted - Subclasses can access the object (think extends)
-     */
-
-    //We start with some arm positions that we will go to in the future
-    //this one is where we start, with the arm at 0 resting in the robot.
     private final double ARM_DOWN_POSITION = 0;
-    //this one is all
     private final double ARM_UP_POSITION = 1600;
 
 
@@ -44,19 +22,6 @@ public class testOpMode extends LinearOpMode {
 
     //so these exist so that I do not get confused, not strictly necessary, 0 is the strafe, 1 is the forward, and 2 is the rotation
     private double[] driveTrainController = new double[3];
-    /*Mini Lesson:
-    Int - Whole numbers
-    Long - Long whole numbers
-    Float - Whole numbers but hexidecimal(base 16)
-    Double - Floating point (decimal values)
-    Char - Character, the basis of a word
-    Boolean - True/False
-     */
-
-
-    //public BallisticMotionProfile liftProfile = new BallisticMotionProfile(0, 3300, 1000, 0.25, 1, .7);
-    //public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.25, 1, .7);
-
     private double intakePower = 0;
     private double armPower = 0;
     private double liftPower = 0;
@@ -290,4 +255,3 @@ public class testOpMode extends LinearOpMode {
         telemetry.update();
     }
 }
-
