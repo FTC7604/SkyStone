@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.Robot.*;
 //all the imports that come from java, abs is absolute value
 import static java.lang.Math.abs;
 
+/**  DIVORCED FROM ACTUAL OPMODE  */
+
 //name that appears on the phone and the group that it is a part of
 @TeleOp(name = "Test OpMode", group = "Linear Opmode")
 @Disabled
@@ -251,7 +253,7 @@ public class testOpMode extends LinearOpMode {
     void sendTelemetry() {
         telemetry.addData("Arm Position: ", armPosition);
         telemetry.addData("Lift Position: ", liftPosition);
-        telemetry.addData("Open Intake Touch Boolean", robotLinearOpMode.intakeIsOpen());
+        telemetry.addData("Open Intake Touch Boolean", robotLinearOpMode.getIntakeSensorPressed());
         telemetry.update();
     }
 }

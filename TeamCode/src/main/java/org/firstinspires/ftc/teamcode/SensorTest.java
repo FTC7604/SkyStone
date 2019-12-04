@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+/**  TESTING SIMULTANEOUS SENSOR USAGE, USELESS NOW  */
+
 @TeleOp(name = "I am Sensor", group = "Linear Opmode")
 @Disabled
 public class SensorTest extends LinearOpMode {

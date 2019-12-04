@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -14,6 +13,7 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
 @TeleOp(name = "Will's Autonomous Prototype", group = "TeleOp")
+@Disabled
 public class DWAIAutonomous extends LinearOpMode {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
@@ -216,7 +216,7 @@ public class DWAIAutonomous extends LinearOpMode {
     private void latchFoundation(){
         robot.openLatch();
 
-        while(!robot.foundationIsNear()){
+        while(!robot.getFoundationSensorPressed()){
             robot.mecanumPowerDrive(0,-.6,0);
         }
 

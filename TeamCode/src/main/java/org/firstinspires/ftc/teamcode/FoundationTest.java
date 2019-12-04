@@ -1,16 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.*;
 
-/**  TESTING FOR SKYSTONE INTAKE DURING AUTONOMOUS  */
+/**  TESTING FOR SKYSTONE FOUNDATION DURING AUTONOMOUS  */
 
-@TeleOp(name = "Intake Test", group = "TeleOp")
-public class IntakeTest extends LinearOpMode {
+@TeleOp(name = "Foundation Test", group = "TeleOp")
+public class FoundationTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private RobotLinearOpMode robot;
 
@@ -21,17 +20,21 @@ public class IntakeTest extends LinearOpMode {
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.initIMU();
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+
         waitForStart();
         runtime.reset();
 
-        robot.mecanumPowerDrive(0, 0.2, 0);
-        robot.setIntakePower(1);
+        robot.openLatch();
+        robot.mecanumPowerDrive(0, -1, 0);
 
-        while(!robot.getBlockSensorPressed() && opModeIsActive()){
+        while(!robot.getFoundationSensorPressed() && opModeIsActive()){
 
         }
 
         robot.mecanumPowerDrive(0, 0, 0);
-        robot.setIntakePower(0);
+        robot.closeLatch();
     }
 }

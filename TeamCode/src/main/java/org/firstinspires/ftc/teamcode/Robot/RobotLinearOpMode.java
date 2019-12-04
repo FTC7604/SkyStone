@@ -21,7 +21,7 @@ public class RobotLinearOpMode extends Robot {
     public BallisticMotionProfile liftProfile = new BallisticMotionProfile(
             20,
             1300,
-            1,
+            100,
             .05,
             1,
             .8
@@ -65,17 +65,6 @@ public class RobotLinearOpMode extends Robot {
         leftBackDriveMotor.setPower(forward + strafe * ratio + rotation);
         rightFrontDriveMotor.setPower(forward + strafe - rotation);
         rightBackDriveMotor.setPower(forward - strafe * ratio - rotation);
-    }
-
-    private void mecVelocityDrive(double strafe, double forward, double rotation) {
-        leftFrontDriveMotor.setVelocity(forward - strafe + rotation);
-        leftBackDriveMotor.setVelocity(forward + strafe + rotation);
-        rightFrontDriveMotor.setVelocity(forward + strafe - rotation);
-        rightBackDriveMotor.setVelocity(forward - strafe - rotation);
-    }
-
-    public void mecVelocityDrive(double[] controller) {
-        mecVelocityDrive(controller[0], controller[1], controller[2]);
     }
 
     public void turnByDegree(double degree) {
@@ -140,7 +129,7 @@ public class RobotLinearOpMode extends Robot {
 
     /**  INTAKE+LIFT MOTOR METHODS  */
     public void setIntakePower(double intakePower) {
-        if (!intakeIsOpen()) {
+        if (!getIntakeSensorPressed()) {
             rightIntakeMotor.setPower(intakePower);
             leftIntakeMotor.setPower(-intakePower);
         } else {
@@ -151,9 +140,7 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public void setLiftPower(double liftPower) {
-        PID liftPID = new PID();
-        double adjustedliftPower = liftProfile.limitWithoutAccel(liftMotor.getCurrentPosition(), liftPower);
-        liftMotor.setPower(adjustedliftPower);
+        liftMotor.setPower(liftPower);
     }
 
     public void setArmPower(double armPower) {
@@ -178,6 +165,7 @@ public class RobotLinearOpMode extends Robot {
         } while ((abs(desiredPositionChangeInEncoders) > abs(startEncoderValue - currentEncoderValue)) && linearOpMode.opModeIsActive());
     }
 
+    //Look at this method again, see if necessary
     public boolean armHasArrived(double targetEncoder) {
         boolean arrivedAtTargetEncoder;
 
@@ -237,14 +225,10 @@ public class RobotLinearOpMode extends Robot {
 
     public double[] getChangeInDriveTrainEncoder() {
         return new double[]{
-        (+leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
-        (-leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
-        (+leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+        (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
+        (- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+        (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
         };
-    }
-
-    private double getChangeInDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction, double averageDriveTrainEncoder) {
-        return getAverageDriveTrainEncoder(movement_direction) - averageDriveTrainEncoder;
     }
 
     public int getLiftEncoder() {

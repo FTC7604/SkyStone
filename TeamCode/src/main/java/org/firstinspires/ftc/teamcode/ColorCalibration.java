@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 import org.firstinspires.ftc.teamcode.Robot.*;
 import java.util.*;
 
+/**  TEST COLOR SENSORS + LOGGING  */
+
 @TeleOp(name="Color Test", group="TeleOp")
 public class ColorCalibration extends LinearOpMode {
     RobotLinearOpMode robot;

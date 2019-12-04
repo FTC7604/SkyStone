@@ -54,6 +54,8 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 import org.firstinspires.ftc.teamcode.Robot.*;
 
+/**  CONTAINS ALL PRIOR VUFORIA TESTING  */
+
 @TeleOp(name="Vuforia Test", group ="Autonomous")
 @Disabled
 public class vuforiaGang extends LinearOpMode {

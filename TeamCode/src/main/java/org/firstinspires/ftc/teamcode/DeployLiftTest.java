@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.*;
 
+/**  CONTAINS DEPLOY FUNCTION!  */
+
 @TeleOp(name = "Deploy Test", group = "TeleOp")
 public class DeployLiftTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();

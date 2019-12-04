@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public class RobotSensorThreads extends Robot {
     public RobotSensorThreads(OpMode opMode) {
-        super(opMode);
+        super(opMode, COLOR_SENSOR.UNDER);
     }
 
     //Thread driveTrain

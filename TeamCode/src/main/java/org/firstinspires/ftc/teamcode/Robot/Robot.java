@@ -126,6 +126,8 @@ public class Robot {
         blockIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
         openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
         openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+        foundationTouchSensor = hardwareMap.get(DigitalChannel.class, "ft");
+        foundationTouchSensor.setMode(DigitalChannel.Mode.INPUT);
 
         //COLOR DISTANCE SENSOR
         switch(activatedSensor) {
@@ -262,14 +264,14 @@ public class Robot {
     /**  SENSOR METHODS  */
     //returns the value of the touch sensor
     public boolean getBlockSensorPressed() {
-        return blockIntakeTouchSensor.getState();
+        return !blockIntakeTouchSensor.getState();
     }
 
-    public boolean intakeIsOpen() {
-        return openIntakeTouchSensor.getState();
+    public boolean getIntakeSensorPressed() {
+        return !openIntakeTouchSensor.getState();
     }
 
-    public boolean foundationIsNear() {
+    public boolean getFoundationSensorPressed() {
         return !foundationTouchSensor.getState();
     }
 
