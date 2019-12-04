@@ -30,17 +30,12 @@ public class Test2Teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
-        for(int i = 0; i < directions.length; i++){
-            directions[i] = new Toggle(false);
-        }
-
         robotLinearOpMode = new RobotLinearOpMode(this);
 
         robotLinearOpMode.setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        //robotLinearOpMode.setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robotLinearOpMode.setDriveTrainRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        robotLinearOpMode.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -49,40 +44,16 @@ public class Test2Teleop extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        int x = 0;
-        int y = 0;
-        int r = 0;
-
         while (opModeIsActive()) {
+            robotLinearOpMode.mecanumPowerDrive(
+                    gamepad1.left_stick_x,
+                    gamepad1.left_stick_y,
+                    gamepad1.right_stick_x
+            );
 
-            directions[0].update(gamepad1.dpad_up);
-            directions[1].update(gamepad1.dpad_down);
-            directions[2].update(gamepad1.dpad_right);
-            directions[3].update(gamepad1.dpad_left);
+            robotLinearOpMode.setLiftPower(-gamepad2.left_stick_y);
 
-            directions[4].update(gamepad1.x);
-            directions[5].update(gamepad1.b);
-
-            if(!directions[0].get() && !directions[1].get())x = 0;
-            if(directions[0].get() && !directions[1].get())x = 1;
-            if(!directions[0].get() && directions[1].get())x = -1;
-            if(directions[0].get() && directions[1].get())x = 0;
-
-            if(!directions[2].get() && !directions[3].get())y = 0;
-            if(directions[2].get() && !directions[3].get())y = 1;
-            if(!directions[2].get() && directions[3].get())y = -1;
-            if(directions[2].get() && directions[3].get())y = 0;
-
-            if(!directions[4].get() && !directions[5].get())r = 0;
-            if(directions[4].get() && !directions[5].get())r = 1;
-            if(!directions[4].get() && directions[5].get())r = -1;
-            if(directions[4].get() && directions[5].get())r = 0;
-
-            robotLinearOpMode.mecanumPowerDrive(y,x,r);
 
         }
-
-
-
     }
 }

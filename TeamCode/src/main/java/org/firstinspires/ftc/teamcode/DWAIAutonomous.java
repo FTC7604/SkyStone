@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 
+import java.util.FormatFlagsConversionMismatchException;
+
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
@@ -23,11 +25,9 @@ public class DWAIAutonomous extends LinearOpMode {
     private boolean PAUSE_BACKWARD_TO_GET_OFF_WALL = propertiesLoader.getBooleanProperty("PAUSE_BACKWARD_TO_GET_OFF_WALL");
 
     private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH");
     private double DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT");
 
     private boolean PAUSE_BACKWARD_TO_GET_FOUNDATION = propertiesLoader.getBooleanProperty("PAUSE_BACKWARD_TO_GET_FOUNDATION");
-    private boolean PAUSE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH = propertiesLoader.getBooleanProperty("PAUSE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH");
     private boolean PAUSE_FORWARD_TO_DEPOT = propertiesLoader.getBooleanProperty("PAUSE_FORWARD_TO_DEPOT");
 
     private double DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION");
@@ -39,9 +39,13 @@ public class DWAIAutonomous extends LinearOpMode {
     private boolean PAUSE_LATCH = propertiesLoader.getBooleanProperty("PAUSE_LATCH");
     private long PAUSE_TIME = propertiesLoader.getLongProperty("PAUSE_TIME");
 
+    private boolean PAUSE_FORWARD_TO_TURN = propertiesLoader.getBooleanProperty("PAUSE_FORWARD_TO_TURN");
+    private double DRIVETRAIN_DISTANCE_FORWARD_TO_TURN = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_TURN");
+
     private boolean PAUSE_UP_TO_RELEASE_BLOCK = propertiesLoader.getBooleanProperty("PAUSE_UP_TO_RELEASE_BLOCK");
     private boolean PAUSE_DOWN_TO_RELEASE_BLOCK = propertiesLoader.getBooleanProperty("PAUSE_DOWN_TO_RELEASE_BLOCK");
     private double ARM_ENCODER_TO_RELEASE_BLOCK = propertiesLoader.getDoubleProperty("ARM_ENCODER_TO_RELEASE_BLOCK");
+
 
 //    private double ARM_LIFT_UP_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_UP_ENCODER_DISTANCE");
 //    private double ARM_LIFT_DOWN_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_DOWN_ENCODER_DISTANCE");
@@ -83,10 +87,11 @@ public class DWAIAutonomous extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        //alignToFoundationFromFoundationSide();
-        //getFoundation();
+        alignToFoundationFromFoundationSide();
+        getFoundationCurve();
+        //getFoundationStraight();
 
-        robot.moveByInchesWill(36,FORWARD);
+        //robot.moveByInchesWill(36,FORWARD);
 
 //        robot.openLatch();
 //        while (!robot.foundationIsNear()){
@@ -120,16 +125,6 @@ public class DWAIAutonomous extends LinearOpMode {
     }
 
 
-    private void dropOffBlock() {
-        if(PAUSE_UP_TO_RELEASE_BLOCK)print("Moving up to drop off the Block");
-        robot.moveArmByEncoder(ARM_ENCODER_TO_RELEASE_BLOCK);
-
-        if(PAUSE_LATCH)print("Opening Grabber");
-        robot.openGrabber();
-
-        if(PAUSE_DOWN_TO_RELEASE_BLOCK)print("Moving down to drop off the Block");
-        robot.moveArmByEncoder(-ARM_ENCODER_TO_RELEASE_BLOCK);
-    }
 //
 //    private void getTheSecondOrThirdBlock(int stoneNumber){
 //        robot.moveByInches(8 * stoneNumber,FORWARD,true);
@@ -213,23 +208,41 @@ public class DWAIAutonomous extends LinearOpMode {
 
         if(PAUSE_RIGHT_TO_GET_FOUNDATION)print("Moving right to foundation");
         robot.moveByInches(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
-    }
-
-    private void getFoundation() {
 
         if(PAUSE_BACKWARD_TO_GET_FOUNDATION)print("Moving to build plate");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD);
+    }
 
-        if(PAUSE_LATCH)print("Opening Latch");
+    private void latchFoundation(){
         robot.openLatch();
 
-        if(PAUSE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH)print("Moving and latching build plate");
-        robot.moveToLatch(DRIVETRAIN_DISTANCE_BACKWARD_TO_PUSH_FOUNDATION_FOR_LATCH);
+        while(!robot.foundationIsNear()){
+            robot.mecanumPowerDrive(0,-.6,0);
+        }
 
-        if(PAUSE_FORWARD_TO_DEPOT)print("Dragging the build plate to the wall");
+        robot.closeLatch();
+
+        robot.moveByInches(-2, FORWARD, .6);
+    }
+
+    private void getFoundationCurve(){
+        latchFoundation();
+
+        //forward
+        if(PAUSE_FORWARD_TO_TURN)print("Driving forward to the platform");
+        robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
+
+        print("Turning to be forward");
+        robot.turnByDegree(90);
+
+        robot.openLatch();
+    }
+    private void getFoundationStraight() {
+        latchFoundation();
+
+        if(PAUSE_FORWARD_TO_DEPOT)print("Driving forward to the platform");
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT, FORWARD);
 
-        if(PAUSE_LATCH)print("Opening Latch");
         robot.openLatch();
 
         if(PAUSE_LEFT_TO_CLEAR_FOUNDATION)print("Strafing away from the platform");
@@ -240,7 +253,6 @@ public class DWAIAutonomous extends LinearOpMode {
 
         print("Turning to be forward");
         robot.turnByDegree(85);
-
 
     }
 

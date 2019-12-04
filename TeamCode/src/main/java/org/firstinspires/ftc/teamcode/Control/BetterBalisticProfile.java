@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Control;
 
+import static java.lang.Math.*;
+
 public class BetterBalisticProfile {
 
     //the state of the balistic profile
@@ -30,7 +32,15 @@ public class BetterBalisticProfile {
     }
 
     public BetterBalisticProfile(double rawStartPosition, double changeInPosition, CURVE curve){
-        new BetterBalisticProfile(.05,1440/2.1440,.8,rawStartPosition,0,changeInPosition,curve);
+        new BetterBalisticProfile(
+                .05,
+                1440 * 10,
+                1440 * 10,
+                .8,
+                rawStartPosition,
+                changeInPosition,
+                curve
+        );
     }
 
     private double startingPower;
@@ -48,24 +58,26 @@ public class BetterBalisticProfile {
     public boolean isComplete(){
         return state == STATE.COMPLETE;
     }
+    public STATE getState(){return state;}
 
     public void update(double rawCurrentPosition){
         this.currentPosition = rawCurrentPosition - rawStartPosition;
         updateState();
     }
 
+
     //this method updates the state of the curve based on the position of the system in its curve
     private void updateState(){
         //checks to see if the system has reached the end of the loop
-        if(Math.abs(currentPosition)>= Math.abs(changeInPosition)){
+        if(abs(currentPosition)>= abs(changeInPosition)){
             state = STATE.COMPLETE;
         }
         //if it hasn't gotten farther than the accelerationDistance, then it is accelerating
-        else if(Math.abs(currentPosition) < accelerationDistance){
+        if(abs(currentPosition) < abs(accelerationDistance)){
             state = STATE.ACCELERATING;
         }
         //if it is within the deceleration distance of the end, then it should decelerate
-        else if(Math.abs(currentPosition) < Math.abs(changeInPosition) - deccelerationDistance){
+        else if(abs(currentPosition) < abs(changeInPosition) - abs(deccelerationDistance)){
             state = STATE.DECELERATING;
         }
         //if it hasn't completed the loop, isn't accelerating or decelerating it should be at full power.
@@ -117,7 +129,7 @@ public class BetterBalisticProfile {
 
         //has possible addions to the curve.
         switch(curve){
-            case SINISUDAL: return scaleCurve * Math.sin((Math.PI/4) * scaledCurrentPosition) + addionalCurve;
+            case SINISUDAL: return scaleCurve * sin((PI/4) * scaledCurrentPosition) + addionalCurve;
             case PROPORTIONAL: return scaleCurve * scaledCurrentPosition + addionalCurve;
         }
 
@@ -129,6 +141,7 @@ public class BetterBalisticProfile {
         switch (state){
             //at the end of the acceleration is will hit some point, the positional error is the distance to this point
             case ACCELERATING:
+                return getVelocity();
                 //not the positional error is the distance remaining to the target
             case DECELERATING:
                 return getVelocity();
@@ -136,8 +149,8 @@ public class BetterBalisticProfile {
             case FULL_POWER: return maximumPower;
             //also common sense
             case COMPLETE: return 0;
-            //becuase I must
-            default: return 0;
         }
+
+        return -1;
     }
 }
