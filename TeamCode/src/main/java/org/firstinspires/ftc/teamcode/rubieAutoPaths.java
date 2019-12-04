@@ -49,7 +49,7 @@ public class rubieAutoPaths extends LinearOpMode {
     double[] driveTrainController = new double[3];
     double intakePower = 0;
     double armPower = 0;
-    double liftPower = 0;
+    double liftPower = 3;
 
     //sensor values, also exist to make the code cleaner
     double armPosition = 0;
@@ -98,7 +98,7 @@ public class rubieAutoPaths extends LinearOpMode {
             {
                 boolean dpadUp = gamepad2.dpad_up;
                 if (dpadUp != lastGamepad1a && dpadUp)
-                    stackingLevel = (stackingLevel < 3 ? stackingLevel + 1 : 3);
+                    stackingLevel = (stackingLevel < 10 ? stackingLevel + 1 : 10);
                 lastGamepad1a = dpadUp;
             } // if up is pressed, higher level
             {
@@ -127,11 +127,11 @@ public class rubieAutoPaths extends LinearOpMode {
                         case 0:
                             robotLinearOpMode.closeGrabber();
                             timeoutReset();
-                            stackingLevel++;
+                            stackingLevel = 0;
                             break;
                         case 1:
                             if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
-                                stackingLevel++;
+                                stackingLevel = 1;
                                 robotLinearOpMode.openGrabber();
                                 timeoutReset();
                             }
@@ -139,33 +139,73 @@ public class rubieAutoPaths extends LinearOpMode {
                             break;
                         case 2:
                             if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
-                                stackingLevel = 0;
-
-
+                                stackingLevel = 2;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
                             }
                             break;
                         case 3:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 3;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
                             break;
 
                         case 4:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 4;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
                             break;
 
                         case 5:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 5;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
                             break;
 
                         case 6:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 6;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
                             break;
 
                         case 7:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 7;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
                             break;
 
                         case 8:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 8;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
                             break;
 
                         case 9:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 9;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
                             break;
 
                         case 10:
+                            if (timeoutHasBeenAtLeast(timeOutDurationForGrabber)) {
+                                stackingLevel = 10;
+                                robotLinearOpMode.openGrabber();
+                                timeoutReset();
+                            }
                             break;
                     }
                     break;
@@ -186,9 +226,15 @@ public class rubieAutoPaths extends LinearOpMode {
         return (System.currentTimeMillis() - t0) >= ms;
     }
 
+    public void goUpStackingLevel() {
+        
+         //fixme ask about this method
+    }
+
+
     public void armGoesOverTheSame() {
 
-
+        // fixme pu in the code
     }
 
     private long t0 = System.currentTimeMillis();
