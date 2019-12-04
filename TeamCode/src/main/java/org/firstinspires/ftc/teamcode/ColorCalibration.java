@@ -31,7 +31,7 @@ public class ColorCalibration extends LinearOpMode {
         double currentChange = 0;
         double smoothChange = 0;
 
-        robot = new RobotLinearOpMode(this, COLOR_SENSOR.LEFT);
+        robot = new RobotLinearOpMode(this, COLOR_SENSOR.UNDER);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         waitForStart();

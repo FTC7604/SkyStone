@@ -84,154 +84,48 @@ public class Robot {
     }
 
     private void mapHardware() {
-        driveTrainHardwareMap();
-
-        intakeHardwareMap();
-
-        armHardwareMap();
-        liftHardwareMap();
-
-        latchHardwareMap();
-        combinedGrabberHardwareMap();
-
-        imuHardwareMap();
-
-        blockIntakeTouchSensorHardwareMap();
-        openIntakeTouchSensorHardwareMap();
-
-        CDHardwareMap();
-    }
-
-    private void driveTrainHardwareMap() {
-        //assigns it to the config
+        //DRIVE
         rightFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");
         leftFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rf");
         rightBackDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lb");
         leftBackDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rb");
-
-        //sets the direction
         rightFrontDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftFrontDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
         rightBackDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftBackDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
-    }
-
-    public void setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
-        //sets the drive train and the intake
-        setDriveTrainZeroPowerProperty(zeroPowerBehavior);
-        setIntakeZeroPowerProperty(zeroPowerBehavior);
-
-        //sets the arm and the lift
-        setArmZeroPowerProperty(zeroPowerBehavior);
-        setLiftZeroPowerProperty(zeroPowerBehavior);
-    }
-
-    public void setAllMotorRunMode(DcMotor.RunMode runMode){
-        //sets the drive train and the intake
-        setDriveTrainRunMode(runMode);
-        setIntakeRunMode(runMode);
-
-        //sets the arm and the lift
-        setArmRunMode(runMode);
-        setLiftRunMode(runMode);
-    }
-
-    public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
-        //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
-        leftFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
-        rightFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
-        leftBackDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
-        rightBackDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
-    }
-
-    //1. 560
-    //2. 450
-    //3. 210
-
-    public void setDriveTrainRunMode(DcMotor.RunMode runMode) {
-        //sets the run mode for the drive train, RUN_WITH_ENCODERS, STOP_AND_RESET_ENCODERS, etc.
-        leftFrontDriveMotor.setMode(runMode);
-        rightFrontDriveMotor.setMode(runMode);
-        leftBackDriveMotor.setMode(runMode);
-        rightBackDriveMotor.setMode(runMode);
-    }
-
-    private void intakeHardwareMap() {
-        //assigns it to the config
+        //INTAKE
         rightIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ri");
         leftIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "li");
-
-        //sets the direction
         rightIntakeMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftIntakeMotor.setDirection(DcMotorEx.Direction.FORWARD);
-    }
 
-    public void setIntakeZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
-        //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
-        rightIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
-        leftIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
-    }
-
-    public void setIntakeRunMode(DcMotor.RunMode runMode) {
-        //sets the run mode for the drive train, RUN_WITH_ENCODERS, STOP_AND_RESET_ENCODERS, etc.
-        rightIntakeMotor.setMode(runMode);
-        leftIntakeMotor.setMode(runMode);
-    }
-
-    private void armHardwareMap() {
-        //assigns it from the config
+        //ARM + LIFT
         armMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ax");
-    }
-
-    public void setArmZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
-        //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
-        armMotor.setZeroPowerBehavior(zeroPowerBehavior);
-    }
-
-    public void setArmRunMode(DcMotor.RunMode runMode) {
-        //sets the run mode for the drive train, RUN_WITH_ENCODERS, STOP_AND_RESET_ENCODERS, etc.
-        armMotor.setMode(runMode);
-    }
-
-    private void liftHardwareMap() {
-        //intake
         liftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lx");
-
         liftMotor.setDirection(DcMotorEx.Direction.FORWARD);
-    }
 
-    public void setLiftZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
-        //so that it floats by at 0, could also be stop
-        liftMotor.setZeroPowerBehavior(zeroPowerBehavior);
-    }
-
-    public void setLiftRunMode(DcMotor.RunMode runMode) {
-        liftMotor.setMode(runMode);
-    }
-
-    private void latchHardwareMap() {
+        //PLATFORM LATCH
         leftLatchServo = hardwareMap.get(Servo.class, "ll");
         rightLatchServo = hardwareMap.get(Servo.class, "rl");
-
         leftLatchServo.setDirection(Servo.Direction.FORWARD);
         rightLatchServo.setDirection(Servo.Direction.REVERSE);
-    }
 
-    private void combinedGrabberHardwareMap() {
+        //CLAW + MARKER LATCH
         blockGrabberServo = hardwareMap.get(Servo.class, "bg");
         markerLatchServo = hardwareMap.get(Servo.class, "ml");
-    }
 
-
-    //methods that will serve us in the future, so we don't need to think about anything
-    private void imuHardwareMap() {
+        //IMU
         imu1 = hardwareMap.get(BNO055IMU.class, "imu");
         imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");
-    }
 
-    private void CDHardwareMap() {
-        //gets the right sensor
+        //INTAKE TOUCH SENSORS
+        blockIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "bt");
+        blockIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+        openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
+        openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+
+        //COLOR DISTANCE SENSOR
         switch(activatedSensor) {
             case UNDER:
                 leftWingCS = hardwareMap.get(ColorSensor.class, "cd");
@@ -248,20 +142,71 @@ public class Robot {
             case NONE:
                 break;
         }
-
     }
 
-    private void blockIntakeTouchSensorHardwareMap() {
-        blockIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "bt");
-        blockIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+    //1. 560
+    //2. 450
+    //3. 210
+
+    /**  ZERO POWER + RUNMODE METHODS  */
+    public void setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
+        setDriveTrainZeroPowerProperty(zeroPowerBehavior);
+        setIntakeZeroPowerProperty(zeroPowerBehavior);
+        setArmZeroPowerProperty(zeroPowerBehavior);
+        setLiftZeroPowerProperty(zeroPowerBehavior);
     }
 
-    private void openIntakeTouchSensorHardwareMap() {
-        openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
-        openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+    public void setAllMotorRunMode(DcMotor.RunMode runMode){
+        setDriveTrainRunMode(runMode);
+        setIntakeRunMode(runMode);
+        setArmRunMode(runMode);
+        setLiftRunMode(runMode);
     }
 
-    //initalializes the imu
+    public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+        //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
+        leftFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        rightFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        leftBackDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        rightBackDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
+    }
+
+    public void setDriveTrainRunMode(DcMotor.RunMode runMode) {
+        //sets the run mode for the drive train, RUN_WITH_ENCODERS, STOP_AND_RESET_ENCODERS, etc.
+        leftFrontDriveMotor.setMode(runMode);
+        rightFrontDriveMotor.setMode(runMode);
+        leftBackDriveMotor.setMode(runMode);
+        rightBackDriveMotor.setMode(runMode);
+    }
+
+    public void setIntakeZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
+        rightIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
+        leftIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
+    }
+
+    public void setIntakeRunMode(DcMotor.RunMode runMode) {
+        rightIntakeMotor.setMode(runMode);
+        leftIntakeMotor.setMode(runMode);
+    }
+
+    public void setArmZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
+        armMotor.setZeroPowerBehavior(zeroPowerBehavior);
+    }
+
+    public void setArmRunMode(DcMotor.RunMode runMode) {
+        armMotor.setMode(runMode);
+    }
+
+    public void setLiftZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
+        liftMotor.setZeroPowerBehavior(zeroPowerBehavior);
+    }
+
+    public void setLiftRunMode(DcMotor.RunMode runMode) {
+        liftMotor.setMode(runMode);
+    }
+
+    /**  IMU METHODS  */
+    //initializes IMU
     public void initIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
@@ -285,7 +230,7 @@ public class Robot {
         ReadWriteFile.writeFile(file2, calibrationData2.serialize());
     }
 
-    //uses math to the the angle from both of the imus
+    //gets the average angle from both IMUs
     public double[] getBothIMUAngle() {
         return new double[]{
                 (imu1.getAngularOrientation().secondAngle + imu2.getAngularOrientation().secondAngle) / 2,
@@ -294,7 +239,7 @@ public class Robot {
         };
     }
 
-    //gets the angle from the one imu
+    //gets the angle from the one IMU
     double[] getRev2IMUAngle() {
         return new double[]{
                 (imu1.getAngularOrientation().secondAngle),
@@ -303,7 +248,7 @@ public class Robot {
         };
     }
 
-    //gets the angle from the
+    //gets the angle from the other IMU
     public double[] getRev10IMUAngle() {
         return new double[]{
                 (imu2.getAngularOrientation().secondAngle),
@@ -312,13 +257,14 @@ public class Robot {
         };
     }
 
+    /**  SENSOR METHODS  */
     //returns the value of the touch sensor
-    protected boolean blockInIntake() {
-        return !blockIntakeTouchSensor.getState();
+    public boolean getBlockSensorPressed() {
+        return blockIntakeTouchSensor.getState();
     }
 
     public boolean intakeIsOpen() {
-        return !openIntakeTouchSensor.getState();
+        return openIntakeTouchSensor.getState();
     }
 
     public double[] getColors(){

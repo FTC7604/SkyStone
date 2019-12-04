@@ -25,7 +25,9 @@ public class IntakeTest extends LinearOpMode {
         robot.mecanumPowerDrive(0, 0.2, 0);
         robot.setIntakePower(1);
 
-        
+        while(!robot.getBlockSensorPressed() && opModeIsActive()){
+
+        }
 
         robot.mecanumPowerDrive(0, 0, 0);
         robot.setIntakePower(0);
