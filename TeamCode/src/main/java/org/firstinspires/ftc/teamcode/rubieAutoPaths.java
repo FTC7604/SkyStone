@@ -49,7 +49,7 @@ public class rubieAutoPaths extends LinearOpMode {
     double[] driveTrainController = new double[3];
     double intakePower = 0;
     double armPower = 0;
-    double liftPower = 3;
+    double liftPower = 0;
 
     //sensor values, also exist to make the code cleaner
     double armPosition = 0;
@@ -227,7 +227,7 @@ public class rubieAutoPaths extends LinearOpMode {
     }
 
     public void goUpStackingLevel() {
-        
+
          //fixme ask about this method
     }
 
