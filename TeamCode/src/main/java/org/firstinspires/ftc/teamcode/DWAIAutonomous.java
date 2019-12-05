@@ -13,7 +13,6 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
 @TeleOp(name = "Will's Autonomous Prototype", group = "TeleOp")
-@Disabled
 public class DWAIAutonomous extends LinearOpMode {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
@@ -36,46 +35,25 @@ public class DWAIAutonomous extends LinearOpMode {
     private boolean PAUSE_LEFT_TO_CLEAR_FOUNDATION = propertiesLoader.getBooleanProperty("PAUSE_LEFT_TO_CLEAR_FOUNDATION");
     private boolean PAUSE_BACKWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getBooleanProperty("PAUSE_BACKWARD_TO_MIDDLE_OF_FOUNDATION");
 
-    private boolean PAUSE_LATCH = propertiesLoader.getBooleanProperty("PAUSE_LATCH");
+    //private boolean PAUSE_LATCH = propertiesLoader.getBooleanProperty("PAUSE_LATCH");
     private long PAUSE_TIME = propertiesLoader.getLongProperty("PAUSE_TIME");
 
     private boolean PAUSE_FORWARD_TO_TURN = propertiesLoader.getBooleanProperty("PAUSE_FORWARD_TO_TURN");
     private double DRIVETRAIN_DISTANCE_FORWARD_TO_TURN = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_TURN");
 
-    private boolean PAUSE_UP_TO_RELEASE_BLOCK = propertiesLoader.getBooleanProperty("PAUSE_UP_TO_RELEASE_BLOCK");
-    private boolean PAUSE_DOWN_TO_RELEASE_BLOCK = propertiesLoader.getBooleanProperty("PAUSE_DOWN_TO_RELEASE_BLOCK");
-    private double ARM_ENCODER_TO_RELEASE_BLOCK = propertiesLoader.getDoubleProperty("ARM_ENCODER_TO_RELEASE_BLOCK");
+    private double PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("PARK_STRAFE_DISTANCE");
 
-
-//    private double ARM_LIFT_UP_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_UP_ENCODER_DISTANCE");
-//    private double ARM_LIFT_DOWN_ENCODER_DISTANCE = propertiesLoader.getDoubleProperty("ARM_LIFT_DOWN_ENCODER_DISTANCE");
-//
-//    private double MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING = propertiesLoader.getDoubleProperty("MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING");
-//    private double MAX_BOT_INTAKE_POWER_WHEN_INTAKING = propertiesLoader.getDoubleProperty("MAX_BOT_INTAKE_POWER_WHEN_INTAKING");
-//    private double EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING = propertiesLoader.getDoubleProperty("EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING");
-//
-//    private double ARM_HEIGHT_WHEN_INTAKING = propertiesLoader.getDoubleProperty("ARM_HEIGHT_WHEN_INTAKING");
-//
-//    private double STRAFE_TO_STONE = propertiesLoader.getDoubleProperty("STRAFE_TO_STONE");
-//    private double BACKWARD_TO_STONE = propertiesLoader.getDoubleProperty("BACKWARD_TO_STONE");
-//
-
-//
-//    //private double DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL = propertiesLoader.getDoubleProperty("DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL");
-//    //private double DISTANCE_TO_GET_STONE = propertiesLoader.getDoubleProperty("DISTANCE_TO_GET_STONE");
-
+    //private boolean PAUSE_UP_TO_RELEASE_BLOCK = propertiesLoader.getBooleanProperty("PAUSE_UP_TO_RELEASE_BLOCK");
+    //private boolean PAUSE_DOWN_TO_RELEASE_BLOCK = propertiesLoader.getBooleanProperty("PAUSE_DOWN_TO_RELEASE_BLOCK");
+    //private double ARM_ENCODER_TO_RELEASE_BLOCK = propertiesLoader.getDoubleProperty("ARM_ENCODER_TO_RELEASE_BLOCK");
 
     private ElapsedTime runtime = new ElapsedTime();
 
     private RobotLinearOpMode robot;
-    //private int whatever = propertiesLoader.getIntegerProperty("whatever");
-
-
 
     @Override
     public void runOpMode() {
-
-        robot = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
+        robot = new RobotLinearOpMode(this, COLOR_SENSOR.UNDER);
 
         robot.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -83,124 +61,13 @@ public class DWAIAutonomous extends LinearOpMode {
 
         robot.initIMU();
 
-
         waitForStart();
         runtime.reset();
 
         alignToFoundationFromFoundationSide();
         getFoundationCurve();
-        //getFoundationStraight();
-
-        //robot.moveByInchesWill(36,FORWARD);
-
-//        robot.openLatch();
-//        while (!robot.foundationIsNear()){
-//            robot.mecanumPowerDrive(0,-1,0);
-//        }
-//        robot.closeLatch();
-
-
-
-
-//        robot.moveByInches(DISTANCE_TO_GET_STONE, FORWARD, true);
-//        print("It moved forward");
-//
-//        //getTheSecondOrThirdBlock(1);
-//
-//        robot.moveByInches(-DISTANCE_TO_GET_STONE - DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
-//        print("It moved forward");
-//
-//        dropOffBlock();
-//
-//        robot.moveByInches(DISTANCE_TO_GET_STONE + DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
-//        print("It moved forward");
-//
-//        //getTheFourthFifthOrSixthBlock(4);
-//
-//        robot.moveByInches(-DISTANCE_TO_GET_STONE - DISTANCE_TO_PUSH_BUILD_PLATE_INTO_WALL, FORWARD, true);
-//        print("It moved forward");
-
-        //dropOffBlock();
-
+        park();
     }
-
-
-//
-//    private void getTheSecondOrThirdBlock(int stoneNumber){
-//        robot.moveByInches(8 * stoneNumber,FORWARD,true);
-//        print("moving to Stone");
-//
-//        robot.moveByInches(STRAFE_TO_STONE, STRAFE, true);
-//        print("It moved left");
-//
-//        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
-//        print("It moved backward");
-//
-//        openIntake();
-//
-//        pickUpBlock();
-//
-//        robot.setIntakePower(-1);
-//        print("It removed the block from the intake");
-//
-//
-//        robot.moveByInches(-8 * stoneNumber,FORWARD,true);
-//        print("moving to Stone");
-//
-//
-//        robot.moveByInches(-STRAFE_TO_STONE, STRAFE, true);
-//        print("It moved left, but opposite");
-//    }
-//    private void getTheFourthFifthOrSixthBlock(int stoneNumber){
-//        robot.moveByInches(8 * stoneNumber,FORWARD,true);
-//        print("moving to Stone");
-//
-//        robot.moveByInches(STRAFE_TO_STONE, STRAFE, true);
-//        print("It moved left");
-//
-//        robot.moveByInches(BACKWARD_TO_STONE, FORWARD, true);
-//        print("It moved backward");
-//
-//        pickUpBlock();
-//
-//        robot.setIntakePower(-1);
-//        print("It removed the block from the intake");
-//
-//
-//        robot.moveByInches(-8 * stoneNumber,FORWARD,true);
-//        print("moving to Stone");
-//
-//
-//        robot.moveByInches(-STRAFE_TO_STONE, STRAFE, true);
-//        print("It moved left, but opposite");
-//    }
-//
-//    private void pickUpBlock(){
-//        robot.openGrabber();
-//        print("Opening the grabber");
-//
-//        robot.moveToStone(MAX_BOT_MOVEMENT_POWER_WHEN_INTAKING,MAX_BOT_INTAKE_POWER_WHEN_INTAKING,EXTRA_DECELERATION_ENCODER_TICKS_WHEN_INTAKING);
-//        print("Moving to Stone");
-//
-//        robot.closeGrabber();
-//
-//        robot.blockHasLeftIntake();
-//        print("Closing the grabber and stating that the block has left");
-//
-//        robot.moveArmByEncoder(ARM_HEIGHT_WHEN_INTAKING);
-//        print("Raise the arm by 1000");
-//
-//        robot.setIntakePower(-MAX_BOT_INTAKE_POWER_WHEN_INTAKING);
-//        print("It removed the block from the intake");
-//    }
-//
-//    private void openIntake() {
-//        robot.moveArmByEncoder(ARM_LIFT_UP_ENCODER_DISTANCE);
-//        print("Lifting the arm up");
-//
-//        robot.moveArmByEncoder(ARM_LIFT_DOWN_ENCODER_DISTANCE);
-//        print("Putting the arm down");
-//    }
 
     private void alignToFoundationFromFoundationSide(){
         if(PAUSE_BACKWARD_TO_GET_OFF_WALL)print("Moving off of the wall");
@@ -217,7 +84,7 @@ public class DWAIAutonomous extends LinearOpMode {
         robot.openLatch();
 
         while(!robot.getFoundationSensorPressed()){
-            robot.mecanumPowerDrive(0,-.6,0);
+            robot.mecanumPowerDrive(0,-.3,0);
         }
 
         robot.closeLatch();
@@ -234,9 +101,37 @@ public class DWAIAutonomous extends LinearOpMode {
 
         print("Turning to be forward");
         robot.turnByDegree(90);
-
         robot.openLatch();
     }
+
+    private void park(){
+        //Strafe against wall
+        robot.moveByInches(-3, STRAFE);
+        robot.moveByInches(PARK_STRAFE_DISTANCE, STRAFE);
+
+        //Deploy function
+        robot.setLiftPower(-0.2);
+        sleep(2000);
+        robot.setArmPower(.2);
+        sleep(600);
+        robot.setLiftPower(0.2);
+        sleep(150);
+        robot.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.setLiftPower(0);
+        robot.setArmPower(-0.2);
+        sleep(50);
+        robot.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.setArmPower(0);
+        sleep(1000);
+        robot.setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //Forward under bridge
+        robot.moveByInches(36, FORWARD);
+    }
+
     private void getFoundationStraight() {
         latchFoundation();
 
@@ -248,7 +143,7 @@ public class DWAIAutonomous extends LinearOpMode {
         if(PAUSE_LEFT_TO_CLEAR_FOUNDATION)print("Strafing away from the platform");
         robot.moveByInches(DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE);
 
-        if(PAUSE_BACKWARD_TO_MIDDLE_OF_FOUNDATION)print("Moving up parrelel with platform");
+        if(PAUSE_BACKWARD_TO_MIDDLE_OF_FOUNDATION)print("Moving up parallel with platform");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
 
         print("Turning to be forward");

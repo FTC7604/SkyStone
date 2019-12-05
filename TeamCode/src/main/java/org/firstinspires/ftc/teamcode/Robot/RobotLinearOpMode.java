@@ -202,13 +202,14 @@ public class RobotLinearOpMode extends Robot {
         markerLatchServo.setPosition(0);
     }
 
+    //RIGHT + LEFT IS PRETENDING LATCH IS FRONT OF ROBOT
     public void openLatch() {
-        leftLatchServo.setPosition(.5);
+        leftLatchServo.setPosition(.4);
         rightLatchServo.setPosition(.45);
     }
 
     public void closeLatch() {
-        leftLatchServo.setPosition(.7);
+        leftLatchServo.setPosition(.6);
         rightLatchServo.setPosition(.65);
     }
 

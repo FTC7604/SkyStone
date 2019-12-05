@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Robot.*;
 public class FoundationTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private RobotLinearOpMode robot;
+    private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
 
     @Override
     public void runOpMode() {
@@ -28,7 +29,7 @@ public class FoundationTest extends LinearOpMode {
         runtime.reset();
 
         robot.openLatch();
-        robot.mecanumPowerDrive(0, -1, 0);
+        robot.mecanumPowerDrive(0, -0.3, 0);
 
         while(!robot.getFoundationSensorPressed() && opModeIsActive()){
 
@@ -37,4 +38,5 @@ public class FoundationTest extends LinearOpMode {
         robot.mecanumPowerDrive(0, 0, 0);
         robot.closeLatch();
     }
+
 }

@@ -25,7 +25,7 @@ public class DeployLiftTest extends LinearOpMode {
         runtime.reset();
 
         robot.setLiftPower(-0.2);
-        sleep(1500);
+        sleep(1000);
         robot.setLiftPower(0);
         robot.setArmPower(.2);
         sleep(750);
