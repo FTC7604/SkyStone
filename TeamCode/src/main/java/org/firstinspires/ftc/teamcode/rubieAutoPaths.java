@@ -97,7 +97,20 @@ public class rubieAutoPaths extends LinearOpMode {
         robotLinearOpMode.turnByDegree(90.0);
 
         robotLinearOpMode.moveByInches(48, FORWARD);
+
+        robotLinearOpMode.getArmEncoder();
+        if(robotLinearOpMode.getArmEncoder()< 30000)
+            robotLinearOpMode.setArmPower(1);
+
+        robotLinearOpMode.openGrabber();
+
+        robotLinearOpMode.getArmEncoder();
+        if(robotLinearOpMode.getArmEncoder()> 0)
+            robotLinearOpMode.setArmPower(-1);
+
         
+
+
 
     }
 }
