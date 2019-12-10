@@ -85,6 +85,9 @@ public class Robot {
         mapHardware();
     }
 
+    public Robot() {
+    }
+
     private void mapHardware() {
         //DRIVE
         rightFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");

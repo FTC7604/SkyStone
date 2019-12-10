@@ -2,9 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.util.*;
+
+import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 import org.opencv.core.*;
 import org.opencv.imgproc.*;
 import org.openftc.easyopencv.*;
+
 import java.util.*;
 
 /**
@@ -12,8 +15,17 @@ import java.util.*;
  * Edited by Jonathan Zhao
  * monitor: 640 x 480
  */
-@TeleOp(name= "opencvSkystoneDetector", group="TeleOp")
+@TeleOp(name = "opencvSkystoneDetector", group = "TeleOp")
 public class opencvSkystoneDetector extends LinearOpMode {
+
+    enum SKYSTONE_POSITION {
+        ONE_AND_FOUR,
+        TWO_AND_FIVE,
+        THREE_AND_SIX
+    }
+
+    SKYSTONE_POSITION skystone_position;
+
     private ElapsedTime runtime = new ElapsedTime();
 
     private static PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
@@ -26,8 +38,8 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
     private static int radius = 5;
 
-    private static float rectHeight = .6f/8f;
-    private static float rectWidth = 1.5f/8f;
+    private static float rectHeight = .6f / 8f;
+    private static float rectWidth = 1.5f / 8f;
 
     private static float[] midPos = new float[2];
     private static float[] leftPos = new float[2];
@@ -38,6 +50,8 @@ public class opencvSkystoneDetector extends LinearOpMode {
     private final int cols = 480;
 
     OpenCvCamera phoneCam;
+
+    RobotLinearOpMode robot;
 
     @Override
     public void runOpMode() {
@@ -61,33 +75,68 @@ public class opencvSkystoneDetector extends LinearOpMode {
         //width, height
         //width = height in this case, because camera is in portrait mode.
 
+        robot = new RobotLinearOpMode(this);
+
         waitForStart();
         runtime.reset();
-        while (opModeIsActive()) {
-            telemetry.addData("Values", valLeft+"   "+valMid+"   "+valRight);
-            telemetry.addData("Height", rows);
-            telemetry.addData("Width", cols);
 
-            telemetry.addData("Point mid: ", midPos[0] + ", " + midPos[1]);
-            telemetry.addData("Point left: ", leftPos[0] + ", " + leftPos[1]);
-            telemetry.addData("Point right: ", rightPos[0] + ", " + rightPos[1]);
+        telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
+        telemetry.addData("Height", rows);
+        telemetry.addData("Width", cols);
 
-            telemetry.update();
-            sleep(100);
+        telemetry.addData("Point mid: ", midPos[0] + ", " + midPos[1]);
+        telemetry.addData("Point left: ", leftPos[0] + ", " + leftPos[1]);
+        telemetry.addData("Point right: ", rightPos[0] + ", " + rightPos[1]);
 
+        telemetry.update();
+        sleep(100);
+
+        if (valLeft == 255) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
+        if (valMid == 255) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
+        if (valRight == 255) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
+
+        switch(skystone_position){
+            case ONE_AND_FOUR:
+                robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+                robot.turnByDegree(90);
+                robot.moveByInches(9, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+                robot.setIntakePower(1.0);
+                robot.closeGrabber();
+                robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+                robot.moveByInches(18, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+                break;
+            case TWO_AND_FIVE:
+                grabBlock();
+                robot.moveByInches(-48, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+                break;
+            case THREE_AND_SIX:
+                grabBlock();
+                robot.moveByInches(-54, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+                break;
         }
+
+
     }
 
+    public void grabBlock(){
+        robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+        robot.turnByDegree(-90);
+        robot.moveByInches(-9, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+        robot.setIntakePower(1.0);
+        robot.closeGrabber();
+        robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+    }
+
+
+
     //detection pipeline
-    static class StageSwitchingPipeline extends OpenCvPipeline
-    {
+    static class StageSwitchingPipeline extends OpenCvPipeline {
         Mat yCbCrChan2Mat = new Mat();
         Mat thresholdMat = new Mat();
         Mat all = new Mat();
         List<MatOfPoint> contoursList = new ArrayList<>();
 
-        enum Stage
-        {//color difference. greyscale
+        enum Stage {//color difference. greyscale
             detection,//includes outlines
             THRESHOLD,//b&w
             RAW_IMAGE,//displays raw view
@@ -97,8 +146,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
         private Stage[] stages = Stage.values();
 
         @Override
-        public void onViewportTapped()
-        {
+        public void onViewportTapped() {
             /*
              * Note that this method is invoked from the UI thread
              * so whatever we do here, we must do quickly.
@@ -108,21 +156,20 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
             int nextStageNum = currentStageNum + 1;
 
-            if(nextStageNum >= stages.length)
-            {
+            if (nextStageNum >= stages.length) {
                 nextStageNum = 0;
             }
 
             stageToRenderToViewport = stages[nextStageNum];
         }
 
-        private int radialAverage(float[] pos, Mat input){
+        private int radialAverage(float[] pos, Mat input) {
             int sum = 0;
 
-            for(int i = -radius; i <= radius; i++){
+            for (int i = -radius; i <= radius; i++) {
 
-                for(int j = -radius; j <= radius; j++){
-                    sum += thresholdMat.get((int)(input.rows() * pos[1]), (int)(input.cols() * pos[0]))[0];
+                for (int j = -radius; j <= radius; j++) {
+                    sum += thresholdMat.get((int) (input.rows() * pos[1]), (int) (input.cols() * pos[0]))[0];
                 }
 
             }
@@ -131,8 +178,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
         }
 
         @Override
-        public Mat processFrame(Mat input)
-        {
+        public Mat processFrame(Mat input) {
             contoursList.clear();
             /*
              * This pipeline finds the contours of yellow blobs such as the Gold Mineral
@@ -154,71 +200,67 @@ public class opencvSkystoneDetector extends LinearOpMode {
             //Imgproc.drawContours(all, contoursList, -1, new Scalar(255, 0, 0), 3, 8);//draws blue contours
 
             //get values from frame
-            double[] pixMid = thresholdMat.get((int)(input.rows()* midPos[1]), (int)(input.cols()* midPos[0]));//gets value at circle
-            valMid = (int)pixMid[0];
+            double[] pixMid = thresholdMat.get((int) (input.rows() * midPos[1]), (int) (input.cols() * midPos[0]));//gets value at circle
+            valMid = (int) pixMid[0];
             //valMid = radialAverage(midPos, input);
 
-            double[] pixLeft = thresholdMat.get((int)(input.rows()* leftPos[1]), (int)(input.cols()* leftPos[0]));//gets value at circle
-            valLeft = (int)pixLeft[0];
+            double[] pixLeft = thresholdMat.get((int) (input.rows() * leftPos[1]), (int) (input.cols() * leftPos[0]));//gets value at circle
+            valLeft = (int) pixLeft[0];
             //valMid = radialAverage(leftPos, input);
 
-            double[] pixRight = thresholdMat.get((int)(input.rows()* rightPos[1]), (int)(input.cols()* rightPos[0]));//gets value at circle
-            valRight = (int)pixRight[0];
+            double[] pixRight = thresholdMat.get((int) (input.rows() * rightPos[1]), (int) (input.cols() * rightPos[0]));//gets value at circle
+            valRight = (int) pixRight[0];
             //valRight = radialAverage(rightPos, input);
 
             //create three points
-            Point pointMid = new Point((int)(input.cols()* midPos[0]), (int)(input.rows()* midPos[1]));
-            Point pointLeft = new Point((int)(input.cols()* leftPos[0]), (int)(input.rows()* leftPos[1]));
-            Point pointRight = new Point((int)(input.cols()* rightPos[0]), (int)(input.rows()* rightPos[1]));
+            Point pointMid = new Point((int) (input.cols() * midPos[0]), (int) (input.rows() * midPos[1]));
+            Point pointLeft = new Point((int) (input.cols() * leftPos[0]), (int) (input.rows() * leftPos[1]));
+            Point pointRight = new Point((int) (input.cols() * rightPos[0]), (int) (input.rows() * rightPos[1]));
 
             //draw circles on those points
-            Imgproc.circle(all, pointMid,radius, new Scalar( 255, 0, 0 ),1 );//draws circle
-            Imgproc.circle(all, pointLeft,radius, new Scalar( 255, 0, 0 ),1 );//draws circle
-            Imgproc.circle(all, pointRight,radius, new Scalar( 255, 0, 0 ),1 );//draws circle
+            Imgproc.circle(all, pointMid, radius, new Scalar(255, 0, 0), 1);//draws circle
+            Imgproc.circle(all, pointLeft, radius, new Scalar(255, 0, 0), 1);//draws circle
+            Imgproc.circle(all, pointRight, radius, new Scalar(255, 0, 0), 1);//draws circle
 
             //draw 3 rectangles
             Imgproc.rectangle(//1-3
                     all,
                     new Point(
-                            input.cols()*(leftPos[0]-rectWidth/2),
-                            input.rows()*(leftPos[1]-rectHeight/2)),
+                            input.cols() * (leftPos[0] - rectWidth / 2),
+                            input.rows() * (leftPos[1] - rectHeight / 2)),
                     new Point(
-                            input.cols()*(leftPos[0]+rectWidth/2),
-                            input.rows()*(leftPos[1]+rectHeight/2)),
+                            input.cols() * (leftPos[0] + rectWidth / 2),
+                            input.rows() * (leftPos[1] + rectHeight / 2)),
                     new Scalar(0, 255, 0), 3);
             Imgproc.rectangle(//3-5
                     all,
                     new Point(
-                            input.cols()*(midPos[0]-rectWidth/2),
-                            input.rows()*(midPos[1]-rectHeight/2)),
+                            input.cols() * (midPos[0] - rectWidth / 2),
+                            input.rows() * (midPos[1] - rectHeight / 2)),
                     new Point(
-                            input.cols()*(midPos[0]+rectWidth/2),
-                            input.rows()*(midPos[1]+rectHeight/2)),
+                            input.cols() * (midPos[0] + rectWidth / 2),
+                            input.rows() * (midPos[1] + rectHeight / 2)),
                     new Scalar(0, 255, 0), 3);
             Imgproc.rectangle(//5-7
                     all,
                     new Point(
-                            input.cols()*(rightPos[0]-rectWidth/2),
-                            input.rows()*(rightPos[1]-rectHeight/2)),
+                            input.cols() * (rightPos[0] - rectWidth / 2),
+                            input.rows() * (rightPos[1] - rectHeight / 2)),
                     new Point(
-                            input.cols()*(rightPos[0]+rectWidth/2),
-                            input.rows()*(rightPos[1]+rectHeight/2)),
+                            input.cols() * (rightPos[0] + rectWidth / 2),
+                            input.rows() * (rightPos[1] + rectHeight / 2)),
                     new Scalar(0, 255, 0), 3);
 
-            switch (stageToRenderToViewport)
-            {
-                case THRESHOLD:
-                {
+            switch (stageToRenderToViewport) {
+                case THRESHOLD: {
                     return thresholdMat;
                 }
 
-                case detection:
-                {
+                case detection: {
                     return all;
                 }
 
-                default:
-                {
+                default: {
                     return input;
                 }
             }

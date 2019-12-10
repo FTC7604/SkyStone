@@ -33,6 +33,10 @@ public class RobotLinearOpMode extends Robot {
         this.linearOpMode = linearOpMode;
     }
 
+    public RobotLinearOpMode(LinearOpMode linearOpMode){
+        new RobotLinearOpMode(linearOpMode, COLOR_SENSOR.UNDER);
+    }
+
     /**  DRIVE MOTOR METHODS  */
     private void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power) {
         switch (movement_direction) {
