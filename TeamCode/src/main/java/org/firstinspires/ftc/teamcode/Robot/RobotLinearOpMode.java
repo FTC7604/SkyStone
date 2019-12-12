@@ -27,9 +27,14 @@ public class RobotLinearOpMode extends Robot {
             .8
     );
 
-    /**  CONSTRUCTOR  */
+    /**  CONSTRUCTORS  */
     public RobotLinearOpMode(LinearOpMode linearOpMode, COLOR_SENSOR activatedSensor) {
         super(linearOpMode, activatedSensor);
+        this.linearOpMode = linearOpMode;
+    }
+
+    public RobotLinearOpMode(LinearOpMode linearOpMode){
+        super(linearOpMode, COLOR_SENSOR.UNDER);
         this.linearOpMode = linearOpMode;
     }
 
@@ -163,6 +168,27 @@ public class RobotLinearOpMode extends Robot {
             setArmPower(adjustedMotorPower);
 
         } while ((abs(desiredPositionChangeInEncoders) > abs(startEncoderValue - currentEncoderValue)) && linearOpMode.opModeIsActive());
+    }
+
+    public void deploy(){
+        //Deploy function
+        setLiftPower(-0.2);
+        linearOpMode.sleep(2000);
+        setArmPower(.2);
+        linearOpMode.sleep(600);
+        setLiftPower(0.2);
+        linearOpMode.sleep(150);
+        setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+        setLiftPower(0);
+        setArmPower(-0.2);
+        linearOpMode.sleep(50);
+        setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+        setArmPower(0);
+        linearOpMode.sleep(1000);
+        setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     //Look at this method again, see if necessary

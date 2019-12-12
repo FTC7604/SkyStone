@@ -1,86 +1,105 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.*;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.*;
 
-import java.util.FormatFlagsConversionMismatchException;
-
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
-
-@TeleOp(name = "Will's Autonomous Prototype", group = "TeleOp")
-public class DWAIAutonomous extends LinearOpMode {
+public class DWAIAutonomous {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
 
     private double DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION");
     private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL");
-
-    private boolean PAUSE_RIGHT_TO_GET_FOUNDATION = propertiesLoader.getBooleanProperty("PAUSE_RIGHT_TO_GET_FOUNDATION");
-    private boolean PAUSE_BACKWARD_TO_GET_OFF_WALL = propertiesLoader.getBooleanProperty("PAUSE_BACKWARD_TO_GET_OFF_WALL");
-
     private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION");
     private double DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT");
-
-    private boolean PAUSE_BACKWARD_TO_GET_FOUNDATION = propertiesLoader.getBooleanProperty("PAUSE_BACKWARD_TO_GET_FOUNDATION");
-    private boolean PAUSE_FORWARD_TO_DEPOT = propertiesLoader.getBooleanProperty("PAUSE_FORWARD_TO_DEPOT");
-
     private double DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION");
     private double DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION");
-
-    private boolean PAUSE_LEFT_TO_CLEAR_FOUNDATION = propertiesLoader.getBooleanProperty("PAUSE_LEFT_TO_CLEAR_FOUNDATION");
-    private boolean PAUSE_BACKWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getBooleanProperty("PAUSE_BACKWARD_TO_MIDDLE_OF_FOUNDATION");
-
-    //private boolean PAUSE_LATCH = propertiesLoader.getBooleanProperty("PAUSE_LATCH");
-    private long PAUSE_TIME = propertiesLoader.getLongProperty("PAUSE_TIME");
-
-    private boolean PAUSE_FORWARD_TO_TURN = propertiesLoader.getBooleanProperty("PAUSE_FORWARD_TO_TURN");
     private double DRIVETRAIN_DISTANCE_FORWARD_TO_TURN = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_TURN");
+    private double WALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("WALL_PARK_STRAFE_DISTANCE");
+    private double BRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("BRIDGE_PARK_STRAFE_DISTANCE");
+    private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
 
-    private double PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("PARK_STRAFE_DISTANCE");
-
-    //private boolean PAUSE_UP_TO_RELEASE_BLOCK = propertiesLoader.getBooleanProperty("PAUSE_UP_TO_RELEASE_BLOCK");
-    //private boolean PAUSE_DOWN_TO_RELEASE_BLOCK = propertiesLoader.getBooleanProperty("PAUSE_DOWN_TO_RELEASE_BLOCK");
-    //private double ARM_ENCODER_TO_RELEASE_BLOCK = propertiesLoader.getDoubleProperty("ARM_ENCODER_TO_RELEASE_BLOCK");
+    private double horizontalTurnDegree = 90;
+    private double fiddleDistance = -3;
 
     private ElapsedTime runtime = new ElapsedTime();
 
     private RobotLinearOpMode robot;
 
-    @Override
-    public void runOpMode() {
-        robot = new RobotLinearOpMode(this, COLOR_SENSOR.UNDER);
+    private PLATFORM_ORIENTATION platformOrientation;
+    private PARK_POSITION parkPosition;
+    private SIDE side;
+    private ALLIANCE alliance;
+    private LinearOpMode opMode;
 
+    public DWAIAutonomous(PLATFORM_ORIENTATION platformOrientation, PARK_POSITION parkPosition, ALLIANCE alliance, LinearOpMode opMode){
+        this.platformOrientation = platformOrientation;
+        this.parkPosition = parkPosition;
+        this.alliance = alliance;
+        this.opMode = opMode;
+        this.side = SIDE.FOUNDATION;
+    }
+
+    public DWAIAutonomous(ALLIANCE alliance, LinearOpMode opMode){
+        this.alliance = alliance;
+        this.opMode = opMode;
+        this.side = SIDE.BLOCK;
+    }
+
+    public void runOpMode(){
+        robot = new RobotLinearOpMode(opMode, COLOR_SENSOR.UNDER);
+
+        //PUT INTO CONSTRUCTOR
         robot.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
-
         robot.initIMU();
+        setupVariables();
 
-        waitForStart();
+        opMode.waitForStart();
         runtime.reset();
 
-        alignToFoundationFromFoundationSide();
-        getFoundationCurve();
-        park();
+        if(side == SIDE.FOUNDATION) {
+            moveToFoundation();
+            latchFoundation();
+
+            if(platformOrientation == PLATFORM_ORIENTATION.HORIZONTAL) {
+                placeHorizontal();
+                parkHorizontal();
+            } else{
+                placeVertical();
+                parkVertical();
+            }
+
+        }
+
     }
 
-    private void alignToFoundationFromFoundationSide(){
-        if(PAUSE_BACKWARD_TO_GET_OFF_WALL)print("Moving off of the wall");
+    private void setupVariables(){
+        //Necessary since all variables tuned to blue side
+
+        if(alliance == ALLIANCE.RED && side == SIDE.FOUNDATION){
+            DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION *= -1;
+            horizontalTurnDegree *= -1;
+            fiddleDistance *= -1;
+            WALL_PARK_STRAFE_DISTANCE *= -1;
+            BRIDGE_PARK_STRAFE_DISTANCE *= -1;
+        }
+
+    }
+
+    private void moveToFoundation(){
+        print("Moving towards foundation");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD);
-
-        if(PAUSE_RIGHT_TO_GET_FOUNDATION)print("Moving right to foundation");
         robot.moveByInches(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
-
-        if(PAUSE_BACKWARD_TO_GET_FOUNDATION)print("Moving to build plate");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD);
     }
 
     private void latchFoundation(){
+        print("Latching foundation");
         robot.openLatch();
 
         while(!robot.getFoundationSensorPressed()){
@@ -88,82 +107,105 @@ public class DWAIAutonomous extends LinearOpMode {
         }
 
         robot.closeLatch();
-
         robot.moveByInches(-2, FORWARD, .6);
     }
 
-    private void getFoundationCurve(){
-        latchFoundation();
-
-        //forward
-        if(PAUSE_FORWARD_TO_TURN)print("Driving forward to the platform");
+    private void placeHorizontal(){
+        print("Driving forwards");
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
 
         print("Turning to be forward");
-        robot.turnByDegree(90);
+        robot.turnByDegree(horizontalTurnDegree);
         robot.openLatch();
     }
 
-    private void park(){
-        //Strafe against wall
-        robot.moveByInches(-3, STRAFE);
-        robot.moveByInches(PARK_STRAFE_DISTANCE, STRAFE);
+    private void parkHorizontal(){
+        print("Fiddling with latch");
+        robot.moveByInches(fiddleDistance, STRAFE);
 
-        //Deploy function
-        robot.setLiftPower(-0.2);
-        sleep(2000);
-        robot.setArmPower(.2);
-        sleep(600);
-        robot.setLiftPower(0.2);
-        sleep(150);
-        robot.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
-        robot.setLiftPower(0);
-        robot.setArmPower(-0.2);
-        sleep(50);
-        robot.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
-        robot.setArmPower(0);
-        sleep(1000);
-        robot.setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        if(parkPosition == PARK_POSITION.WALL) {
+            print("Strafing against wall");
+            robot.moveByInches(WALL_PARK_STRAFE_DISTANCE, STRAFE);
+        } else{
+            print("Strafing towards bridge");
+            robot.moveByInches(BRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
+        }
 
-        //Forward under bridge
+        print("Deploying intake");
+        robot.deploy();
+
+        print("Moving under bridge");
         robot.moveByInches(36, FORWARD);
     }
 
-    private void getFoundationStraight() {
-        latchFoundation();
-
-        if(PAUSE_FORWARD_TO_DEPOT)print("Driving forward to the platform");
+    private void placeVertical(){
+        print("Driving forwards");
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT, FORWARD);
 
+        print("Opening latch");
         robot.openLatch();
 
-        if(PAUSE_LEFT_TO_CLEAR_FOUNDATION)print("Strafing away from the platform");
+        print("Strafing away from the platform");
         robot.moveByInches(DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE);
 
-        if(PAUSE_BACKWARD_TO_MIDDLE_OF_FOUNDATION)print("Moving up parallel with platform");
+        print("Moving up parallel with platform");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
 
         print("Turning to be forward");
         robot.turnByDegree(85);
+    }
 
+    private void parkVertical(){
+        print("Fiddling with latch");
+        robot.moveByInches(fiddleDistance, STRAFE);
+
+        if(parkPosition == PARK_POSITION.WALL) {
+            print("Strafing against wall");
+            robot.moveByInches(WALL_PARK_STRAFE_DISTANCE, STRAFE);
+        } else{
+            print("Strafing towards bridge");
+            robot.moveByInches(BRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
+        }
+
+        print("Deploying intake");
+        robot.deploy();
+
+        print("Moving under bridge");
+        robot.moveByInches(36, FORWARD);
     }
 
     private void print(String printString) {
-        telemetry.addLine(printString);
-        telemetry.update();
+        opMode.telemetry.addLine(printString);
+        opMode.telemetry.update();
 
-        pause(PAUSE_TIME);
+        if (PAUSE_STEPS){
+            robot.stopAllMotors();
+            //Ensures button is pressed and released before continuing
+            while (opMode.opModeIsActive() && !opMode.gamepad1.a){}
+
+            while (opMode.opModeIsActive() && opMode.gamepad1.a){}
+        }
+
     }
 
-    private void pause(double time){
-        double currentTime = runtime.milliseconds();
+    public enum PLATFORM_ORIENTATION {
+        HORIZONTAL,
+        VERTICAL
+    }
 
-        while(opModeIsActive() && runtime.milliseconds() - currentTime < time){
-            robot.stopAllMotors();
-        }
+    public enum PARK_POSITION {
+        WALL,
+        BRIDGE
+    }
+
+    public enum ALLIANCE {
+        RED,
+        BLUE
+    }
+
+    private enum SIDE {
+        BLOCK,
+        FOUNDATION
     }
 
 }

@@ -1,14 +1,16 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.MiscTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.*;
 
 /**  TESTING FOR SKYSTONE FOUNDATION DURING AUTONOMOUS  */
 
 @TeleOp(name = "Foundation Test", group = "TeleOp")
+@Disabled
 public class FoundationTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private RobotLinearOpMode robot;
