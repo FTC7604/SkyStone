@@ -118,6 +118,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
     }
 
+
     public void grabBlock(){
         robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
         robot.turnByDegree(-90);
@@ -126,6 +127,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
         robot.closeGrabber();
         robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
     }
+
 
 
 
