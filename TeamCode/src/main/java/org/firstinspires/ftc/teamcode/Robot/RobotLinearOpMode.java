@@ -34,7 +34,8 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public RobotLinearOpMode(LinearOpMode linearOpMode){
-        new RobotLinearOpMode(linearOpMode, COLOR_SENSOR.UNDER);
+        super(linearOpMode, COLOR_SENSOR.UNDER);
+        this.linearOpMode = linearOpMode;
     }
 
     /**  DRIVE MOTOR METHODS  */
