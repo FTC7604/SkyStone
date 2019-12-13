@@ -10,7 +10,7 @@ public class AutoTest extends LinearOpMode {
 
     @Override
     public void runOpMode(){
-        auto = new DWAIAutonomous(PLATFORM_ORIENTATION.HORIZONTAL, PARK_POSITION.BRIDGE, ALLIANCE.BLUE, this);
+        auto = new DWAIAutonomous(PLATFORM_ORIENTATION.HORIZONTAL, PARK_POSITION.WALL, ALLIANCE.RED, this);
         auto.runOpMode();
     }
 

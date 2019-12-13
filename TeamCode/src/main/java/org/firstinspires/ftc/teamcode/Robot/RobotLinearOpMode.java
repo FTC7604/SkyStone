@@ -98,14 +98,18 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
-        moveByInches(desiredPositionChangeInInches, movement_direction, .05);
+        moveByInches(desiredPositionChangeInInches, movement_direction, .05, 0.8);
     }
 
-    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double mp) {
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double maxPower) {
+        moveByInches(desiredPositionChangeInInches, movement_direction, .05, maxPower);
+    }
+
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower, double maxPower) {
         double currentAverageEncoderValue;
         double adjustedMotorPower;
         double startDriveTrainEncoders;
-        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 200, mp, 1, 0.8);
+        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 200, minPower, 1, maxPower);
         double desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
 
         setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

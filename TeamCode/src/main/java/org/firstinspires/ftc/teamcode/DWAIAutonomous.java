@@ -21,6 +21,7 @@ public class DWAIAutonomous {
     private double WALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("WALL_PARK_STRAFE_DISTANCE");
     private double BRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("BRIDGE_PARK_STRAFE_DISTANCE");
     private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
+    private double STRAFE_MAX_POWER = propertiesLoader.getDoubleProperty("STRAFE_MAX_POWER");
 
     private double horizontalTurnDegree = 90;
     private double fiddleDistance = -3;
@@ -50,9 +51,9 @@ public class DWAIAutonomous {
     }
 
     public void runOpMode(){
-        robot = new RobotLinearOpMode(opMode, COLOR_SENSOR.UNDER);
+        robot = new RobotLinearOpMode(opMode);
 
-        //PUT INTO CONSTRUCTOR
+        //MAYBE PUT INTO CONSTRUCTOR
         robot.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -94,7 +95,7 @@ public class DWAIAutonomous {
     private void moveToFoundation(){
         print("Moving towards foundation");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD);
-        robot.moveByInches(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
+        robot.moveByInches(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE, STRAFE_MAX_POWER);
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD);
     }
 
@@ -103,7 +104,7 @@ public class DWAIAutonomous {
         robot.openLatch();
 
         while(!robot.getFoundationSensorPressed()){
-            robot.mecanumPowerDrive(0,-.3,0);
+            robot.mecanumPowerDrive(0,-.2,0);
         }
 
         robot.closeLatch();
