@@ -97,21 +97,23 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
         switch(skystone_position){
             case ONE_AND_FOUR:
+                robot.moveByInches(-24, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
                 robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
                 robot.turnByDegree(90);
-                robot.moveByInches(9, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+                robot.moveByInches(6, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
                 robot.setIntakePower(1.0);
                 robot.closeGrabber();
-                robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
-                robot.moveByInches(18, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+                robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
                 break;
             case TWO_AND_FIVE:
+                robot.moveByInches(-24, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+                robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
                 grabBlock();
-                robot.moveByInches(-48, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
                 break;
             case THREE_AND_SIX:
+                robot.moveByInches(-24, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+                robot.moveByInches(6, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
                 grabBlock();
-                robot.moveByInches(-54, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
                 break;
         }
 
@@ -120,8 +122,8 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
 
     public void grabBlock(){
-        robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
         robot.turnByDegree(-90);
+        robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
         robot.moveByInches(-9, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
         robot.setIntakePower(1.0);
         robot.closeGrabber();
@@ -131,7 +133,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
 
 
-    //detection pipeline
+    //detection pipeline (ignore)
     static class StageSwitchingPipeline extends OpenCvPipeline {
         Mat yCbCrChan2Mat = new Mat();
         Mat thresholdMat = new Mat();
