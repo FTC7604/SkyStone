@@ -100,15 +100,15 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
                 telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
                 telemetry.update();
-                sleep(100000);
+                sleep(10000);
 
                 telemetry.addLine("1 and 4");
                 telemetry.update();
-                sleep(100000);
+                sleep(10000);
 
                 robot.moveByInches(-18, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
                 robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
-                robot.turnByDegree(-270);
+                robot.turnByDegree(270);
                 robot.moveByInches(6, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
                 robot.setIntakePower(1.0);
                 robot.closeGrabber();
@@ -117,11 +117,11 @@ public class opencvSkystoneDetector extends LinearOpMode {
             case TWO_AND_FIVE:
                 telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
                 telemetry.update();
-                sleep(100000);
+                sleep(10000);
 
                 telemetry.addLine("2 and 5");
                 telemetry.update();
-                sleep(100000);
+                sleep(10000);
 
                 robot.moveByInches(-18, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
                 robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
@@ -130,11 +130,11 @@ public class opencvSkystoneDetector extends LinearOpMode {
             case THREE_AND_SIX:
                 telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
                 telemetry.update();
-                sleep(100000);
+                sleep(10000);
 
                 telemetry.addLine("3 and 6");
                 telemetry.update();
-                sleep(100000);
+                sleep(10000);
 
                 robot.moveByInches(-18, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
                 robot.moveByInches(6, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
@@ -147,7 +147,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
 
     public void grabBlock(){
-        robot.turnByDegree(-270);
+        robot.turnByDegree(90);
         robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
         robot.moveByInches(-9, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
         robot.setIntakePower(1.0);

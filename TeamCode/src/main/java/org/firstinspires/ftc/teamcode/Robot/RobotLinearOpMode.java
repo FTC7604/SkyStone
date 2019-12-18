@@ -27,15 +27,25 @@ public class RobotLinearOpMode extends Robot {
             .8
     );
 
+    void init(){
+        setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        initIMU();
+    }
+
     /**  CONSTRUCTOR  */
     public RobotLinearOpMode(LinearOpMode linearOpMode, COLOR_SENSOR activatedSensor) {
         super(linearOpMode, activatedSensor);
         this.linearOpMode = linearOpMode;
+        init();
     }
 
     public RobotLinearOpMode(LinearOpMode linearOpMode){
         super(linearOpMode, COLOR_SENSOR.UNDER);
         this.linearOpMode = linearOpMode;
+        init();
     }
 
     /**  DRIVE MOTOR METHODS  */
@@ -71,30 +81,37 @@ public class RobotLinearOpMode extends Robot {
         rightFrontDriveMotor.setPower(forward + strafe - rotation);
         rightBackDriveMotor.setPower(forward - strafe * ratio - rotation);
     }
+    public void turnByDegree(double desiredRotationChangeInDegrees) {
 
-    public void turnByDegree(double degree) {
+        double endRotation;
+        double currentRotation;
         double adjustedMotorPower;
-        double startAngle = getRev2IMUAngle()[2];
-        double neededAngle = startAngle + degree;
-        double currentAngle = startAngle;
+        double startRotation;
 
-        if (currentAngle < neededAngle) {
+        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 30, .05, 1, 0.6);
 
-            while ((currentAngle < neededAngle && linearOpMode.opModeIsActive())) {
-                currentAngle = getRev2IMUAngle()[2];
-                adjustedMotorPower = turnProfile.RunToPositionWithAccel(startAngle, currentAngle, neededAngle);
-                mecanumPowerDrive(0, 0, adjustedMotorPower);
+        startRotation = getRev2IMUAngle()[2];
+        endRotation = startRotation + desiredRotationChangeInDegrees;
+
+        do {
+
+            currentRotation = getRev2IMUAngle()[2];
+
+            linearOpMode.telemetry.addData("Heading: ", currentRotation);
+            linearOpMode.telemetry.update();
+
+
+            adjustedMotorPower = TurnProfile.RunToPositionWithAccel(startRotation, currentRotation, endRotation);
+
+            if (desiredRotationChangeInDegrees > 0) {
+                mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
+            }else {
+                mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, -adjustedMotorPower);
             }
 
-        } else if (currentAngle > neededAngle && linearOpMode.opModeIsActive()) {
+        } while ((abs(desiredRotationChangeInDegrees - currentRotation) > 5) && linearOpMode.opModeIsActive());
 
-            while ((currentAngle > neededAngle)) {
-                currentAngle = getRev2IMUAngle()[2];
-                adjustedMotorPower = turnProfile.RunToPositionWithAccel(startAngle, currentAngle, neededAngle);
-                mecanumPowerDrive(0, 0, adjustedMotorPower);
-            }
-
-        }
+        stopAllMotors();
     }
 
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
