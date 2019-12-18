@@ -118,13 +118,9 @@ public class RobotLinearOpMode extends Robot {
         startDriveTrainEncoders = getAverageDriveTrainEncoder(movement_direction);
 
         do {
-
             currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction);
-
             adjustedMotorPower = DriveProfile.RunToPositionWithAccel(startDriveTrainEncoders, currentAverageEncoderValue, desiredPositionChangeInEncoders);
-
             mecanumPowerDrive(movement_direction, adjustedMotorPower);
-
         } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
 
         stopAllMotors();
@@ -256,8 +252,10 @@ public class RobotLinearOpMode extends Robot {
 
     public double[] getChangeInDriveTrainEncoder() {
         return new double[]{
-        (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
-        (- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+        (rightFrontDriveMotor.getCurrentPosition()),
+        //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
+        //(- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+        (rightFrontDriveMotor.getCurrentPosition()),
         (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
         };
     }

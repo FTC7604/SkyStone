@@ -36,18 +36,12 @@ public class DWAIAutonomous {
     private ALLIANCE alliance;
     private LinearOpMode opMode;
 
-    public DWAIAutonomous(PLATFORM_ORIENTATION platformOrientation, PARK_POSITION parkPosition, ALLIANCE alliance, LinearOpMode opMode){
+    public DWAIAutonomous(PLATFORM_ORIENTATION platformOrientation, PARK_POSITION parkPosition, SIDE side, ALLIANCE alliance, LinearOpMode opMode){
         this.platformOrientation = platformOrientation;
         this.parkPosition = parkPosition;
+        this.side = side;
         this.alliance = alliance;
         this.opMode = opMode;
-        this.side = SIDE.FOUNDATION;
-    }
-
-    public DWAIAutonomous(ALLIANCE alliance, LinearOpMode opMode){
-        this.alliance = alliance;
-        this.opMode = opMode;
-        this.side = SIDE.BLOCK;
     }
 
     public void runOpMode(){
@@ -204,7 +198,7 @@ public class DWAIAutonomous {
         BLUE
     }
 
-    private enum SIDE {
+    public enum SIDE {
         BLOCK,
         FOUNDATION
     }
