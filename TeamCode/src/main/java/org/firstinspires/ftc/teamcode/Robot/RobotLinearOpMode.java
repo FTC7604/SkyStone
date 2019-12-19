@@ -124,6 +124,7 @@ public class RobotLinearOpMode extends Robot {
         } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
 
         stopAllMotors();
+        initIMU();
     }
 
     public enum MOVEMENT_DIRECTION {
