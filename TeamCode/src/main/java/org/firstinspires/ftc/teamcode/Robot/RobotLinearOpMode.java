@@ -82,6 +82,7 @@ public class RobotLinearOpMode extends Robot {
         rightBackDriveMotor.setPower(forward - strafe * ratio - rotation);
     }
     public void turnByDegree(double desiredRotationChangeInDegrees) {
+        initIMU();
 
         double endRotation;
         double currentRotation;
@@ -100,7 +101,6 @@ public class RobotLinearOpMode extends Robot {
             linearOpMode.telemetry.addData("Heading: ", currentRotation);
             linearOpMode.telemetry.update();
 
-
             adjustedMotorPower = TurnProfile.RunToPositionWithAccel(startRotation, currentRotation, endRotation);
 
             if (desiredRotationChangeInDegrees > 0) {
@@ -118,11 +118,15 @@ public class RobotLinearOpMode extends Robot {
         moveByInches(desiredPositionChangeInInches, movement_direction, .05);
     }
 
-    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double mp) {
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower) {
+        moveByInches(desiredPositionChangeInInches,movement_direction,minPower,.8);
+    }
+
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower,double maxPower) {
         double currentAverageEncoderValue;
         double adjustedMotorPower;
         double startDriveTrainEncoders;
-        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 200, mp, 1, 0.8);
+        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 200, minPower, 1, maxPower);
         double desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
 
         setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -141,6 +145,7 @@ public class RobotLinearOpMode extends Robot {
         } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
 
         stopAllMotors();
+        initIMU();
     }
 
     public enum MOVEMENT_DIRECTION {
@@ -153,10 +158,10 @@ public class RobotLinearOpMode extends Robot {
     public void setIntakePower(double intakePower) {
         if (!getIntakeSensorPressed()) {
             rightIntakeMotor.setPower(intakePower);
-            leftIntakeMotor.setPower(-intakePower);
+            leftIntakeMotor.setPower(intakePower);
         } else {
             rightIntakeMotor.setPower(intakePower);
-            leftIntakeMotor.setPower(intakePower);
+            leftIntakeMotor.setPower(-intakePower);
         }
 
     }

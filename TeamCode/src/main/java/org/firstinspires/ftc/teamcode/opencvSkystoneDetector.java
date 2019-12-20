@@ -91,40 +91,36 @@ public class opencvSkystoneDetector extends LinearOpMode {
         telemetry.update();
         sleep(100);
 
-        if (valLeft == 255) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
-        if (valMid == 255) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
-        if (valRight == 255) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
+        if (valLeft == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
+        if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
+        if (valRight == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
 
         switch(skystone_position){
             case ONE_AND_FOUR:
 
                 telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
                 telemetry.update();
-                sleep(10000);
+                sleep(1000);
 
                 telemetry.addLine("1 and 4");
                 telemetry.update();
-                sleep(10000);
+                sleep(1000);
 
-                robot.moveByInches(-18, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
                 robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
-                robot.turnByDegree(270);
-                robot.moveByInches(6, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
-                robot.setIntakePower(1.0);
-                robot.closeGrabber();
-                robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+                robot.moveByInches(-17, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+                grabBlock();
                 break;
             case TWO_AND_FIVE:
-                telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
+                telemetry.addData("Values", valRight + "   " + valMid + "   " + valLeft);
                 telemetry.update();
-                sleep(10000);
+                sleep(1000);
 
                 telemetry.addLine("2 and 5");
                 telemetry.update();
-                sleep(10000);
+                sleep(1000);
 
-                robot.moveByInches(-18, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
-                robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+                robot.moveByInches(-17, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+                robot.moveByInches(-5, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
                 grabBlock();
                 break;
             case THREE_AND_SIX:
@@ -137,7 +133,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
                 sleep(10000);
 
                 robot.moveByInches(-18, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
-                robot.moveByInches(6, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+                robot.moveByInches(-3, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
                 grabBlock();
                 break;
         }
@@ -147,12 +143,12 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
 
     public void grabBlock(){
-        robot.turnByDegree(90);
-        robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
-        robot.moveByInches(-9, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
-        robot.setIntakePower(1.0);
+        robot.turnByDegree(180);
+        robot.setIntakePower(-0.5);
+        robot.moveByInches(10, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD, 0.05, 0.3);
+        robot.setIntakePower(-1);
         robot.closeGrabber();
-        robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
+        robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
     }
 
 
