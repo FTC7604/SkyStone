@@ -224,6 +224,8 @@ public class Robot {
         imu1.initialize(parameters);
         imu2.initialize(parameters);
 
+
+
     }
 
     //originally this saved the imu rile, but now I don't know its purpose, sice we can always reinit
@@ -235,6 +237,10 @@ public class Robot {
         BNO055IMU.CalibrationData calibrationData2 = imu2.readCalibrationData();
         File file2 = AppUtil.getInstance().getSettingsFile("AdafruitIMUCalibration2.json");
         ReadWriteFile.writeFile(file2, calibrationData2.serialize());
+    }
+
+    boolean IMUSarecalibrated(){
+        return !imu1.isGyroCalibrated() && !imu2.isGyroCalibrated();
     }
 
     //gets the average angle from both IMUs

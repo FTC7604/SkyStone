@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.*;
 
-import java.util.FormatFlagsConversionMismatchException;
-
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
@@ -100,7 +98,7 @@ public class DWAIAutonomous extends LinearOpMode {
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
 
         print("Turning to be forward");
-        robot.turnByDegree(90);
+        robot.turnToDegree(90);
         robot.openLatch();
     }
 
@@ -147,7 +145,7 @@ public class DWAIAutonomous extends LinearOpMode {
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
 
         print("Turning to be forward");
-        robot.turnByDegree(85);
+        robot.turnToDegree(85);
 
     }
 

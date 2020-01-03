@@ -1,15 +1,27 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.*;
-import com.qualcomm.robotcore.util.*;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
-import org.opencv.core.*;
-import org.opencv.imgproc.*;
-import org.openftc.easyopencv.*;
-import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
+import org.openftc.easyopencv.OpenCvPipeline;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
 /**
  * Created by maryjaneb  on 11/13/2016.
@@ -25,7 +37,37 @@ public class opencvSkystoneDetector extends LinearOpMode {
         THREE_AND_SIX
     }
 
-    SKYSTONE_POSITION skystone_position;
+    private PropertiesLoader propertiesLoaderRubie = new PropertiesLoader("Rubie");
+
+    private double FORWARD_TO_GET_BLOCK_INCHES_1 = propertiesLoaderRubie.getDoubleProperty("FORWARD_TO_GET_BLOCK_INCHES_1");
+    private double DISTANCE_FORWARD_OFF_THE_WALL = propertiesLoaderRubie.getDoubleProperty("DISTANCE_FORWARD_OFF_THE_WALL");
+
+    private double ONE_STRAFE_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("ONE_STRAFE_TO_BLOCK");
+    private double TWO_STRAFE_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("TWO_STRAFE_TO_BLOCK");
+    private double THREE_STRAFE_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("THREE_STRAFE_TO_BLOCK");
+
+    private double ONE_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("ONE_FORWARD_TO_FOUNDATION");
+    private double TWO_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("TWO_FORWARD_TO_FOUNDATION");
+    private double THREE_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("THREE_FORWARD_TO_FOUNDATION");
+
+    private double FOUR_BACK_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("FOUR_BACK_TO_BLOCK");
+    private double FIVE_BACK_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("FIVE_BACK_TO_BLOCK");
+    private double SIX_BACK_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("SIX_BACK_TO_BLOCK");
+
+    private double FOUR_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("FOUR_FORWARD_TO_FOUNDATION");
+    private double FIVE_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("FIVE_FORWARD_TO_FOUNDATION");
+    private double SIX_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("SIX_FORWARD_TO_FOUNDATION");
+
+    private double TURN_TO_GET_BLOCK = propertiesLoaderRubie.getDoubleProperty("TURN_TO_GET_BLOCK");
+    private double FORWARD_TO_GET_BLOCK_INCHES_2 = propertiesLoaderRubie.getDoubleProperty("FORWARD_TO_GET_BLOCK_INCHES_2");
+    private double FORWARD_TO_GET_BLOCK_MIN_POWER = propertiesLoaderRubie.getDoubleProperty("FORWARD_TO_GET_BLOCK_MIN_POWER");
+    private double FORWARD_TO_GET_BLOCK_MAX_POWER = propertiesLoaderRubie.getDoubleProperty("FORWARD_TO_GET_BLOCK_MAX_POWER");
+    private double BACKWARD_TO_AVOID_THE_BRIDGE = propertiesLoaderRubie.getDoubleProperty("BACKWARD_TO_AVOID_THE_BRIDGE");
+
+    private double ARM_ENCODER_TO_FOUNDATION_UP = propertiesLoaderRubie.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_UP");
+    private double ARM_ENCODER_TO_FOUNDATION_DOWN = propertiesLoaderRubie.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_DOWN");
+
+    private SKYSTONE_POSITION skystone_position;
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -50,7 +92,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
     private final int rows = 640;
     private final int cols = 480;
 
-    OpenCvCamera phoneCam;
+    private OpenCvCamera phoneCam;
 
     RobotLinearOpMode robot;
 
@@ -96,60 +138,153 @@ public class opencvSkystoneDetector extends LinearOpMode {
         if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
         if (valRight == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
 
+        robot.moveByInches(DISTANCE_FORWARD_OFF_THE_WALL, FORWARD);
+        deploy();
+
+        update(skystone_position);
+
+        strafeToBlock();
+        robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_1, FORWARD);
+
+        grabBlockFirstTime();
+
+        forwardToFoundationFirstTime();
+
+
+        dropOffBlock();
+
+        backwardToBlocks();
+
+
+        grabBlockSecondTime();
+
+        forwardToFoundationSecondTime();
+
+        dropOffBlock();
+
+        backwardToBlocks();
+    }
+
+    private void update(SKYSTONE_POSITION skystone_position) {
+        telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
         switch (skystone_position) {
             case ONE_AND_FOUR:
-
-                telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
-                telemetry.update();
-                sleep(1000);
-
-                telemetry.addLine("1 and 4");
-                telemetry.update();
-                sleep(1000);
-
-                robot.moveByInches(12, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE); //strafing to in front of the block
-                robot.moveByInches(-17, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD); //approach line of blocks
-                grabBlock();
+                telemetry.addLine("One and Four");
                 break;
             case TWO_AND_FIVE:
-                telemetry.addData("Values", valRight + "   " + valMid + "   " + valLeft);
-                telemetry.update();
-                sleep(1000);
-
-                telemetry.addLine("2 and 5");
-                telemetry.update();
-                sleep(1000);
-
-                robot.moveByInches(-5, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE); //strafing to in front of block
-                robot.moveByInches(-17, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD); //approach line of blocks
-                grabBlock();
+                telemetry.addLine("Two and Five");
                 break;
             case THREE_AND_SIX:
-                telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
-                telemetry.update();
-                sleep(1000);
-
-                telemetry.addLine("3 and 6");
-                telemetry.update();
-                sleep(1000);
-
-                robot.moveByInches(-10, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE); //strafing to in front of block
-                robot.moveByInches(-17, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD); //approach line of blocks
-                grabBlock();
+                telemetry.addLine("Three and Six");
                 break;
         }
-
+        telemetry.update();
+        sleep(1000);
 
     }
 
 
-    public void grabBlock() {
-        robot.turnByDegree(135);
+    private void deploy() {
+        robot.setLiftPower(-0.2);
+        sleep(1000);
+        robot.setLiftPower(0);
+        robot.setArmPower(.2);
+        sleep(750);
+        robot.setArmPower(0);
+        robot.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+        sleep(1000);
+        robot.setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    void strafeToBlock() {
+        switch (skystone_position) {
+            case ONE_AND_FOUR:
+                robot.moveByInches(ONE_STRAFE_TO_BLOCK, STRAFE); //strafing to in front of the block
+                break;
+            case TWO_AND_FIVE:
+                robot.moveByInches(TWO_STRAFE_TO_BLOCK, STRAFE); //strafing to in front of block
+                break;
+            case THREE_AND_SIX:
+                robot.moveByInches(THREE_STRAFE_TO_BLOCK, STRAFE); //strafing to in front of block
+                break;
+        }
+    }
+
+    void forwardToFoundationFirstTime() {
+        switch (skystone_position) {
+            case ONE_AND_FOUR:
+                robot.moveByInches(ONE_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of the block
+                break;
+            case TWO_AND_FIVE:
+                robot.moveByInches(TWO_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
+                break;
+            case THREE_AND_SIX:
+                robot.moveByInches(THREE_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
+                break;
+        }
+    }
+
+    void backwardToBlocks() {
+        switch (skystone_position) {
+            case ONE_AND_FOUR:
+                robot.moveByInches(FOUR_BACK_TO_BLOCK, FORWARD); //strafing to in front of the block
+                break;
+            case TWO_AND_FIVE:
+                robot.moveByInches(FIVE_BACK_TO_BLOCK, FORWARD); //strafing to in front of block
+                break;
+            case THREE_AND_SIX:
+                robot.moveByInches(SIX_BACK_TO_BLOCK, FORWARD); //strafing to in front of block
+                break;
+        }
+    }
+
+    void forwardToFoundationSecondTime() {
+        switch (skystone_position) {
+            case ONE_AND_FOUR:
+                robot.moveByInches(FOUR_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of the block
+                break;
+            case TWO_AND_FIVE:
+                robot.moveByInches(FIVE_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
+                break;
+            case THREE_AND_SIX:
+                robot.moveByInches(SIX_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
+                break;
+        }
+    }
+
+    private void grabBlockFirstTime() {
+        robot.openGrabber();
+        robot.turnToDegree(TURN_TO_GET_BLOCK);
         robot.setIntakePower(-0.5);
-        robot.moveByInches(10, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD, 0.05, 0.3);
+        robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_2, FORWARD, FORWARD_TO_GET_BLOCK_MIN_POWER, FORWARD_TO_GET_BLOCK_MAX_POWER);
         robot.setIntakePower(-1);
         robot.closeGrabber();
-        robot.moveByInches(-12, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
+        robot.moveByInches(BACKWARD_TO_AVOID_THE_BRIDGE, FORWARD);
+        robot.turnToDegree(90);
+    }
+
+    private void grabBlockSecondTime() {
+        robot.openGrabber();
+        robot.turnToDegree(TURN_TO_GET_BLOCK);
+        robot.setIntakePower(-0.5);
+        robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_2, FORWARD, FORWARD_TO_GET_BLOCK_MIN_POWER, FORWARD_TO_GET_BLOCK_MAX_POWER);
+        robot.setIntakePower(-1);
+        robot.closeGrabber();
+        robot.moveByInches(BACKWARD_TO_AVOID_THE_BRIDGE, FORWARD);
+        robot.turnToDegree(90);
+    }
+
+    private void dropOffBlock() {
+        robot.closeGrabber();
+        robot.moveArmByEncoder(ARM_ENCODER_TO_FOUNDATION_UP);
+        robot.openGrabber();
+        robot.moveArmByEncoder(ARM_ENCODER_TO_FOUNDATION_DOWN);
+
     }
 
 
@@ -166,7 +301,12 @@ public class opencvSkystoneDetector extends LinearOpMode {
             RAW_IMAGE,//displays raw view
         }
 
-        private Stage stageToRenderToViewport = Stage.detection;
+        private Stage stageToRenderToViewport;
+
+        {
+            stageToRenderToViewport = Stage.detection;
+        }
+
         private Stage[] stages = Stage.values();
 
         @Override
@@ -176,6 +316,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
              * so whatever we do here, we must do quickly.
              */
 
+            stageToRenderToViewport = Stage.detection;
             int currentStageNum = stageToRenderToViewport.ordinal();
 
             int nextStageNum = currentStageNum + 1;

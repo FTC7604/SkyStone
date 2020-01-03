@@ -3,21 +3,24 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
+
 import org.firstinspires.ftc.teamcode.Control.*;
+
 import static java.lang.Math.abs;
 
 public class RobotLinearOpMode extends Robot {
 
     private LinearOpMode linearOpMode;
 
-    private  double initialArmPosition = 0; //Initial encoder position of arm at resting position
+    private double initialArmPosition = 0; //Initial encoder position of arm at resting position
     private double topArmEncoder = 2300;    //Upper limit of arm encoder
     private double bottomArmEncoder = 0;    //Lower limit of arm encoder
     private double inchesToEncoders = 4000 / 69; //about 60 encoderd ticks to an inch
 
-    /**  MOTION PROFILES  */
+    /**
+     * MOTION PROFILES
+     */
     public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.2, 1, .6);
-    public BallisticMotionProfile turnProfile = new BallisticMotionProfile(0, 0, 90, .05, 1, .75);
     public BallisticMotionProfile liftProfile = new BallisticMotionProfile(
             20,
             1300,
@@ -27,28 +30,33 @@ public class RobotLinearOpMode extends Robot {
             .8
     );
 
-    void init(){
+    void init() {
         setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
         initIMU();
+        calibration();
     }
 
-    /**  CONSTRUCTOR  */
+    /**
+     * CONSTRUCTOR
+     */
     public RobotLinearOpMode(LinearOpMode linearOpMode, COLOR_SENSOR activatedSensor) {
         super(linearOpMode, activatedSensor);
         this.linearOpMode = linearOpMode;
         init();
     }
 
-    public RobotLinearOpMode(LinearOpMode linearOpMode){
+    public RobotLinearOpMode(LinearOpMode linearOpMode) {
         super(linearOpMode, COLOR_SENSOR.UNDER);
         this.linearOpMode = linearOpMode;
         init();
     }
 
-    /**  DRIVE MOTOR METHODS  */
+    /**
+     * DRIVE MOTOR METHODS
+     */
     private void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power) {
         switch (movement_direction) {
             case STRAFE:
@@ -81,35 +89,30 @@ public class RobotLinearOpMode extends Robot {
         rightFrontDriveMotor.setPower(forward + strafe - rotation);
         rightBackDriveMotor.setPower(forward - strafe * ratio - rotation);
     }
-    public void turnByDegree(double desiredRotationChangeInDegrees) {
-        initIMU();
 
-        double endRotation;
+    public void turnToDegree(double endRotation) {
+
         double currentRotation;
         double adjustedMotorPower;
         double startRotation;
 
-        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 30, .05, 1, 0.6);
+        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 90, .05, 1, 0.4);
 
-        startRotation = getRev2IMUAngle()[2];
-        endRotation = startRotation + desiredRotationChangeInDegrees;
+        startRotation = getRev10IMUAngle()[2];
 
         do {
 
-            currentRotation = getRev2IMUAngle()[2];
+            currentRotation = getRev10IMUAngle()[2];
 
             linearOpMode.telemetry.addData("Heading: ", currentRotation);
             linearOpMode.telemetry.update();
 
             adjustedMotorPower = TurnProfile.RunToPositionWithAccel(startRotation, currentRotation, endRotation);
 
-            if (desiredRotationChangeInDegrees > 0) {
-                mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
-            }else {
-                mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, -adjustedMotorPower);
-            }
+            mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
 
-        } while ((abs(desiredRotationChangeInDegrees - currentRotation) > 5) && linearOpMode.opModeIsActive());
+
+        } while ((abs(endRotation - currentRotation) > 5) && linearOpMode.opModeIsActive());
 
         stopAllMotors();
     }
@@ -119,14 +122,14 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower) {
-        moveByInches(desiredPositionChangeInInches,movement_direction,minPower,.8);
+        moveByInches(desiredPositionChangeInInches, movement_direction, minPower, .8);
     }
 
-    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower,double maxPower) {
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower, double maxPower) {
         double currentAverageEncoderValue;
         double adjustedMotorPower;
         double startDriveTrainEncoders;
-        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 200, minPower, 1, maxPower);
+        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, minPower, 1, maxPower);
         double desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
 
         setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -142,10 +145,9 @@ public class RobotLinearOpMode extends Robot {
 
             mecanumPowerDrive(movement_direction, adjustedMotorPower);
 
-        } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
+        } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 20) && linearOpMode.opModeIsActive());
 
         stopAllMotors();
-        initIMU();
     }
 
     public enum MOVEMENT_DIRECTION {
@@ -154,7 +156,9 @@ public class RobotLinearOpMode extends Robot {
         ROTATION,
     }
 
-    /**  INTAKE+LIFT MOTOR METHODS  */
+    /**
+     * INTAKE+LIFT MOTOR METHODS
+     */
     public void setIntakePower(double intakePower) {
         if (!getIntakeSensorPressed()) {
             rightIntakeMotor.setPower(intakePower);
@@ -212,12 +216,14 @@ public class RobotLinearOpMode extends Robot {
         return arrivedAtTargetEncoder;
     }
 
-    /**  LATCH+CLAW+MARKER METHODS  */
-    public void closeGrabber() {
+    /**
+     * LATCH+CLAW+MARKER METHODS
+     */
+    public void openGrabber() {
         blockGrabberServo.setPosition(.7);
     }
 
-    public void openGrabber() {
+    public void closeGrabber() {
         blockGrabberServo.setPosition(.4);
     }
 
@@ -240,22 +246,35 @@ public class RobotLinearOpMode extends Robot {
         rightLatchServo.setPosition(.65);
     }
 
-    /**  GET ENCODER METHODS  */
+    /**
+     * GET ENCODER METHODS
+     */
     private double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction) {
-        switch (movement_direction){
-            case FORWARD: return getChangeInDriveTrainEncoder()[0];
-            case STRAFE: return getChangeInDriveTrainEncoder()[1];
-            case ROTATION: return getChangeInDriveTrainEncoder()[2];
+        switch (movement_direction) {
+            case FORWARD:
+                return getChangeInDriveTrainEncoder()[0];
+            case STRAFE:
+                return getChangeInDriveTrainEncoder()[1];
+            case ROTATION:
+                return getChangeInDriveTrainEncoder()[2];
         }
 
         return 0;
     }
 
+//    public double[] getChangeInDriveTrainEncoder() {
+//        return new double[]{
+//        (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
+//        (- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+//        (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+//        };
+//    }
+
     public double[] getChangeInDriveTrainEncoder() {
         return new double[]{
-        (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
-        (- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
-        (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+                (leftBackDriveMotor.getCurrentPosition()),
+                (leftBackDriveMotor.getCurrentPosition()),
+                (leftBackDriveMotor.getCurrentPosition()),
         };
     }
 
@@ -267,8 +286,10 @@ public class RobotLinearOpMode extends Robot {
         return armMotor.getCurrentPosition();
     }
 
-    /**  STOP METHODS  */
-    public void stopAllMotors(){
+    /**
+     * STOP METHODS
+     */
+    public void stopAllMotors() {
         leftFrontDriveMotor.setPower(0);
         leftBackDriveMotor.setPower(0);
         rightFrontDriveMotor.setPower(0);
@@ -283,6 +304,18 @@ public class RobotLinearOpMode extends Robot {
     public void stopMotorsAndWait(double seconds) {
         mecanumPowerDrive(0, 0, 0);
         linearOpMode.sleep((int) (seconds * 1000));
+    }
+
+    public void calibration() {
+
+        while (!IMUSarecalibrated() && linearOpMode.opModeIsActive()) {
+            linearOpMode.telemetry.addLine("IMUs are not calibrated, wait");
+            linearOpMode.telemetry.update();
+        }
+
+        linearOpMode.telemetry.addLine("IMUs are calibrated, go");
+        linearOpMode.telemetry.update();
+
     }
 
 }

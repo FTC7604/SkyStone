@@ -30,11 +30,10 @@ public class BallisticMotionProfile {
     //we keep all the parameter names consistant
     public BallisticMotionProfile(final double LIMIT_1, final double LIMIT_2, final double DECELERATION_DISTANCE, final double MIN_POWER, final double EXP_POWER, final double MAX_POWER) {
 
-        if(LIMIT_1 > LIMIT_2){
+        if (LIMIT_1 > LIMIT_2) {
             TOP_LIMIT = LIMIT_1;
             BOTTOM_LIMIT = LIMIT_2;
-        }
-        else {
+        } else {
             TOP_LIMIT = LIMIT_2;
             BOTTOM_LIMIT = LIMIT_1;
         }
@@ -49,12 +48,20 @@ public class BallisticMotionProfile {
     //this is the heart of the ballistic class, it returns power based on the distance from something
     //PI/2 makes the period 4 times it would otherwise be, so it peaks at deceleration distance on the positive and negative ends
     //distance to limit is like the x value of the curve
-    double rawCurve(double distanceToLimit){
-        return sin((PI/2) * (1/DECELERATION_DISTANCE) * (distanceToLimit));
+    private double rawCurve(double distanceToLimit) {
+        return sin((PI / 2) * (1 / DECELERATION_DISTANCE) * (distanceToLimit));
     }
 
-    double processedCurve(double rawCurve){
-         return (POWER_ADJUSTMENT_MULTIPLIER * pow(rawCurve, EXP_POWER) + MIN_POWER);
+//    private double rawCurve(double distanceToLimit) {
+//        if(distanceToLimit > 0){
+//            return -.5 * cos(PI * (1 / DECELERATION_DISTANCE) * (distanceToLimit)) + .5;
+//        } else {
+//            return .5 * cos(PI * (1 / DECELERATION_DISTANCE) * (distanceToLimit)) - .5;
+//        }
+//    }
+
+    private double processedCurve(double rawCurve) {
+        return (POWER_ADJUSTMENT_MULTIPLIER * pow(rawCurve, EXP_POWER) + MIN_POWER);
     }
 
     //it returns a power between minimum and maximum power that can actually be used.
@@ -72,7 +79,7 @@ public class BallisticMotionProfile {
     }
 
     //This is very similar to the single curve version, but instead it considers more than one limit by multiplying two single curves together
-    private double doubleCurveLimit(double distanceToTop, double distanceToBottom){
+    private double doubleCurveLimit(double distanceToTop, double distanceToBottom) {
         //what we end up returning
         double motorPower;
 
@@ -200,16 +207,16 @@ public class BallisticMotionProfile {
             distanceToTop = (neededPosition - currentPosition);//this assumes that the top is the needed and the bottom is the start
             distanceToBottom = (currentPosition - startPosition);
 
-            if (currentPosition > startPosition) curvedPower = doubleCurveLimit(distanceToTop, distanceToBottom);//take the curve based on where we are
+            if (currentPosition > startPosition)
+                curvedPower = doubleCurveLimit(distanceToTop, distanceToBottom);//take the curve based on where we are
             else curvedPower = MIN_POWER;
-        }
-
-        else if (startPosition > neededPosition) {//give them a negative if we need to go the other way
+        } else if (startPosition > neededPosition) {//give them a negative if we need to go the other way
 
             distanceToTop = (startPosition - currentPosition);//this assumes that the bottom is the goal and the top is the start, meaning we need to go down
             distanceToBottom = (currentPosition - neededPosition);
 
-            if (currentPosition < startPosition)curvedPower = -(doubleCurveLimit(distanceToTop, distanceToBottom));//we make this one negative because
+            if (currentPosition < startPosition)
+                curvedPower = -(doubleCurveLimit(distanceToTop, distanceToBottom));//we make this one negative because
             else curvedPower = -MIN_POWER;
         }
 
@@ -235,15 +242,15 @@ public class BallisticMotionProfile {
 
             distanceToLimit = (neededPosition - currentPosition);//this assumes that we are going from low to high encoder ticks. Otherwise the distancetotop would be flipped and the curve would be the opposite of what we want
 
-            if (currentPosition > startPosition) curvedPower = singleCurveLimit(distanceToLimit);//take the curve based on where we are
+            if (currentPosition > startPosition)
+                curvedPower = singleCurveLimit(distanceToLimit);//take the curve based on where we are
             else curvedPower = MIN_POWER;//we have reched the destination
-        }
-
-        else if (startPosition > neededPosition) {//give them a negative if we need to go the other way
+        } else if (startPosition > neededPosition) {//give them a negative if we need to go the other way
 
             distanceToLimit = (currentPosition - neededPosition);
 
-            if (currentPosition < startPosition)curvedPower = -(singleCurveLimit(distanceToLimit));//we make this one negative because
+            if (currentPosition < startPosition)
+                curvedPower = -(singleCurveLimit(distanceToLimit));//we make this one negative because
             else curvedPower = -MIN_POWER;//we have reached the destination
         }
 
