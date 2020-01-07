@@ -71,6 +71,9 @@ public class testOpMode extends LinearOpMode {
     final double ARM_SCORING_POSITION = propertiesLoader.getDoubleProperty("ARM_SCORING_POSITION");
     ;
 
+    final double OPEN_LATCH_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_POSITION");
+    final double CLOSE_LATCH_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_POSITION");
+
     //this is the loop that repeats until the end of teleOp.
     @Override
     public void runOpMode() {
@@ -201,8 +204,8 @@ public class testOpMode extends LinearOpMode {
                 else robotLinearOpMode.openGrabber();
             }
 
-            if (latchIsDown.get()) robotLinearOpMode.closeLatch();
-            else robotLinearOpMode.openLatch();
+            if (latchIsDown.get()) robotLinearOpMode.setLatchPosition(CLOSE_LATCH_POSITION);
+            else robotLinearOpMode.setLatchPosition(OPEN_LATCH_POSITION);
 
             if (markerDropper.get()) robotLinearOpMode.holdMarker();
             else robotLinearOpMode.dropMarker();

@@ -18,10 +18,18 @@ public class DWAIAutonomous {
     private double DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION");
     private double DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION");
     private double DRIVETRAIN_DISTANCE_FORWARD_TO_TURN = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_TURN");
-    private double WALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("WALL_PARK_STRAFE_DISTANCE");
-    private double BRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("BRIDGE_PARK_STRAFE_DISTANCE");
+    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD");
+
+    private double HWALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("HWALL_PARK_STRAFE_DISTANCE");
+    private double HBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("HBRIDGE_PARK_STRAFE_DISTANCE");
+    private double VWALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VWALL_PARK_STRAFE_DISTANCE");
+    private double VBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VBRIDGE_PARK_STRAFE_DISTANCE");
     private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
     private double STRAFE_MAX_POWER = propertiesLoader.getDoubleProperty("STRAFE_MAX_POWER");
+    private double MOVE_MAX_POWER = propertiesLoader.getDoubleProperty("MOVE_MAX_POWER");
+
+    private double OPEN_LATCH_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_POSITION");
+    private double CLOSE_LATCH_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_POSITION");
 
     private double horizontalTurnDegree = 90;
     private double fiddleDistance = -3;
@@ -80,8 +88,8 @@ public class DWAIAutonomous {
             DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION *= -1;
             horizontalTurnDegree *= -1;
             fiddleDistance *= -1;
-            WALL_PARK_STRAFE_DISTANCE *= -1;
-            BRIDGE_PARK_STRAFE_DISTANCE *= -1;
+            HWALL_PARK_STRAFE_DISTANCE *= -1;
+            HBRIDGE_PARK_STRAFE_DISTANCE *= -1;
         }
 
     }
@@ -89,19 +97,19 @@ public class DWAIAutonomous {
     private void moveToFoundation(){
         print("Moving towards foundation");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD);
-        robot.moveByInches(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE, STRAFE_MAX_POWER);
-        robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD);
+        robot.moveByInches(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
+        robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD, MOVE_MAX_POWER);
     }
 
     private void latchFoundation(){
         print("Latching foundation");
-        robot.openLatch();
+        robot.setLatchPosition(OPEN_LATCH_POSITION);
 
         while(!robot.getFoundationSensorPressed()){
-            robot.mecanumPowerDrive(0,-.2,0);
+            robot.mecanumPowerDrive(0,-.3,0);
         }
 
-        robot.closeLatch();
+        robot.setLatchPosition(CLOSE_LATCH_POSITION);
         robot.moveByInches(-2, FORWARD, .6);
     }
 
@@ -110,8 +118,8 @@ public class DWAIAutonomous {
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
 
         print("Turning to be forward");
-        robot.turnByDegree(horizontalTurnDegree);
-        robot.openLatch();
+        robot.turnToDegree(horizontalTurnDegree);
+        robot.setLatchPosition(OPEN_LATCH_POSITION);
     }
 
     private void parkHorizontal(){
@@ -120,10 +128,10 @@ public class DWAIAutonomous {
 
         if(parkPosition == PARK_POSITION.WALL) {
             print("Strafing against wall");
-            robot.moveByInches(WALL_PARK_STRAFE_DISTANCE, STRAFE);
+            robot.moveByInches(HWALL_PARK_STRAFE_DISTANCE, STRAFE);
         } else{
             print("Strafing towards bridge");
-            robot.moveByInches(BRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
+            robot.moveByInches(HBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
         }
 
         print("Deploying intake");
@@ -139,19 +147,34 @@ public class DWAIAutonomous {
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT, FORWARD);
 
         print("Opening latch");
-        robot.openLatch();
+        robot.setLatchPosition(OPEN_LATCH_POSITION);
 
         print("Strafing away from the platform");
-        robot.moveByInches(DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE);
+        robot.moveByInches(DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE, STRAFE_MAX_POWER);
 
         print("Moving up parallel with platform");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
 
         print("Turning to be forward");
-        robot.turnByDegree(85);
+        robot.turnToDegree(90);
+
+        print("Slamming foundation against the wall really really hard");
+        robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD, FORWARD);
     }
 
     private void parkVertical(){
+
+        if(parkPosition == PARK_POSITION.WALL){
+            print("Strafing against wall");
+            robot.moveByInches(VWALL_PARK_STRAFE_DISTANCE, STRAFE);
+        } else{
+            print("Strafing against bridge");
+            robot.moveByInches(VBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
+        }
+
+        print("Moving under bridge");
+        robot.moveByInches(22, FORWARD);
+
         //currently just exact copy of horizontal parking method
         /*print("Fiddling with latch");
         robot.moveByInches(fiddleDistance, STRAFE);
@@ -179,7 +202,6 @@ public class DWAIAutonomous {
             robot.stopAllMotors();
             //Ensures button is pressed and released before continuing
             while (opMode.opModeIsActive() && !opMode.gamepad1.a){}
-
             while (opMode.opModeIsActive() && opMode.gamepad1.a){}
         }
 

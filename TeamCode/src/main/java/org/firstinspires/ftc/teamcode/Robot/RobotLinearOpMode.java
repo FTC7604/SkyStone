@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import org.firstinspires.ftc.teamcode.Control.*;
+import org.firstinspires.ftc.teamcode.RuntimeLogger;
 import static java.lang.Math.abs;
 
 public class RobotLinearOpMode extends Robot {
@@ -13,7 +13,9 @@ public class RobotLinearOpMode extends Robot {
     private  double initialArmPosition = 0; //Initial encoder position of arm at resting position
     private double topArmEncoder = 2300;    //Upper limit of arm encoder
     private double bottomArmEncoder = 0;    //Lower limit of arm encoder
-    private double inchesToEncoders = 4000 / 69; //about 60 encoderd ticks to an inch
+    private double inchesToEncoders = 4000 / 69; //about 60 encoder ticks to an inch
+
+    private RuntimeLogger logger = new RuntimeLogger("MotionProfile");
 
     /**  MOTION PROFILES  */
     public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.2, 1, .6);
@@ -97,6 +99,10 @@ public class RobotLinearOpMode extends Robot {
         }
     }
 
+    /**
+     * Turns relative to starting position
+     * i.e. starts at 0, 90 will always mean the same position, moving counter-clockwise
+    */
     public void turnToDegree(double endRotation) {
 
         double currentRotation;
@@ -107,9 +113,14 @@ public class RobotLinearOpMode extends Robot {
 
         startRotation = getRev10IMUAngle()[2];
 
+        if(Math.abs(endRotation - startRotation) > 180){
+            startRotation += 360 * Math.signum(endRotation - startRotation);
+        }
+
         do {
             currentRotation = getRev10IMUAngle()[2];
             adjustedMotorPower = TurnProfile.RunToPositionWithAccel(startRotation, currentRotation, endRotation);
+            //adjustedMotorPower = 1;
             mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
         } while ((abs(endRotation - currentRotation) > 5) && linearOpMode.opModeIsActive());
 
@@ -140,6 +151,7 @@ public class RobotLinearOpMode extends Robot {
             currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction);
             adjustedMotorPower = DriveProfile.RunToPositionWithAccel(startDriveTrainEncoders, currentAverageEncoderValue, desiredPositionChangeInEncoders);
             mecanumPowerDrive(movement_direction, adjustedMotorPower);
+            logger.write(adjustedMotorPower + " " + currentAverageEncoderValue);
         } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
 
         stopAllMotors();
@@ -248,15 +260,10 @@ public class RobotLinearOpMode extends Robot {
         markerLatchServo.setPosition(0);
     }
 
-    //RIGHT + LEFT IS PRETENDING LATCH IS FRONT OF ROBOT
-    public void openLatch() {
-        leftLatchServo.setPosition(.4);
-        rightLatchServo.setPosition(.45);
-    }
-
-    public void closeLatch() {
-        leftLatchServo.setPosition(.6);
-        rightLatchServo.setPosition(.65);
+    //LATCH IS LEFT/RIGHT PRETENDING LATCH IS FRONT OF ROBOT
+    public void setLatchPosition(double pos){
+        leftLatchServo.setPosition(pos);
+        rightLatchServo.setPosition(pos + .05);
     }
 
     /**  GET ENCODER METHODS  */
@@ -276,7 +283,8 @@ public class RobotLinearOpMode extends Robot {
         //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
         //(- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
         (rightFrontDriveMotor.getCurrentPosition()),
-        (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+        //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+        (-rightFrontDriveMotor.getCurrentPosition())
         };
     }
 
