@@ -131,6 +131,7 @@ public class DWAIAutonomous {
 
         print("Moving under bridge");
         robot.moveByInches(36, FORWARD);
+        //rough movement, likely replace with color sensor line code
     }
 
     private void placeVertical(){
@@ -151,7 +152,8 @@ public class DWAIAutonomous {
     }
 
     private void parkVertical(){
-        print("Fiddling with latch");
+        //currently just exact copy of horizontal parking method
+        /*print("Fiddling with latch");
         robot.moveByInches(fiddleDistance, STRAFE);
 
         if(parkPosition == PARK_POSITION.WALL) {
@@ -166,7 +168,7 @@ public class DWAIAutonomous {
         robot.deploy();
 
         print("Moving under bridge");
-        robot.moveByInches(36, FORWARD);
+        robot.moveByInches(36, FORWARD);*/
     }
 
     private void print(String printString) {

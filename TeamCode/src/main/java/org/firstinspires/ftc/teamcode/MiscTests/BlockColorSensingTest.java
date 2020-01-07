@@ -1,13 +1,17 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.MiscTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
+
+import org.firstinspires.ftc.teamcode.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.*;
+import org.firstinspires.ftc.teamcode.RuntimeLogger;
+
 import java.util.*;
 
 /**  TEST COLOR SENSORS + LOGGING  */
 
-@TeleOp(name="Color Test", group="TeleOp")
-public class ColorCalibration extends LinearOpMode {
+@TeleOp(name="Block Color Sensing Test", group="TeleOp")
+public class BlockColorSensingTest extends LinearOpMode {
     RobotLinearOpMode robot;
     PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
     double BLOCK_POWER = propertiesLoader.getDoubleProperty("BLOCK_POWER");
