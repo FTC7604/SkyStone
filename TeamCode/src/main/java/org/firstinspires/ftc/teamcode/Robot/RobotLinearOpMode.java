@@ -97,6 +97,25 @@ public class RobotLinearOpMode extends Robot {
         }
     }
 
+    public void turnToDegree(double endRotation) {
+
+        double currentRotation;
+        double adjustedMotorPower;
+        double startRotation;
+
+        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 90, .05, 1, 0.4);
+
+        startRotation = getRev10IMUAngle()[2];
+
+        do {
+            currentRotation = getRev10IMUAngle()[2];
+            adjustedMotorPower = TurnProfile.RunToPositionWithAccel(startRotation, currentRotation, endRotation);
+            mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
+        } while ((abs(endRotation - currentRotation) > 5) && linearOpMode.opModeIsActive());
+
+        stopAllMotors();
+    }
+
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
         moveByInches(desiredPositionChangeInInches, movement_direction, .05, 0.8);
     }
