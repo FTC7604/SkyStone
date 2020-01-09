@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.Robot.*;
 import org.firstinspires.ftc.teamcode.*;
 
 @TeleOp(name="Color Test")
+@Disabled
 public class ColorTest extends LinearOpMode{
     private RobotLinearOpMode robot;
     private RuntimeLogger logger = new RuntimeLogger("colorVals");

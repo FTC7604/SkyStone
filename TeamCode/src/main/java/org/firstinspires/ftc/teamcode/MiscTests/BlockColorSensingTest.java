@@ -11,6 +11,7 @@ import java.util.*;
 /**  TEST COLOR SENSORS + LOGGING  */
 
 @TeleOp(name="Block Color Sensing Test", group="TeleOp")
+@Disabled
 public class BlockColorSensingTest extends LinearOpMode {
     RobotLinearOpMode robot;
     PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");

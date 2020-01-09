@@ -7,8 +7,9 @@ import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
 import org.firstinspires.ftc.teamcode.RuntimeLogger;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.min;
 
-public class RobotLinearOpMode extends Robot {
+public class ThreadedRobotLinearOpMode extends Robot {
 
     private LinearOpMode linearOpMode;
 
@@ -18,6 +19,52 @@ public class RobotLinearOpMode extends Robot {
     private double inchesToEncoders = 4000 / 69; //about 60 encoder ticks to an inch
 
     private RuntimeLogger logger = new RuntimeLogger("MotionProfile");
+
+    private double lfMotorPower = 0;
+    private double lbMotorPower = 0;
+    private double rfMotorPower = 0;
+    private double rbMotorPower = 0;
+
+    private Thread moveThread;
+    private Thread turnThread;
+
+    private double[] drivePowers = new double[4];
+    private double[] turnPowers = new double[4];
+
+    private Thread drivePowerThread = new Thread(() -> {
+        double maxVal;
+
+        while(true){
+            lfMotorPower = drivePowers[0] + turnPowers[0];
+            lbMotorPower = drivePowers[1] + turnPowers[1];
+            rfMotorPower = drivePowers[2] + turnPowers[2];
+            rbMotorPower = drivePowers[3] + turnPowers[3];
+
+            if(abs(lfMotorPower) >= abs(lbMotorPower)){
+                maxVal = abs(lfMotorPower);
+            } else{
+                maxVal = abs(lbMotorPower);
+            }
+
+            if(abs(rfMotorPower) > maxVal){
+                maxVal = abs(rfMotorPower);
+            }
+
+            if(abs(rbMotorPower) > maxVal){
+                maxVal = abs(rbMotorPower);
+            }
+
+            if(maxVal == 0){
+                maxVal = 1;
+            }
+
+            leftFrontDriveMotor.setPower(lfMotorPower / maxVal);
+            leftBackDriveMotor.setPower(lbMotorPower / maxVal);
+            rightFrontDriveMotor.setPower(rfMotorPower / maxVal);
+            rightBackDriveMotor.setPower(rbMotorPower / maxVal);
+        }
+
+    });
 
     /**  MOTION PROFILES  */
     public BallisticMotionProfile armProfile = new BallisticMotionProfile(topArmEncoder, bottomArmEncoder, 1000, 0.2, 1, .6);
@@ -32,18 +79,20 @@ public class RobotLinearOpMode extends Robot {
     );
 
     /**  CONSTRUCTORS  */
-    public RobotLinearOpMode(LinearOpMode linearOpMode, COLOR_SENSOR activatedSensor) {
+    public ThreadedRobotLinearOpMode(LinearOpMode linearOpMode, COLOR_SENSOR activatedSensor) {
         super(linearOpMode, activatedSensor);
         this.linearOpMode = linearOpMode;
+        drivePowerThread.start();
     }
 
-    public RobotLinearOpMode(LinearOpMode linearOpMode){
+    public ThreadedRobotLinearOpMode(LinearOpMode linearOpMode){
         super(linearOpMode, COLOR_SENSOR.UNDER);
         this.linearOpMode = linearOpMode;
+        drivePowerThread.start();
     }
 
     /**  DRIVE MOTOR METHODS  */
-    private void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power) {
+    /*private void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power) {
         switch (movement_direction) {
             case STRAFE:
                 mecanumPowerDrive(power, 0, 0);
@@ -62,21 +111,13 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public void mecanumPowerDrive(double strafe, double forward, double rotation) {
-        leftFrontDriveMotor.setPower(forward - strafe + rotation);
-        leftBackDriveMotor.setPower(forward + strafe + rotation);
-        rightFrontDriveMotor.setPower(forward + strafe - rotation);
-        rightBackDriveMotor.setPower(forward - strafe - rotation);
-    }
+        lfMotorPower += forward - strafe + rotation;
+        lbMotorPower += forward + strafe + rotation;
+        rfMotorPower += forward + strafe - rotation;
+        rbMotorPower += forward - strafe - rotation;
+    }*/
 
-    //compensates for change in center of gravity with arm swinging behind the robot
-    public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation, double ratio) {
-        leftFrontDriveMotor.setPower(forward - strafe + rotation);
-        leftBackDriveMotor.setPower(forward + strafe * ratio + rotation);
-        rightFrontDriveMotor.setPower(forward + strafe - rotation);
-        rightBackDriveMotor.setPower(forward - strafe * ratio - rotation);
-    }
-
-    public void turnByDegree(double degree) {
+    /*public void turnByDegree(double degree) {
         double adjustedMotorPower;
         double startAngle = getRev2IMUAngle()[2];
         double neededAngle = startAngle + degree;
@@ -99,12 +140,12 @@ public class RobotLinearOpMode extends Robot {
             }
 
         }
-    }
+    }*/
 
     /**
      * Turns relative to starting position
      * i.e. starts at 0, 90 will always mean the same position, moving counter-clockwise
-    */
+     */
     public void turnToDegree(double endRotation) {
 
         double currentRotation;
@@ -123,10 +164,33 @@ public class RobotLinearOpMode extends Robot {
             currentRotation = getRev10IMUAngle()[2];
             adjustedMotorPower = TurnProfile.RunToPositionWithAccel(startRotation, currentRotation, endRotation);
             //adjustedMotorPower = 1;
-            mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
+            //mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
+            turnPowers[0] = adjustedMotorPower;
+            turnPowers[1] = adjustedMotorPower;
+            turnPowers[2] = -adjustedMotorPower;
+            turnPowers[3] = -adjustedMotorPower;
         } while ((abs(endRotation - currentRotation) > 5) && linearOpMode.opModeIsActive());
 
-        stopAllMotors();
+        turnPowers = new double[4];
+        //stopAllMotors();
+    }
+
+    public void threadedTurnToDegree(double endRotation) {
+
+        Thread localThread = new Thread(() -> {
+
+            if(turnThread != null){
+                while(turnThread.isAlive()){}
+            }
+
+            turnThread = new Thread(() -> {
+                turnToDegree(endRotation);
+            });
+
+            turnThread.start();
+        });
+
+        localThread.start();
     }
 
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
@@ -152,12 +216,61 @@ public class RobotLinearOpMode extends Robot {
         do {
             currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction);
             adjustedMotorPower = DriveProfile.RunToPositionWithAccel(startDriveTrainEncoders, currentAverageEncoderValue, desiredPositionChangeInEncoders);
-            mecanumPowerDrive(movement_direction, adjustedMotorPower);
-            logger.write(adjustedMotorPower + " " + currentAverageEncoderValue);
+
+            switch(movement_direction){
+                case FORWARD:
+                    drivePowers[0] = adjustedMotorPower;
+                    drivePowers[1] = adjustedMotorPower;
+                    drivePowers[2] = adjustedMotorPower;
+                    drivePowers[3] = adjustedMotorPower;
+                    break;
+                case STRAFE:
+                    drivePowers[0] = -adjustedMotorPower;
+                    drivePowers[1] = adjustedMotorPower;
+                    drivePowers[2] = adjustedMotorPower;
+                    drivePowers[3] = -adjustedMotorPower;
+                    break;
+                default:
+                    break;
+            }
+
         } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 50) && linearOpMode.opModeIsActive());
 
-        stopAllMotors();
-        initIMU();
+        drivePowers = new double[4];
+        //stopAllMotors();
+        //initIMU();
+    }
+
+    public void threadedMoveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower, double maxPower){
+
+        Thread localThread = new Thread(() -> {
+
+            if(moveThread != null){
+                while(moveThread.isAlive()){}
+            }
+
+            moveThread = new Thread(() -> {
+                moveByInches(desiredPositionChangeInInches, movement_direction, minPower, maxPower);
+            });
+
+            //initIMU();
+            moveThread.start();
+
+        });
+
+        localThread.start();
+    }
+
+    public void waitForThreads(){
+
+        if(moveThread != null){
+            while(moveThread.isAlive()){linearOpMode.sleep(1);}
+        }
+
+        if(turnThread != null){
+            while(turnThread.isAlive()){linearOpMode.sleep(1);}
+        }
+
     }
 
     public enum MOVEMENT_DIRECTION {
@@ -281,12 +394,12 @@ public class RobotLinearOpMode extends Robot {
 
     public double[] getChangeInDriveTrainEncoder() {
         return new double[]{
-        (rightFrontDriveMotor.getCurrentPosition()),
-        //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
-        //(- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
-        (rightFrontDriveMotor.getCurrentPosition()),
-        //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
-        (-rightFrontDriveMotor.getCurrentPosition())
+                (rightFrontDriveMotor.getCurrentPosition()),
+                //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
+                //(- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+                (rightFrontDriveMotor.getCurrentPosition()),
+                //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+                (-rightFrontDriveMotor.getCurrentPosition())
         };
     }
 
@@ -300,10 +413,11 @@ public class RobotLinearOpMode extends Robot {
 
     /**  STOP METHODS  */
     public void stopAllMotors(){
-        leftFrontDriveMotor.setPower(0);
-        leftBackDriveMotor.setPower(0);
-        rightFrontDriveMotor.setPower(0);
-        rightBackDriveMotor.setPower(0);
+        lfMotorPower = 0;
+        lbMotorPower = 0;
+        rfMotorPower = 0;
+        rbMotorPower = 0;
+
         leftIntakeMotor.setPower(0);
         rightIntakeMotor.setPower(0);
         liftMotor.setPower(0);
@@ -311,9 +425,9 @@ public class RobotLinearOpMode extends Robot {
     }
 
     //eliminates residual forces
-    public void stopMotorsAndWait(double seconds) {
+    /*public void stopMotorsAndWait(double seconds) {
         mecanumPowerDrive(0, 0, 0);
         linearOpMode.sleep((int) (seconds * 1000));
-    }
+    }*/
 
 }
