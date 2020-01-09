@@ -1,9 +1,10 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.MiscTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
 import org.firstinspires.ftc.teamcode.Control.*;
+import org.firstinspires.ftc.teamcode.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.*;
 
 //all the imports that come from java, abs is absolute value
@@ -69,6 +70,9 @@ public class testOpMode extends LinearOpMode {
     //this is the socring position for the arm. not quite fully behind the robot, but as high as possible while still able to score
     final double ARM_SCORING_POSITION = propertiesLoader.getDoubleProperty("ARM_SCORING_POSITION");
     ;
+
+    final double OPEN_LATCH_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_POSITION");
+    final double CLOSE_LATCH_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_POSITION");
 
     //this is the loop that repeats until the end of teleOp.
     @Override
@@ -200,8 +204,8 @@ public class testOpMode extends LinearOpMode {
                 else robotLinearOpMode.openGrabber();
             }
 
-            if (latchIsDown.get()) robotLinearOpMode.closeLatch();
-            else robotLinearOpMode.openLatch();
+            if (latchIsDown.get()) robotLinearOpMode.setLatchPosition(CLOSE_LATCH_POSITION);
+            else robotLinearOpMode.setLatchPosition(OPEN_LATCH_POSITION);
 
             if (markerDropper.get()) robotLinearOpMode.holdMarker();
             else robotLinearOpMode.dropMarker();

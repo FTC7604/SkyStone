@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-import com.qualcomm.robotcore.eventloop.opmode.*;
-import com.qualcomm.robotcore.hardware.*;
-
-import org.firstinspires.ftc.teamcode.Control.*;
+import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
+import org.firstinspires.ftc.teamcode.RuntimeLogger;
 
 import static java.lang.Math.abs;
 
@@ -15,7 +15,9 @@ public class RobotLinearOpMode extends Robot {
     private double initialArmPosition = 0; //Initial encoder position of arm at resting position
     private double topArmEncoder = 2300;    //Upper limit of arm encoder
     private double bottomArmEncoder = 0;    //Lower limit of arm encoder
-    private double inchesToEncoders = 4000 / 69; //about 60 encoderd ticks to an inch
+    private double inchesToEncoders = 4000 / 69; //about 60 encoder ticks to an inch
+
+    private RuntimeLogger logger = new RuntimeLogger("MotionProfile");
 
     /**
      * MOTION PROFILES
@@ -30,6 +32,7 @@ public class RobotLinearOpMode extends Robot {
             .8
     );
 
+
     void init() {
         setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -39,14 +42,15 @@ public class RobotLinearOpMode extends Robot {
         calibration();
     }
 
-    /**
-     * CONSTRUCTOR
-     */
+
+    /**  CONSTRUCTORS  */
+
     public RobotLinearOpMode(LinearOpMode linearOpMode, COLOR_SENSOR activatedSensor) {
         super(linearOpMode, activatedSensor);
         this.linearOpMode = linearOpMode;
         init();
     }
+
 
     public RobotLinearOpMode(LinearOpMode linearOpMode) {
         super(linearOpMode, COLOR_SENSOR.UNDER);
@@ -54,9 +58,11 @@ public class RobotLinearOpMode extends Robot {
         init();
     }
 
-    /**
-     * DRIVE MOTOR METHODS
-     */
+
+
+
+    /**  DRIVE MOTOR METHODS  */
+
     private void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power) {
         switch (movement_direction) {
             case STRAFE:
@@ -90,13 +96,18 @@ public class RobotLinearOpMode extends Robot {
         rightBackDriveMotor.setPower(forward - strafe * ratio - rotation);
     }
 
+    /**
+     * Turns relative to starting position
+     * i.e. starts at 0, 90 will always mean the same position, moving counter-clockwise
+     */
+
     public void turnToDegree(double endRotation) {
 
         double currentRotation;
         double adjustedMotorPower;
         double startRotation;
 
-        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 90, .05, 1, 0.4);
+        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 45, .05, 1, 0.4);
 
         startRotation = getRev10IMUAngle()[2];
 
@@ -117,19 +128,26 @@ public class RobotLinearOpMode extends Robot {
         stopAllMotors();
     }
 
+
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
-        moveByInches(desiredPositionChangeInInches, movement_direction, .05);
+        moveByInches(desiredPositionChangeInInches, movement_direction, .05, 0.8);
     }
 
-    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower) {
+    public void moveByInchesMinPower(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower) {
         moveByInches(desiredPositionChangeInInches, movement_direction, minPower, .8);
+
+    }
+    public void moveByInchesMaxPower(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double maxPower) {
+        moveByInches(desiredPositionChangeInInches, movement_direction, .05, maxPower);
     }
 
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower, double maxPower) {
         double currentAverageEncoderValue;
         double adjustedMotorPower;
         double startDriveTrainEncoders;
-        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 800, minPower, 1, maxPower);
+
+        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 400, minPower, 1, maxPower);
+
         double desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
 
         setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -138,16 +156,15 @@ public class RobotLinearOpMode extends Robot {
         startDriveTrainEncoders = getAverageDriveTrainEncoder(movement_direction);
 
         do {
-
             currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction);
-
             adjustedMotorPower = DriveProfile.RunToPositionWithAccel(startDriveTrainEncoders, currentAverageEncoderValue, desiredPositionChangeInEncoders);
-
             mecanumPowerDrive(movement_direction, adjustedMotorPower);
 
         } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 20) && linearOpMode.opModeIsActive());
 
+
         stopAllMotors();
+        initIMU();
     }
 
     public enum MOVEMENT_DIRECTION {
@@ -195,6 +212,27 @@ public class RobotLinearOpMode extends Robot {
         } while ((abs(desiredPositionChangeInEncoders) > abs(startEncoderValue - currentEncoderValue)) && linearOpMode.opModeIsActive());
     }
 
+    public void deploy(){
+        //Deploy function
+        setLiftPower(-0.2);
+        linearOpMode.sleep(2000);
+        setArmPower(.2);
+        linearOpMode.sleep(600);
+        setLiftPower(0.2);
+        linearOpMode.sleep(150);
+        setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+        setLiftPower(0);
+        setArmPower(-0.2);
+        linearOpMode.sleep(50);
+        setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+        setArmPower(0);
+        linearOpMode.sleep(1000);
+        setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     //Look at this method again, see if necessary
     public boolean armHasArrived(double targetEncoder) {
         boolean arrivedAtTargetEncoder;
@@ -234,15 +272,10 @@ public class RobotLinearOpMode extends Robot {
         markerLatchServo.setPosition(0);
     }
 
-    //RIGHT + LEFT IS PRETENDING LATCH IS FRONT OF ROBOT
-    public void openLatch() {
-        leftLatchServo.setPosition(.4);
-        rightLatchServo.setPosition(.45);
-    }
-
-    public void closeLatch() {
-        leftLatchServo.setPosition(.6);
-        rightLatchServo.setPosition(.65);
+    //LATCH IS LEFT/RIGHT PRETENDING LATCH IS FRONT OF ROBOT
+    public void setLatchPosition(double pos){
+        leftLatchServo.setPosition(pos);
+        rightLatchServo.setPosition(pos + .05);
     }
 
     /**
@@ -274,6 +307,11 @@ public class RobotLinearOpMode extends Robot {
                 (leftBackDriveMotor.getCurrentPosition()),
                 (leftBackDriveMotor.getCurrentPosition()),
                 (leftBackDriveMotor.getCurrentPosition()),
+
+        //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
+        //(- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+        //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+
         };
     }
 
