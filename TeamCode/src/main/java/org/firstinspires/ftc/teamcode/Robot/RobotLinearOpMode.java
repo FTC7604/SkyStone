@@ -167,7 +167,6 @@ public class RobotLinearOpMode extends Robot {
             rightIntakeMotor.setPower(intakePower);
             leftIntakeMotor.setPower(-intakePower);
         }
-
     }
 
     public void setLiftPower(double liftPower) {

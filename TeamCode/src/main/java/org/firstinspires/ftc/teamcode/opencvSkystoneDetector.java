@@ -19,7 +19,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
+import static java.util.concurrent.locks.LockSupport.park;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
@@ -67,6 +69,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
     private double ARM_ENCODER_TO_FOUNDATION_UP = propertiesLoaderRubie.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_UP");
     private double ARM_ENCODER_TO_FOUNDATION_DOWN = propertiesLoaderRubie.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_DOWN");
 
+    private double DISTANCE_BACKWARD_TO_PARK = propertiesLoaderRubie.getDoubleProperty("DISTANCE_BACKWARD_TO_PARK");
     private SKYSTONE_POSITION skystone_position;
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -96,6 +99,22 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
     RobotLinearOpMode robot;
 
+    LinkedBlockingQueue<Runnable> intakeAndArmThread = new LinkedBlockingQueue<Runnable>();
+
+    private Thread thread = new Thread(() -> {
+
+        while(true){
+
+            try {
+                intakeAndArmThread.take().run();
+            } catch(InterruptedException interruptedE){
+
+            }
+
+        }
+
+    });
+
     @Override
     public void runOpMode() {
 
@@ -122,6 +141,10 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
         waitForStart();
         runtime.reset();
+
+        thread.start();
+
+
 
         telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
         telemetry.addData("Height", rows);
@@ -162,9 +185,12 @@ public class opencvSkystoneDetector extends LinearOpMode {
 
         dropOffBlock();
 
-        backwardToBlocks();
+        park();
     }
 
+    private void park(){
+        robot.moveByInches(DISTANCE_BACKWARD_TO_PARK, FORWARD);
+    }
     private void update(SKYSTONE_POSITION skystone_position) {
         telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
         switch (skystone_position) {
@@ -179,8 +205,6 @@ public class opencvSkystoneDetector extends LinearOpMode {
                 break;
         }
         telemetry.update();
-        sleep(1000);
-
     }
 
 
@@ -216,6 +240,8 @@ public class opencvSkystoneDetector extends LinearOpMode {
     }
 
     void forwardToFoundationFirstTime() {
+        robot.setIntakePower(-1);
+
         switch (skystone_position) {
             case ONE_AND_FOUR:
                 robot.moveByInches(ONE_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of the block
@@ -227,6 +253,8 @@ public class opencvSkystoneDetector extends LinearOpMode {
                 robot.moveByInches(THREE_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
                 break;
         }
+
+        robot.setIntakePower(0);
     }
 
     void backwardToBlocks() {
@@ -255,26 +283,48 @@ public class opencvSkystoneDetector extends LinearOpMode {
                 robot.moveByInches(SIX_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
                 break;
         }
+
+        robot.setIntakePower(0);
     }
 
     private void grabBlockFirstTime() {
-        robot.openGrabber();
         robot.turnToDegree(TURN_TO_GET_BLOCK);
-        robot.setIntakePower(-0.5);
+        robot.openGrabber();
+        robot.setIntakePower(-1);
+
+        intakeAndArmThread.add(() -> {
+
+            while(!robot.getBlockSensorPressed()){ }
+
+            robot.setIntakePower(0);
+            robot.closeGrabber();
+            robot.moveArmByEncoder(200);
+
+        });
+
         robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_2, FORWARD, FORWARD_TO_GET_BLOCK_MIN_POWER, FORWARD_TO_GET_BLOCK_MAX_POWER);
         robot.setIntakePower(-1);
-        robot.closeGrabber();
         robot.moveByInches(BACKWARD_TO_AVOID_THE_BRIDGE, FORWARD);
+        robot.setIntakePower(-1);
         robot.turnToDegree(90);
     }
 
     private void grabBlockSecondTime() {
-        robot.openGrabber();
         robot.turnToDegree(TURN_TO_GET_BLOCK);
-        robot.setIntakePower(-0.5);
-        robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_2, FORWARD, FORWARD_TO_GET_BLOCK_MIN_POWER, FORWARD_TO_GET_BLOCK_MAX_POWER);
+        robot.openGrabber();
         robot.setIntakePower(-1);
-        robot.closeGrabber();
+
+        intakeAndArmThread.add(() -> {
+
+            while(!robot.getBlockSensorPressed()){ }
+
+            robot.setIntakePower(0);
+            robot.closeGrabber();
+            robot.moveArmByEncoder(200);
+
+        });
+        
+        robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_2, FORWARD, FORWARD_TO_GET_BLOCK_MIN_POWER, FORWARD_TO_GET_BLOCK_MAX_POWER);
         robot.moveByInches(BACKWARD_TO_AVOID_THE_BRIDGE, FORWARD);
         robot.turnToDegree(90);
     }
@@ -282,11 +332,11 @@ public class opencvSkystoneDetector extends LinearOpMode {
     private void dropOffBlock() {
         robot.closeGrabber();
         robot.moveArmByEncoder(ARM_ENCODER_TO_FOUNDATION_UP);
+        robot.setIntakePower(.5);
         robot.openGrabber();
         robot.moveArmByEncoder(ARM_ENCODER_TO_FOUNDATION_DOWN);
-
+        robot.setIntakePower(0);
     }
-
 
     //detection pipeline (ignore)
     static class StageSwitchingPipeline extends OpenCvPipeline {
