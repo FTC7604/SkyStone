@@ -40,6 +40,9 @@ public class RobotLinearOpMode extends Robot {
 
         initIMU();
         calibration();
+
+        linearOpMode.telemetry.addData("Status", "Initialized");
+        linearOpMode.telemetry.update();
     }
 
 
@@ -53,6 +56,7 @@ public class RobotLinearOpMode extends Robot {
 
 
     public RobotLinearOpMode(LinearOpMode linearOpMode) {
+
         super(linearOpMode, COLOR_SENSOR.UNDER);
         this.linearOpMode = linearOpMode;
         init();
@@ -107,7 +111,7 @@ public class RobotLinearOpMode extends Robot {
         double adjustedMotorPower;
         double startRotation;
 
-        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 45, .05, 1, 0.4);
+        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 90, .1, 1, 0.5);
 
         startRotation = getRev10IMUAngle()[2];
 
@@ -118,14 +122,21 @@ public class RobotLinearOpMode extends Robot {
             linearOpMode.telemetry.addData("Heading: ", currentRotation);
             linearOpMode.telemetry.update();
 
-            adjustedMotorPower = TurnProfile.RunToPositionWithAccel(startRotation, currentRotation, endRotation);
+            adjustedMotorPower = TurnProfile.RunToPositionWithoutAccel(startRotation, currentRotation, endRotation);
 
             mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
 
 
-        } while ((abs(endRotation - currentRotation) > 5) && linearOpMode.opModeIsActive());
+        } while (((abs(endRotation - currentRotation) > 2) ||
+                (abs(getRev10IMUAngularVelocity()[2]) < 10 )) &&
+                linearOpMode.opModeIsActive());
 
-        stopAllMotors();
+        //stopAllMotors();
+        stopDriveMotors();
+    }
+
+    private void stopDriveMotors() {
+        mecanumPowerDrive(0,0,0);
     }
 
 
@@ -163,8 +174,7 @@ public class RobotLinearOpMode extends Robot {
         } while ((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 20) && linearOpMode.opModeIsActive());
 
 
-        stopAllMotors();
-        initIMU();
+        stopDriveMotors();
     }
 
     public enum MOVEMENT_DIRECTION {
@@ -196,20 +206,33 @@ public class RobotLinearOpMode extends Robot {
 
     public void moveArmByEncoder(double desiredPositionChangeInEncoders) {
 
-        double startEncoderValue = getArmEncoder();
+        double startEncoderValue = armMotor.getCurrentPosition();
         double endEncoderValue = desiredPositionChangeInEncoders + startEncoderValue;
 
         double currentEncoderValue = 0;
         double adjustedMotorPower = 0;
 
+
         do {
-            currentEncoderValue = getArmEncoder();
+            currentEncoderValue = armMotor.getCurrentPosition();
 
             adjustedMotorPower = armProfile.RunToPositionWithAccel(startEncoderValue, currentEncoderValue, endEncoderValue);
 
             setArmPower(adjustedMotorPower);
 
+            linearOpMode.telemetry.addData("Arm Encoder", currentEncoderValue);
+            linearOpMode.telemetry.update();
+
         } while ((abs(desiredPositionChangeInEncoders) > abs(startEncoderValue - currentEncoderValue)) && linearOpMode.opModeIsActive());
+
+        setArmPower(0);
+    }
+
+    public void threadedMoveArmByEncoder(double desiredPosition){
+
+        Thread localThread = new Thread(() -> {moveArmByEncoder(desiredPosition);});
+        localThread.start();
+
     }
 
     public void deploy(){
@@ -345,13 +368,10 @@ public class RobotLinearOpMode extends Robot {
 
     public void calibration() {
 
-        while (!IMUSarecalibrated() && linearOpMode.opModeIsActive()) {
-            linearOpMode.telemetry.addLine("IMUs are not calibrated, wait");
+        while (!IMUSAreCalibrated() && linearOpMode.opModeIsActive()) {
+            linearOpMode.telemetry.addData("Status"," IMUs calibrating");
             linearOpMode.telemetry.update();
         }
-
-        linearOpMode.telemetry.addLine("IMUs are calibrated, go");
-        linearOpMode.telemetry.update();
 
     }
 

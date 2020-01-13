@@ -239,8 +239,8 @@ public class Robot {
         ReadWriteFile.writeFile(file2, calibrationData2.serialize());
     }
 
-    boolean IMUSarecalibrated(){
-        return !imu1.isGyroCalibrated() && !imu2.isGyroCalibrated();
+    boolean IMUSAreCalibrated(){
+        return imu1.isGyroCalibrated() && imu2.isGyroCalibrated();
     }
 
     //gets the average angle from both IMUs
@@ -267,6 +267,14 @@ public class Robot {
                 (imu2.getAngularOrientation().secondAngle),
                 (imu2.getAngularOrientation().thirdAngle),
                 (imu2.getAngularOrientation().firstAngle),
+        };
+    }
+
+    public double[] getRev10IMUAngularVelocity(){
+        return new double[]{
+                (imu2.getAngularVelocity().xRotationRate),
+                (imu2.getAngularVelocity().yRotationRate),
+                (imu2.getAngularVelocity().zRotationRate),
         };
     }
 

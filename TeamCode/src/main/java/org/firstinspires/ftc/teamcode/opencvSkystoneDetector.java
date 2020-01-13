@@ -323,7 +323,7 @@ public class opencvSkystoneDetector extends LinearOpMode {
             robot.moveArmByEncoder(200);
 
         });
-        
+
         robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_2, FORWARD, FORWARD_TO_GET_BLOCK_MIN_POWER, FORWARD_TO_GET_BLOCK_MAX_POWER);
         robot.moveByInches(BACKWARD_TO_AVOID_THE_BRIDGE, FORWARD);
         robot.turnToDegree(90);
