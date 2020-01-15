@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
-import org.firstinspires.ftc.teamcode.RuntimeLogger;
+import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 
 import static java.lang.Math.abs;
 
@@ -235,26 +235,27 @@ public class RobotLinearOpMode extends Robot {
 
     }
 
-    public void deploy(){
-        //Deploy function
-        setLiftPower(-0.2);
-        linearOpMode.sleep(2000);
-        setArmPower(.2);
-        linearOpMode.sleep(600);
-        setLiftPower(0.2);
-        linearOpMode.sleep(150);
-        setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
-        setLiftPower(0);
-        setArmPower(-0.2);
-        linearOpMode.sleep(50);
-        setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
-        setArmPower(0);
-        linearOpMode.sleep(1000);
-        setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
+//    public void deploy(){
+//        //Deploy function
+//        setLiftPower(-0.2);
+//        linearOpMode.sleep(2000);
+//
+//        setArmPower(.2);
+//        linearOpMode.sleep(600);
+//        setLiftPower(0.2);
+//        linearOpMode.sleep(150);
+//        setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+//        setLiftPower(0);
+//        setArmPower(-0.2);
+//        linearOpMode.sleep(50);
+//        setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+//        setArmPower(0);
+//        linearOpMode.sleep(1000);
+//        setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//    }
 
     //Look at this method again, see if necessary
     public boolean armHasArrived(double targetEncoder) {

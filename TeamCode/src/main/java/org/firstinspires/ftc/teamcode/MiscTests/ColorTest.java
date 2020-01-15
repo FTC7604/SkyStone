@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.MiscTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
+
+import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 import org.firstinspires.ftc.teamcode.Robot.*;
-import org.firstinspires.ftc.teamcode.*;
 
 @TeleOp(name="Color Test")
 @Disabled

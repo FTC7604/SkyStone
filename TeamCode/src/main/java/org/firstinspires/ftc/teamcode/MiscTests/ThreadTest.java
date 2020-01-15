@@ -10,6 +10,7 @@ import static org.firstinspires.ftc.teamcode.Robot.ThreadedRobotLinearOpMode.MOV
 /**  TESTS THREADED DRIVE  */
 
 @TeleOp(name = "Thread test", group = "Linear Opmode")
+@Disabled
 public class ThreadTest extends LinearOpMode {
 
     ThreadedRobotLinearOpMode robot;

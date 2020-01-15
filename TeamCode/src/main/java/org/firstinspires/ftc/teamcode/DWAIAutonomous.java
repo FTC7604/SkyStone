@@ -4,9 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.*;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -77,6 +79,7 @@ public class DWAIAutonomous {
     private double DISTANCE_BACKWARD_TO_PARK = propertiesLoaderRubie.getDoubleProperty("DISTANCE_BACKWARD_TO_PARK");
 
     private double horizontalTurnDegree = 90;
+    private double verticalTurnDegree = 90;
     private double fiddleDistance = -3;
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -90,7 +93,7 @@ public class DWAIAutonomous {
     private LinearOpMode opMode;
     private SKYSTONE_POSITION skystone_position;
 
-    private LinkedBlockingQueue<Runnable> intakeAndArmThread = new LinkedBlockingQueue<Runnable>();
+    private LinkedBlockingQueue<Runnable> intakeAndArmThread = new LinkedBlockingQueue<>();
 
     //0 means skystone, 1 means yellow stone
     //-1 for debug, but we can keep it like this because if it works, it should change to either 0 or 255
@@ -190,6 +193,8 @@ public class DWAIAutonomous {
             park();
         }
 
+        AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop");
+
     }
 
     private void setupVariables(){
@@ -201,6 +206,11 @@ public class DWAIAutonomous {
             fiddleDistance *= -1;
             HWALL_PARK_STRAFE_DISTANCE *= -1;
             HBRIDGE_PARK_STRAFE_DISTANCE *= -1;
+
+            verticalTurnDegree *= -1;
+            DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION *= -1;
+            VWALL_PARK_STRAFE_DISTANCE *= -1;
+            VBRIDGE_PARK_STRAFE_DISTANCE *= -1;
         }
 
     }
@@ -247,7 +257,7 @@ public class DWAIAutonomous {
         }
 
         print("Deploying intake");
-        robot.deploy();
+        deploy();
 
         print("Moving under bridge");
         robot.moveByInches(36, FORWARD);
@@ -269,7 +279,7 @@ public class DWAIAutonomous {
 
         print("Turning to be forward");
 
-        robot.turnToDegree(90);
+        robot.turnToDegree(verticalTurnDegree);
 
         print("Slamming foundation against the wall really really hard");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD, FORWARD);
@@ -285,26 +295,11 @@ public class DWAIAutonomous {
             robot.moveByInches(VBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
         }
 
+        print("Deploying intake");
+        deploy();
+
         print("Moving under bridge");
         robot.moveByInches(22, FORWARD);
-
-        //currently just exact copy of horizontal parking method
-        /*print("Fiddling with latch");
-        robot.moveByInches(fiddleDistance, STRAFE);
-
-        if(parkPosition == PARK_POSITION.WALL) {
-            print("Strafing against wall");
-            robot.moveByInches(WALL_PARK_STRAFE_DISTANCE, STRAFE);
-        } else{
-            print("Strafing towards bridge");
-            robot.moveByInches(BRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
-        }
-
-        print("Deploying intake");
-        robot.deploy();
-
-        print("Moving under bridge");
-        robot.moveByInches(36, FORWARD);*/
     }
 
     private void print(String printString) {
@@ -367,6 +362,7 @@ public class DWAIAutonomous {
         robot.setArmPower(.2);
         opMode.sleep(750);
         robot.setArmPower(0);
+
         robot.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
         robot.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
         opMode.sleep(1000);
@@ -536,13 +532,13 @@ public class DWAIAutonomous {
             RAW_IMAGE,//displays raw view
         }
 
-        private opencvSkystoneDetector.StageSwitchingPipeline.Stage stageToRenderToViewport;
+        private StageSwitchingPipeline.Stage stageToRenderToViewport;
 
         {
-            stageToRenderToViewport = opencvSkystoneDetector.StageSwitchingPipeline.Stage.detection;
+            stageToRenderToViewport = StageSwitchingPipeline.Stage.detection;
         }
 
-        private opencvSkystoneDetector.StageSwitchingPipeline.Stage[] stages = opencvSkystoneDetector.StageSwitchingPipeline.Stage.values();
+        private StageSwitchingPipeline.Stage[] stages = StageSwitchingPipeline.Stage.values();
 
         @Override
         public void onViewportTapped() {
@@ -551,7 +547,7 @@ public class DWAIAutonomous {
              * so whatever we do here, we must do quickly.
              */
 
-            stageToRenderToViewport = opencvSkystoneDetector.StageSwitchingPipeline.Stage.detection;
+            stageToRenderToViewport = StageSwitchingPipeline.Stage.detection;
             int currentStageNum = stageToRenderToViewport.ordinal();
 
             int nextStageNum = currentStageNum + 1;

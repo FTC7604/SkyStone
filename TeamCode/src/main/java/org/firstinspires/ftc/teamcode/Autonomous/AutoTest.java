@@ -1,6 +1,9 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
+
+import org.firstinspires.ftc.teamcode.DWAIAutonomous;
+import org.firstinspires.ftc.teamcode.IO.DWAIAutonomousPropertiesLoader;
 
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.*;
 

@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.MiscTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
 
-import org.firstinspires.ftc.teamcode.PropertiesLoader;
+import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.*;
-import org.firstinspires.ftc.teamcode.RuntimeLogger;
+import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 
 import java.util.*;
 

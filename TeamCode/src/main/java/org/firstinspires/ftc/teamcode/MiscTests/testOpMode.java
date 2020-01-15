@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.*;
 import org.firstinspires.ftc.teamcode.Control.*;
-import org.firstinspires.ftc.teamcode.PropertiesLoader;
+import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.*;
 
 //all the imports that come from java, abs is absolute value

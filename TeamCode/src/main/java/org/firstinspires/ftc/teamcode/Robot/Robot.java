@@ -42,6 +42,8 @@ blockIntakeTouchSensor -> "bt"
 openIntakeTouchSensor -> "it"
 foundationTouchSensor -> "ft"
 
+blikin -> "bk"
+
 leftWingCS -> "cd"
 leftCS -> "lcs"
 rightCS -> "rcs"

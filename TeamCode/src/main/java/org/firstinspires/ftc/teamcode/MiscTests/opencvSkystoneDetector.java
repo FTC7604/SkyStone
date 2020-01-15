@@ -1,10 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.MiscTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -31,6 +33,7 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
  * monitor: 640 x 480
  */
 @TeleOp(name = "opencvSkystoneDetector", group = "TeleOp")
+@Disabled
 public class opencvSkystoneDetector extends LinearOpMode {
 
     enum SKYSTONE_POSITION {
