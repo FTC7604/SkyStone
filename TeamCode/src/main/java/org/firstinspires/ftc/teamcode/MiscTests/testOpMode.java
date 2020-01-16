@@ -71,8 +71,8 @@ public class testOpMode extends LinearOpMode {
     final double ARM_SCORING_POSITION = propertiesLoader.getDoubleProperty("ARM_SCORING_POSITION");
     ;
 
-    final double OPEN_LATCH_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_POSITION");
-    final double CLOSE_LATCH_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_POSITION");
+    final double OPEN_LATCH_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
+    final double CLOSE_LATCH_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
 
     //this is the loop that repeats until the end of teleOp.
     @Override

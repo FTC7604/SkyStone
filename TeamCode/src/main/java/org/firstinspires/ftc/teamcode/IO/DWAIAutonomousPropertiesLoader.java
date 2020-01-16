@@ -8,12 +8,12 @@ public class DWAIAutonomousPropertiesLoader extends PropertiesLoader {
         super("Autonomous");
     }
 
-    public PLATFORM_ORIENTATION getPlatformOrientationProperty(String name){
+    public FOUNDATION_ORIENTATION getPlatformOrientationProperty(String name){
 
         try {
-            return PLATFORM_ORIENTATION.valueOf(getStringProperty(name));
+            return FOUNDATION_ORIENTATION.valueOf(getStringProperty(name));
         } catch(IllegalArgumentException e){
-            throw new IllegalArgumentException("Invalid PLATFORM_ORIENTATION: " + getStringProperty(name) + " for " + name);
+            throw new IllegalArgumentException("Invalid FOUNDATION_ORIENTATION: " + getStringProperty(name) + " for " + name);
         }
 
     }

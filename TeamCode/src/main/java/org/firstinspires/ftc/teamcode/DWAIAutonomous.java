@@ -26,7 +26,6 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
 public class DWAIAutonomous {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
-    private PropertiesLoader propertiesLoaderRubie = new PropertiesLoader("Rubie");
 
     private double DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION");
     private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL");
@@ -45,38 +44,40 @@ public class DWAIAutonomous {
     private double STRAFE_MAX_POWER = propertiesLoader.getDoubleProperty("STRAFE_MAX_POWER");
     private double MOVE_MAX_POWER = propertiesLoader.getDoubleProperty("MOVE_MAX_POWER");
 
-    private double OPEN_LATCH_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_POSITION");
-    private double CLOSE_LATCH_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_POSITION");
+    private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
+    private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
 
-    private double FORWARD_TO_GET_BLOCK_INCHES_1 = propertiesLoaderRubie.getDoubleProperty("FORWARD_TO_GET_BLOCK_INCHES_1");
-    private double DISTANCE_FORWARD_OFF_THE_WALL = propertiesLoaderRubie.getDoubleProperty("DISTANCE_FORWARD_OFF_THE_WALL");
+    private double BLOCK_FORWARD_OFF_WALL_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_OFF_WALL_TO_BLOCK");
+    private double BLOCK_FORWARD_LITTLE_OFF_WALL = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_LITTLE_OFF_WALL");
 
-    private double ONE_STRAFE_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("ONE_STRAFE_TO_BLOCK");
-    private double TWO_STRAFE_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("TWO_STRAFE_TO_BLOCK");
-    private double THREE_STRAFE_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("THREE_STRAFE_TO_BLOCK");
+    private double BLOCK_ONE_LEFT_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ONE_LEFT_TO_BLOCK");
+    private double BLOCK_TWO_LEFT_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_TWO_LEFT_TO_BLOCK");
+    private double BLOCK_THREE_LEFT_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_LEFT_TO_BLOCK");
 
-    private double ONE_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("ONE_FORWARD_TO_FOUNDATION");
-    private double TWO_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("TWO_FORWARD_TO_FOUNDATION");
-    private double THREE_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("THREE_FORWARD_TO_FOUNDATION");
+    private double BLOCK_ONE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_FOUNDATION");
+    private double BLOCK_TWO_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_FOUNDATION");
+    private double BLOCK_THREE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_FOUNDATION");
 
-    private double FOUR_BACK_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("FOUR_BACK_TO_BLOCK");
-    private double FIVE_BACK_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("FIVE_BACK_TO_BLOCK");
-    private double SIX_BACK_TO_BLOCK = propertiesLoaderRubie.getDoubleProperty("SIX_BACK_TO_BLOCK");
+    private double BLOCK_FOUR_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FOUR_BACKWARD_TO_BLOCK");
+    private double BLOCK_FIVE_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FIVE_BACKWARD_TO_BLOCK");
+    private double BLOCK_SIX_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_SIX_BACKWARD_TO_BLOCK");
 
-    private double FOUR_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("FOUR_FORWARD_TO_FOUNDATION");
-    private double FIVE_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("FIVE_FORWARD_TO_FOUNDATION");
-    private double SIX_FORWARD_TO_FOUNDATION = propertiesLoaderRubie.getDoubleProperty("SIX_FORWARD_TO_FOUNDATION");
+    private double BLOCK_FOUR_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FOUR_FORWARD_TO_FOUNDATION");
+    private double BLOCK_FIVE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FIVE_FORWARD_TO_FOUNDATION");
+    private double BLOCK_SIX_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_SIX_FORWARD_TO_FOUNDATION");
 
-    private double TURN_TO_GET_BLOCK = propertiesLoaderRubie.getDoubleProperty("TURN_TO_GET_BLOCK");
-    private double FORWARD_TO_GET_BLOCK_INCHES_2 = propertiesLoaderRubie.getDoubleProperty("FORWARD_TO_GET_BLOCK_INCHES_2");
-    private double FORWARD_TO_GET_BLOCK_MIN_POWER = propertiesLoaderRubie.getDoubleProperty("FORWARD_TO_GET_BLOCK_MIN_POWER");
-    private double FORWARD_TO_GET_BLOCK_MAX_POWER = propertiesLoaderRubie.getDoubleProperty("FORWARD_TO_GET_BLOCK_MAX_POWER");
-    private double BACKWARD_TO_AVOID_THE_BRIDGE = propertiesLoaderRubie.getDoubleProperty("BACKWARD_TO_AVOID_THE_BRIDGE");
+    private double BLOCK_ANGLE_SUCK_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ANGLE_SUCK_BLOCK");
+    private double BLOCK_FORWARD_SUCK_UP = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_UP");
+    private double BLOCK_FORWARD_SUCK_MIN_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MIN_POWER");
+    private double BLOCK_FORWARD_SUCK_MAX_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MAX_POWER");
+    private double BLOCK_BACKWARD_SUCK_UP = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_SUCK_UP");
 
-    private double ARM_ENCODER_TO_FOUNDATION_UP = propertiesLoaderRubie.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_UP");
-    private double ARM_ENCODER_TO_FOUNDATION_DOWN = propertiesLoaderRubie.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_DOWN");
+    private double ARM_ENCODER_TO_FOUNDATION_UP = propertiesLoader.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_UP");
+    private double ARM_ENCODER_TO_FOUNDATION_DOWN = propertiesLoader.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_DOWN");
 
-    private double DISTANCE_BACKWARD_TO_PARK = propertiesLoaderRubie.getDoubleProperty("DISTANCE_BACKWARD_TO_PARK");
+    private double DISTANCE_BACKWARD_TO_PARK = propertiesLoader.getDoubleProperty("DISTANCE_BACKWARD_TO_PARK");
+    private double BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION");
+
 
     private double horizontalTurnDegree = 90;
     private double verticalTurnDegree = 90;
@@ -86,7 +87,7 @@ public class DWAIAutonomous {
 
     private RobotLinearOpMode robot;
 
-    private PLATFORM_ORIENTATION platformOrientation;
+    private FOUNDATION_ORIENTATION foundationOrientation;
     private PARK_POSITION parkPosition;
     private SIDE side;
     private ALLIANCE alliance;
@@ -101,8 +102,6 @@ public class DWAIAutonomous {
     private static int valLeft = -1;
     private static int valRight = -1;
 
-    private static int radius = 5;
-
     private static float[] midPos = new float[2];
     private static float[] leftPos = new float[2];
     private static float[] rightPos = new float[2];
@@ -114,7 +113,7 @@ public class DWAIAutonomous {
 
             try {
                 intakeAndArmThread.take().run();
-            } catch(InterruptedException interruptedE){
+            } catch(InterruptedException ignored){
 
             }
 
@@ -122,8 +121,8 @@ public class DWAIAutonomous {
 
     });
 
-    public DWAIAutonomous(PLATFORM_ORIENTATION platformOrientation, PARK_POSITION parkPosition, SIDE side, ALLIANCE alliance, LinearOpMode opMode){
-        this.platformOrientation = platformOrientation;
+    public DWAIAutonomous(FOUNDATION_ORIENTATION foundationOrientation, PARK_POSITION parkPosition, SIDE side, ALLIANCE alliance, LinearOpMode opMode){
+        this.foundationOrientation = foundationOrientation;
         this.parkPosition = parkPosition;
         this.side = side;
         this.alliance = alliance;
@@ -148,7 +147,7 @@ public class DWAIAutonomous {
             moveToFoundation();
             latchFoundation();
 
-            if(platformOrientation == PLATFORM_ORIENTATION.HORIZONTAL) {
+            if(foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
                 placeHorizontal();
                 parkHorizontal();
             } else{
@@ -166,13 +165,11 @@ public class DWAIAutonomous {
                 throw new RuntimeException("No skystone detected!");
             }
 
-            robot.moveByInches(DISTANCE_FORWARD_OFF_THE_WALL, FORWARD);
+            robot.moveByInches(BLOCK_FORWARD_LITTLE_OFF_WALL, FORWARD);
             deploy();
 
-            update(skystone_position);
-
             strafeToBlock();
-            robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_1, FORWARD);
+            robot.moveByInches(BLOCK_FORWARD_OFF_WALL_TO_BLOCK, FORWARD);
 
             grabBlockFirstTime();
 
@@ -190,7 +187,7 @@ public class DWAIAutonomous {
 
             dropOffBlock();
 
-            park();
+            blockPark();
         }
 
         AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop");
@@ -224,13 +221,13 @@ public class DWAIAutonomous {
 
     private void latchFoundation(){
         print("Latching foundation");
-        robot.setLatchPosition(OPEN_LATCH_POSITION);
+        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
 
         while(!robot.getFoundationSensorPressed()){
             robot.mecanumPowerDrive(0,-.3,0);
         }
 
-        robot.setLatchPosition(CLOSE_LATCH_POSITION);
+        robot.setLatchPosition(CLOSE_LATCH_SERVO_POSITION);
         robot.moveByInchesMaxPower(-2, FORWARD, .6);
     }
 
@@ -241,7 +238,7 @@ public class DWAIAutonomous {
         print("Turning to be forward");
 
         robot.turnToDegree(horizontalTurnDegree);
-        robot.setLatchPosition(OPEN_LATCH_POSITION);
+        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
     }
 
     private void parkHorizontal(){
@@ -269,7 +266,7 @@ public class DWAIAutonomous {
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT, FORWARD);
 
         print("Opening latch");
-        robot.setLatchPosition(OPEN_LATCH_POSITION);
+        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
 
         print("Strafing away from the platform");
         robot.moveByInchesMaxPower(DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE, STRAFE_MAX_POWER);
@@ -315,7 +312,7 @@ public class DWAIAutonomous {
 
     }
 
-    public enum PLATFORM_ORIENTATION {
+    public enum FOUNDATION_ORIENTATION {
         HORIZONTAL,
         VERTICAL
     }
@@ -335,23 +332,8 @@ public class DWAIAutonomous {
         FOUNDATION
     }
 
-    private void park(){
-        robot.moveByInches(DISTANCE_BACKWARD_TO_PARK, FORWARD);
-    }
-    private void update(SKYSTONE_POSITION skystone_position) {
-        opMode.telemetry.addData("Values", valLeft + "   " + valMid + "   " + valRight);
-        switch (skystone_position) {
-            case ONE_AND_FOUR:
-                opMode.telemetry.addLine("One and Four");
-                break;
-            case TWO_AND_FIVE:
-                opMode.telemetry.addLine("Two and Five");
-                break;
-            case THREE_AND_SIX:
-                opMode.telemetry.addLine("Three and Six");
-                break;
-        }
-        opMode.telemetry.update();
+    private void blockPark(){
+        robot.moveByInches(DISTANCE_BACKWARD_TO_PARK-BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION, FORWARD);
     }
 
 
@@ -373,70 +355,105 @@ public class DWAIAutonomous {
         robot.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    void strafeToBlock() {
+    private void strafeToBlock() {
+        double strafeDistance = 0;
+
+        //strafing to in front of the block
         switch (skystone_position) {
             case ONE_AND_FOUR:
-                robot.moveByInches(ONE_STRAFE_TO_BLOCK, STRAFE); //strafing to in front of the block
+                strafeDistance = BLOCK_ONE_LEFT_TO_BLOCK;
                 break;
             case TWO_AND_FIVE:
-                robot.moveByInches(TWO_STRAFE_TO_BLOCK, STRAFE); //strafing to in front of block
+                strafeDistance = BLOCK_TWO_LEFT_TO_BLOCK;
                 break;
             case THREE_AND_SIX:
-                robot.moveByInches(THREE_STRAFE_TO_BLOCK, STRAFE); //strafing to in front of block
+                strafeDistance = BLOCK_THREE_LEFT_TO_BLOCK;
                 break;
         }
+
+        robot.moveByInches(strafeDistance, STRAFE);
     }
 
-    void forwardToFoundationFirstTime() {
+    private void forwardToFoundationFirstTime() {
         robot.setIntakePower(-1);
+
+        double forwardDistance = 0;
 
         switch (skystone_position) {
             case ONE_AND_FOUR:
-                robot.moveByInches(ONE_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of the block
+
+                forwardDistance = BLOCK_ONE_FORWARD_TO_FOUNDATION;
                 break;
             case TWO_AND_FIVE:
-                robot.moveByInches(TWO_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
+
+                forwardDistance = BLOCK_TWO_FORWARD_TO_FOUNDATION;
                 break;
             case THREE_AND_SIX:
-                robot.moveByInches(THREE_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
+
+                forwardDistance = BLOCK_THREE_FORWARD_TO_FOUNDATION;
                 break;
         }
+
+        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+            forwardDistance += BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION;
+        }
+
+        robot.moveByInches(forwardDistance, FORWARD);
 
         robot.setIntakePower(0);
     }
 
-    void backwardToBlocks() {
+    private void backwardToBlocks() {
+        double backwardDistance = 0;
+
         switch (skystone_position) {
             case ONE_AND_FOUR:
-                robot.moveByInches(FOUR_BACK_TO_BLOCK, FORWARD); //strafing to in front of the block
+
+                backwardDistance = BLOCK_FOUR_BACKWARD_TO_BLOCK;
                 break;
             case TWO_AND_FIVE:
-                robot.moveByInches(FIVE_BACK_TO_BLOCK, FORWARD); //strafing to in front of block
+
+                backwardDistance = BLOCK_FIVE_BACKWARD_TO_BLOCK;
                 break;
             case THREE_AND_SIX:
-                robot.moveByInches(SIX_BACK_TO_BLOCK, FORWARD); //strafing to in front of block
+
+                backwardDistance = BLOCK_SIX_BACKWARD_TO_BLOCK;
                 break;
         }
+
+        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+            backwardDistance -= BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION;
+        }
+
+        robot.moveByInches(backwardDistance, FORWARD);
     }
 
-    void forwardToFoundationSecondTime() {
+    private void forwardToFoundationSecondTime() {
+        double forwardDistance = 0;
         switch (skystone_position) {
             case ONE_AND_FOUR:
-                robot.moveByInches(FOUR_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of the block
+                forwardDistance = BLOCK_FOUR_FORWARD_TO_FOUNDATION;
                 break;
             case TWO_AND_FIVE:
-                robot.moveByInches(FIVE_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
+
+                forwardDistance = BLOCK_FIVE_FORWARD_TO_FOUNDATION;
                 break;
             case THREE_AND_SIX:
-                robot.moveByInches(SIX_FORWARD_TO_FOUNDATION, FORWARD); //strafing to in front of block
+                forwardDistance = BLOCK_SIX_FORWARD_TO_FOUNDATION;
                 break;
         }
+
+        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+            forwardDistance += BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION;
+        }
+
+        robot.moveByInches(forwardDistance, FORWARD);
 
         robot.setIntakePower(0);
     }
 
     private void grabBlockFirstTime() {
-        robot.turnToDegree(TURN_TO_GET_BLOCK);
+        robot.turnToDegree(BLOCK_ANGLE_SUCK_BLOCK);
         robot.openGrabber();
         robot.setIntakePower(-1);
 
@@ -448,7 +465,7 @@ public class DWAIAutonomous {
 
             try {
                 Thread.sleep(250);
-            } catch (InterruptedException E){
+            } catch (InterruptedException ignored){
 
             }
 
@@ -457,13 +474,13 @@ public class DWAIAutonomous {
 
         });
 
-        robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_2, FORWARD, FORWARD_TO_GET_BLOCK_MIN_POWER, FORWARD_TO_GET_BLOCK_MAX_POWER);
-        robot.moveByInches(BACKWARD_TO_AVOID_THE_BRIDGE, FORWARD);
+        robot.moveByInches(BLOCK_FORWARD_SUCK_UP, FORWARD, BLOCK_FORWARD_SUCK_MIN_POWER, BLOCK_FORWARD_SUCK_MAX_POWER);
+        robot.moveByInches(BLOCK_BACKWARD_SUCK_UP, FORWARD);
         robot.turnToDegree(90);
     }
 
     private void grabBlockSecondTime() {
-        robot.turnToDegree(TURN_TO_GET_BLOCK);
+        robot.turnToDegree(BLOCK_ANGLE_SUCK_BLOCK);
         robot.openGrabber();
         robot.setIntakePower(-1);
 
@@ -476,8 +493,8 @@ public class DWAIAutonomous {
             robot.threadedMoveArmByEncoder(500);
         });
 
-        robot.moveByInches(FORWARD_TO_GET_BLOCK_INCHES_2, FORWARD, FORWARD_TO_GET_BLOCK_MIN_POWER, FORWARD_TO_GET_BLOCK_MAX_POWER);
-        robot.moveByInches(BACKWARD_TO_AVOID_THE_BRIDGE, FORWARD);
+        robot.moveByInches(BLOCK_FORWARD_SUCK_UP, FORWARD, BLOCK_FORWARD_SUCK_MIN_POWER, BLOCK_FORWARD_SUCK_MAX_POWER);
+        robot.moveByInches(BLOCK_BACKWARD_SUCK_UP, FORWARD);
         robot.turnToDegree(90);
     }
 
@@ -559,20 +576,6 @@ public class DWAIAutonomous {
             stageToRenderToViewport = stages[nextStageNum];
         }
 
-        private int radialAverage(float[] pos, Mat input) {
-            int sum = 0;
-
-            for (int i = -radius; i <= radius; i++) {
-
-                for (int j = -radius; j <= radius; j++) {
-                    sum += thresholdMat.get((int) (input.rows() * pos[1]), (int) (input.cols() * pos[0]))[0];
-                }
-
-            }
-
-            return sum / (4 * radius * radius);
-        }
-
         @Override
         public Mat processFrame(Mat input) {
             contoursList.clear();
@@ -614,6 +617,7 @@ public class DWAIAutonomous {
             Point pointRight = new Point((int) (input.cols() * rightPos[0]), (int) (input.rows() * rightPos[1]));
 
             //draw circles on those points
+            int radius = 5;
             Imgproc.circle(all, pointMid, radius, new Scalar(255, 0, 0), 1);//draws circle
             Imgproc.circle(all, pointLeft, radius, new Scalar(255, 0, 0), 1);//draws circle
             Imgproc.circle(all, pointRight, radius, new Scalar(255, 0, 0), 1);//draws circle

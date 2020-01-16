@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
+import org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile;
 import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 
 import static java.lang.Math.abs;
@@ -34,6 +35,9 @@ public class RobotLinearOpMode extends Robot {
 
 
     void init() {
+        linearOpMode.telemetry.addData("Status"," DO NOT START");
+        linearOpMode.telemetry.update();
+
         setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -139,6 +143,27 @@ public class RobotLinearOpMode extends Robot {
         mecanumPowerDrive(0,0,0);
     }
 
+
+    public void moveByInches2(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
+        BetterBalisticProfile betterBalisticProfile = new BetterBalisticProfile(100,.4,400,0,1);
+
+        double startPosition = getAverageDriveTrainEncoder(movement_direction);
+        double endPosition = startPosition + desiredPositionChangeInInches * inchesToEncoders;
+        double currentPosition;
+        double motorPower;
+
+        betterBalisticProfile.setCurve(startPosition,endPosition);
+
+        while(!betterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
+            currentPosition = getAverageDriveTrainEncoder(movement_direction);
+
+            motorPower = betterBalisticProfile.getMotorPower(currentPosition);
+            mecanumPowerDrive(movement_direction,motorPower);
+
+            linearOpMode.telemetry.addLine("Motor Power:" + motorPower);
+            linearOpMode.telemetry.update();
+        }
+    }
 
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction) {
         moveByInches(desiredPositionChangeInInches, movement_direction, .05, 0.8);
@@ -370,8 +395,7 @@ public class RobotLinearOpMode extends Robot {
     public void calibration() {
 
         while (!IMUSAreCalibrated() && linearOpMode.opModeIsActive()) {
-            linearOpMode.telemetry.addData("Status"," IMUs calibrating");
-            linearOpMode.telemetry.update();
+
         }
 
     }
