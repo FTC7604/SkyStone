@@ -72,10 +72,10 @@ public class DWAIAutonomous {
     private double BLOCK_FORWARD_SUCK_MAX_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MAX_POWER");
     private double BLOCK_BACKWARD_SUCK_UP = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_SUCK_UP");
 
-    private double ARM_ENCODER_TO_FOUNDATION_UP = propertiesLoader.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_UP");
-    private double ARM_ENCODER_TO_FOUNDATION_DOWN = propertiesLoader.getDoubleProperty("ARM_ENCODER_TO_FOUNDATION_DOWN");
+    private double BLOCK_ARM_UP_ENCODER_POSITION = propertiesLoader.getDoubleProperty("BLOCK_ARM_UP_ENCODER_POSITION");
+    private double BLOCK_ARM_DOWN_ENCODER_POSITION = propertiesLoader.getDoubleProperty("BLOCK_ARM_DOWN_ENCODER_POSITION");
 
-    private double DISTANCE_BACKWARD_TO_PARK = propertiesLoader.getDoubleProperty("DISTANCE_BACKWARD_TO_PARK");
+    private double BLOCK_BACKWARD_TO_PARK = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_TO_PARK");
     private double BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION");
 
 
@@ -333,7 +333,7 @@ public class DWAIAutonomous {
     }
 
     private void blockPark(){
-        robot.moveByInches(DISTANCE_BACKWARD_TO_PARK-BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION, FORWARD);
+        robot.moveByInches(BLOCK_BACKWARD_TO_PARK -BLOCK_EXTRA_DISTANCE_VERTICAL_FOUNTATION, FORWARD);
     }
 
 
@@ -501,10 +501,10 @@ public class DWAIAutonomous {
     private void dropOffBlock() {
         robot.setIntakePower(0);
         robot.closeGrabber();
-        robot.moveArmByEncoder(ARM_ENCODER_TO_FOUNDATION_UP);
+        robot.moveArmByEncoder(BLOCK_ARM_UP_ENCODER_POSITION);
         robot.setIntakePower(.5);
         robot.openGrabber();
-        robot.moveArmByEncoder(ARM_ENCODER_TO_FOUNDATION_DOWN);
+        robot.moveArmByEncoder(BLOCK_ARM_DOWN_ENCODER_POSITION);
         robot.setIntakePower(0);
     }
 
