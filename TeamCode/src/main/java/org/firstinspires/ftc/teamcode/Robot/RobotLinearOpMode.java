@@ -141,10 +141,10 @@ public class RobotLinearOpMode extends Robot {
         RB /= max;
         LB /= max;
 
-        leftFrontDriveMotor.setPower((forward - strafe + rotation) * LF * LF);
-        leftBackDriveMotor.setPower((forward + strafe + rotation) * LB * LB);
-        rightFrontDriveMotor.setPower((forward + strafe - rotation) * RF * RF);
-        rightBackDriveMotor.setPower((forward - strafe - rotation) * RB * RB);
+        leftFrontDriveMotor.setPower((forward - strafe + rotation) * LF);
+        leftBackDriveMotor.setPower((forward + strafe + rotation) * LB);
+        rightFrontDriveMotor.setPower((forward + strafe - rotation) * RF);
+        rightBackDriveMotor.setPower((forward - strafe - rotation) * RB);
     }
 
     public void mecanumPowerDrive(double[] controller) {
