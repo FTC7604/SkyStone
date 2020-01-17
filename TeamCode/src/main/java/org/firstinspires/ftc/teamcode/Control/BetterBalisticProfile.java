@@ -5,43 +5,53 @@ import static java.lang.Math.abs;
 import static java.lang.Math.sin;
 
 public class BetterBalisticProfile {
-    //the power that it starts/ends at when it begins the motion
-    private double START_POWER;
-    private double END_POWER;
     //the distance that it goes from start/end power to full speed
     private final double ACCELERATION_DISTANCE;
     private final double DECELERATION_DISTANCE;
+    private boolean IS_BACKWARD;
+    //the power that it starts/ends at when it begins the motion
+    private double START_POWER;
+    private double END_POWER;
     //the highest power that the motor will go, to prevent slippage
     private double FULL_POWER;
-
     private double START_POSITION;
     private double END_POSITION;
     private double CURRENT_POSITION;
-
     private double ACCELERATION_POWER_ADJUSTER;
     private double DECELERATION_POWER_ADJUSTER;
+    private CURVE_TYPE CURVE_TYPE;
 
     public BetterBalisticProfile(
             final double ACCELERATION_DISTANCE,
             final double START_POWER,
             final double DECELERATION_DISTANCE,
             final double END_POWER,
-            final double FULL_POWER) {
+            final double FULL_POWER,
+            final CURVE_TYPE CURVE_TYPE) {
 
         this.ACCELERATION_DISTANCE = ACCELERATION_DISTANCE;
         this.DECELERATION_DISTANCE = DECELERATION_DISTANCE;
         this.START_POWER = START_POWER;
         this.END_POWER = END_POWER;
         this.FULL_POWER = FULL_POWER;
+        this.CURVE_TYPE = CURVE_TYPE;
 
         ACCELERATION_POWER_ADJUSTER = FULL_POWER - START_POWER;
         DECELERATION_POWER_ADJUSTER = FULL_POWER - END_POWER;
     }
 
+    public double getEND_POWER() {
+        return END_POWER;
+    }
+
     //the simplest most pure curve, it will draw a line between (0,0) and (1,distanceOfChange)
     // could be a sine wave or a line
     private double rawCurve(double distanceToLimit, double distanceOfChange) {
-        return sin((PI / 2) * (distanceToLimit / distanceOfChange));
+        switch(CURVE_TYPE){
+            case SINE: return sin((PI / 2) * (distanceToLimit / distanceOfChange));
+            case LINEAR: return (distanceToLimit / distanceOfChange);
+        }
+        return 0;
 
     }
 
@@ -63,13 +73,15 @@ public class BetterBalisticProfile {
         START_POSITION = startPosition;
         END_POSITION = endPosition;
 
-        if(startPosition < endPosition){
+        IS_BACKWARD = startPosition > endPosition;
+
+        if (!IS_BACKWARD) {
             START_POWER = abs(START_POWER);
             FULL_POWER = abs(FULL_POWER);
             END_POWER = abs(END_POWER);
         } else {
             START_POWER = -abs(START_POWER);
-            FULL_POWER = abs(FULL_POWER);
+            FULL_POWER = -abs(FULL_POWER);
             END_POWER = -abs(END_POWER);
         }
 
@@ -79,26 +91,35 @@ public class BetterBalisticProfile {
 
         this.CURRENT_POSITION = currentPosition;
 
-        double accelerationValue = FULL_POWER;
-        double decellerationValue = FULL_POWER;
+        boolean accelerating;
+        boolean decelerating;
 
-
-        if (CURRENT_POSITION - START_POSITION < ACCELERATION_DISTANCE) {
-            accelerationValue = processedAccelerationCurve();
+        if (!IS_BACKWARD) {
+            accelerating = CURRENT_POSITION - START_POSITION < ACCELERATION_DISTANCE;
+            decelerating = END_POSITION - CURRENT_POSITION < DECELERATION_DISTANCE;
+        } else {
+            accelerating = START_POSITION - CURRENT_POSITION < ACCELERATION_DISTANCE;
+            decelerating = CURRENT_POSITION - END_POSITION < DECELERATION_DISTANCE;
         }
-        if (END_POSITION - CURRENT_POSITION < DECELERATION_DISTANCE) {
-            decellerationValue = processedDecelerationCurve();
+
+
+        if (accelerating) {
+            return processedAccelerationCurve();
+        } else if (decelerating) {
+            return processedDecelerationCurve();
+        } else {
+            return FULL_POWER;
         }
 
-        return accelerationValue * decellerationValue;
 
     }
 
     public boolean isDone() {
-
-        return (abs(CURRENT_POSITION - END_POSITION) < DECELERATION_DISTANCE/10);
-
-
+        return (abs(CURRENT_POSITION - END_POSITION) < DECELERATION_DISTANCE / 25);
     }
 
+    public enum CURVE_TYPE {
+        SINE,
+        LINEAR
+    }
 }

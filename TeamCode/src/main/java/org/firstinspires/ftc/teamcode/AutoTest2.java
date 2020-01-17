@@ -28,12 +28,23 @@ public class AutoTest2 extends LinearOpMode {
         telemetry.addLine("Negative Forward");
         telemetry.update();
         robot.moveByInches2(-24, RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD);
-        sleep(1000);
 
         telemetry.addLine("Negative Strafe");
         telemetry.update();
         robot.moveByInches2(-24, RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE);
-        sleep(1000);
+
+        telemetry.addLine("Positive Turn");
+        telemetry.update();
+        robot.turnToDegree2(90);
+
+        telemetry.addLine("Negative Turn");
+        telemetry.update();
+        robot.turnToDegree2(-90);
+
+        telemetry.addLine("Positive Turn");
+        telemetry.update();
+        robot.turnToDegree2(0);
+
     }
 
 }

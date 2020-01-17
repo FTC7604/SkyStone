@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.opencv.core.Mat;
 
 import java.io.File;
 
@@ -222,6 +223,7 @@ public class Robot {
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
 
         imu1.initialize(parameters);
         imu2.initialize(parameters);
@@ -279,6 +281,23 @@ public class Robot {
                 (imu2.getAngularVelocity().zRotationRate),
         };
     }
+
+    public double getRev10IMUSpeed(){
+        double answer = 0;
+
+        answer += Math.pow(imu2.getVelocity().xVeloc,2);
+        answer += Math.pow(imu2.getVelocity().yVeloc,2);
+        answer = Math.sqrt(answer);
+
+        //converts to inches
+        answer *= 39.37;
+
+        return answer;
+
+
+    }
+
+
 
     /**  SENSOR METHODS  */
     //returns the value of the touch sensor
