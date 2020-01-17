@@ -66,10 +66,8 @@ public class testOpMode extends LinearOpMode {
     //We start with some arm positions that we will go to in the future
     //this one is where we start, with the arm at 0 resting in the robot.
     final double ARM_HOME_POSITION = propertiesLoader.getDoubleProperty("ARM_HOME_POSITION");
-    ;
     //this is the socring position for the arm. not quite fully behind the robot, but as high as possible while still able to score
     final double ARM_SCORING_POSITION = propertiesLoader.getDoubleProperty("ARM_SCORING_POSITION");
-    ;
 
     final double OPEN_LATCH_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
     final double CLOSE_LATCH_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
@@ -121,7 +119,7 @@ public class testOpMode extends LinearOpMode {
                 driveTrainController[1] /= 3;
                 driveTrainController[0] /= 2;
                 driveTrainController[2] /= 3;
-                robotLinearOpMode.compensatedMecanumPowerDrive(driveTrainController[0], driveTrainController[1], driveTrainController[2], WEIGHT_COMP_RATIO);
+                //robotLinearOpMode.compensatedMecanumPowerDrive(driveTrainController[0], driveTrainController[1], driveTrainController[2], WEIGHT_COMP_RATIO);
             } else {
                 robotLinearOpMode.mecanumPowerDrive(driveTrainController);
             }
@@ -231,11 +229,8 @@ public class testOpMode extends LinearOpMode {
         //make sure we made it depending on which way we came
         if ((initialArmPosition < target) && (target < current)) {
             arrived = true;
-        } else if ((initialArmPosition > target) && (target > current)) {
-            arrived = true;
-        } else {
-            arrived = false;
-        }
+        } else
+            arrived = (initialArmPosition > target) && (target > current);
         return arrived;
     }
 
@@ -246,11 +241,8 @@ public class testOpMode extends LinearOpMode {
         //make sure we made it depending on which way we came
         if ((initialLiftPosition < target) && (target < current)) {
             arrived = true;
-        } else if ((initialLiftPosition > target) && (target > current)) {
-            arrived = true;
-        } else {
-            arrived = false;
-        }
+        } else
+            arrived = (initialLiftPosition > target) && (target > current);
         return arrived;
     }
 

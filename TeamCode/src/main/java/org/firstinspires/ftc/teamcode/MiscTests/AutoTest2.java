@@ -1,11 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.MiscTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 
 @TeleOp(name = "AutoTest 2.0", group = "TeleOp")
+@Disabled
 public class AutoTest2 extends LinearOpMode {
     private RobotLinearOpMode robot;
 

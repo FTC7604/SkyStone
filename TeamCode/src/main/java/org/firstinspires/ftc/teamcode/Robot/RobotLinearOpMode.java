@@ -101,6 +101,52 @@ public class RobotLinearOpMode extends Robot {
         }
     }
 
+    private void compensatedMecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power) {
+        switch (movement_direction) {
+            case STRAFE:
+                compensatedMecanumPowerDrive(power, 0, 0);
+                break;
+            case FORWARD:
+                compensatedMecanumPowerDrive(0, power, 0);
+                break;
+            case ROTATION:
+                compensatedMecanumPowerDrive(0, 0, power);
+                break;
+        }
+    }
+
+    public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation) {
+
+        //move to properties files as weight distribution
+        double RF = 3.62;
+        double LF = 3.14;
+        double RB = 4.05;
+        double LB = 3.85;
+        double max = RF;
+
+        if(LF > max){
+            max = LF;
+        }
+
+        if(RB > max){
+            max = RB;
+        }
+
+        if(LB > max){
+            max = LB;
+        }
+
+        RF /= max;
+        LF /= max;
+        RB /= max;
+        LB /= max;
+
+        leftFrontDriveMotor.setPower((forward - strafe + rotation) * LF * LF);
+        leftBackDriveMotor.setPower((forward + strafe + rotation) * LB * LB);
+        rightFrontDriveMotor.setPower((forward + strafe - rotation) * RF * RF);
+        rightBackDriveMotor.setPower((forward - strafe - rotation) * RB * RB);
+    }
+
     public void mecanumPowerDrive(double[] controller) {
         mecanumPowerDrive(controller[0], controller[1], controller[2]);
     }
@@ -110,14 +156,6 @@ public class RobotLinearOpMode extends Robot {
         leftBackDriveMotor.setPower(forward + strafe + rotation);
         rightFrontDriveMotor.setPower(forward + strafe - rotation);
         rightBackDriveMotor.setPower(forward - strafe - rotation);
-    }
-
-    //compensates for change in center of gravity with arm swinging behind the robot
-    public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation, double ratio) {
-        leftFrontDriveMotor.setPower(forward - strafe + rotation);
-        leftBackDriveMotor.setPower(forward + strafe * ratio + rotation);
-        rightFrontDriveMotor.setPower(forward + strafe - rotation);
-        rightBackDriveMotor.setPower(forward - strafe * ratio - rotation);
     }
 
 
@@ -177,7 +215,7 @@ public class RobotLinearOpMode extends Robot {
             betterBalisticProfile.setCurrent_position(currentPosition);
 
             motorPower = betterBalisticProfile.getCurrent_Power();
-            mecanumPowerDrive(movement_direction, motorPower);
+            compensatedMecanumPowerDrive(movement_direction, motorPower);
 
             linearOpMode.telemetry.addLine("Motor Power:" + motorPower);
             linearOpMode.telemetry.update();

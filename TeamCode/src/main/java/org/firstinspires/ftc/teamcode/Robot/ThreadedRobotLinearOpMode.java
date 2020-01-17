@@ -349,11 +349,9 @@ public class ThreadedRobotLinearOpMode extends Robot {
             arrivedAtTargetEncoder = true;
         }
         //the exact opposite condidion that yields essentially the same result
-        else if ((initialArmPosition > targetEncoder) && (targetEncoder > getArmEncoder())) {
-            arrivedAtTargetEncoder = true;
-        } else {
-            arrivedAtTargetEncoder = false;
-        }
+        else
+            arrivedAtTargetEncoder = (initialArmPosition > targetEncoder) &&
+                    (targetEncoder > getArmEncoder());
 
         return arrivedAtTargetEncoder;
     }

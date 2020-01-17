@@ -18,8 +18,7 @@ public class Toggle {
     public boolean get(){ return toggle;}
     //indicates wether or not the switch has toggled
     public boolean changed(boolean newValue){
-        if(newValue != oldValue)return true;
-        else return false;
+        return newValue != oldValue;
     }
     //changes the toggle based on the new data
     public void update(boolean newValue){

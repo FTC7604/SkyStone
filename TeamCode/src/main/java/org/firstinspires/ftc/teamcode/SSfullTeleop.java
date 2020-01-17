@@ -126,11 +126,8 @@ public class SSfullTeleop extends LinearOpMode {
         //make sure we made it depending on which way we came
         if ((initialArmPosition <= target) && (target <= current)) {
             arrived = true;
-        } else if ((initialArmPosition >= target) && (target >= current)) {
-            arrived = true;
-        } else {
-            arrived = false;
-        }
+        } else
+            arrived = (initialArmPosition >= target) && (target >= current);
         return arrived;
     }
     //private double initialLiftPosition = 0;
@@ -395,5 +392,4 @@ public class SSfullTeleop extends LinearOpMode {
         FORWARD,
         ROTATION,
     }
-
 }
