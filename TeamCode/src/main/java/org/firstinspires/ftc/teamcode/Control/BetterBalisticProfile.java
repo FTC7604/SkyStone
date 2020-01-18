@@ -2,124 +2,157 @@ package org.firstinspires.ftc.teamcode.Control;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
+import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
 public class BetterBalisticProfile {
-    //the distance that it goes from start/end power to full speed
-    private final double ACCELERATION_DISTANCE;
-    private final double DECELERATION_DISTANCE;
-    private boolean IS_BACKWARD;
-    //the power that it starts/ends at when it begins the motion
-    private double START_POWER;
-    private double END_POWER;
-    //the highest power that the motor will go, to prevent slippage
-    private double FULL_POWER;
-    private double START_POSITION;
-    private double END_POSITION;
-    private double CURRENT_POSITION;
-    private double ACCELERATION_POWER_ADJUSTER;
-    private double DECELERATION_POWER_ADJUSTER;
-    private CURVE_TYPE CURVE_TYPE;
+    private final double acceleration_distance;
+    private final double deceleration_distance;
+    private final double start_power;
+    private final double full_power;
+    private final double end_power;
+    private final CURVE_TYPE acceleration_curve;
+    private final CURVE_TYPE deceleration_curve;
+    private double startPosition;
+    private double endPosition;
+    private double currentPosition;
+    private boolean movementIsBackward;
+    private boolean isAccelerating;
+    private boolean isDecelerating;
 
     public BetterBalisticProfile(
-            final double ACCELERATION_DISTANCE,
-            final double START_POWER,
-            final double DECELERATION_DISTANCE,
-            final double END_POWER,
-            final double FULL_POWER,
-            final CURVE_TYPE CURVE_TYPE) {
+            final double acceleration_distance,
+            final double deceleration_distance,
+            final double start_power,
+            final double full_power,
+            final double end_power,
+            final CURVE_TYPE acceleration_curve,
+            final CURVE_TYPE deceleration_curve
+    ){
 
-        this.ACCELERATION_DISTANCE = ACCELERATION_DISTANCE;
-        this.DECELERATION_DISTANCE = DECELERATION_DISTANCE;
-        this.START_POWER = START_POWER;
-        this.END_POWER = END_POWER;
-        this.FULL_POWER = FULL_POWER;
-        this.CURVE_TYPE = CURVE_TYPE;
+        this.acceleration_distance = acceleration_distance;
+        this.deceleration_distance = deceleration_distance;
+        this.start_power           = start_power;
+        this.full_power            = full_power;
+        this.end_power             = end_power;
+        this.acceleration_curve    = acceleration_curve;
+        this.deceleration_curve    = deceleration_curve;
 
-        ACCELERATION_POWER_ADJUSTER = FULL_POWER - START_POWER;
-        DECELERATION_POWER_ADJUSTER = FULL_POWER - END_POWER;
     }
 
-    public double getEND_POWER() {
-        return END_POWER;
+    public double getEnd_power(){
+        return end_power;
     }
 
-    //the simplest most pure curve, it will draw a line between (0,0) and (1,distanceOfChange)
-    // could be a sine wave or a line
-    private double rawCurve(double distanceToLimit, double distanceOfChange) {
-        switch(CURVE_TYPE){
-            case SINE: return sin((PI / 2) * (distanceToLimit / distanceOfChange));
-            case LINEAR: return (distanceToLimit / distanceOfChange);
+    private double rawCurve(double x, double d, CURVE_TYPE curve_type){
+
+        switch (curve_type) {
+            case LINEAR:
+                return x / d;
+            case SINUSOIDAL_NORMAL:
+                return sin((PI / 2) * (x / d));
+            case SINUSOIDAL_INVERTED:
+                return -cos((PI / 2) * (x / d)) + 1;
+            case SINUSOIDAL_SCURVE:
+                return -.5 * cos(PI * (x / d)) + .5;
         }
+
         return 0;
-
     }
 
-    //creates the curve necessary for acceleration. Modifying the function so that it starts at the start power,
-    // and ends at the maximum power, and put it to the power of an an exponent
-    private double processedAccelerationCurve() {
-        return ((ACCELERATION_POWER_ADJUSTER) * rawCurve(CURRENT_POSITION - START_POSITION, ACCELERATION_DISTANCE) + START_POWER);
+    private double processedCurve(
+            double power_adjuster,
+            double x,
+            double distance_zone,
+            CURVE_TYPE curve_type,
+            double min_power
+    ){
+        return power_adjuster * rawCurve(x, distance_zone, curve_type) + min_power;
     }
 
-    //this one works the same way as the other one
-    private double processedDecelerationCurve() {
-        return ((DECELERATION_POWER_ADJUSTER) * rawCurve(END_POSITION - CURRENT_POSITION, DECELERATION_DISTANCE) + END_POWER);
+    private int invert(){
+        if (movementIsBackward)
+            return -1;
+        else
+            return 1;
     }
 
-    //sets the curve with the start and the end position of the curve. So tht it knows where to go and where to start
-    //becuase it is designed to work doing forward, for negative, I trick it into going thinking that it is going forward
-    //but reverse all of the other values
-    public void setCurve(double startPosition, double endPosition) {
-        START_POSITION = startPosition;
-        END_POSITION = endPosition;
+    private double accelerationCurve(){
+        return processedCurve((full_power - start_power) * invert(),
+                              (currentPosition - startPosition) * invert(),
+                              acceleration_distance,
+                              acceleration_curve,
+                              start_power * invert());
+    }
 
-        IS_BACKWARD = startPosition > endPosition;
+    private double decelerationCurve(){
+        return processedCurve((full_power - end_power) * invert(),
+                              (endPosition - currentPosition) * invert(),
+                              deceleration_distance,
+                              deceleration_curve,
+                              end_power * invert());
+    }
 
-        if (!IS_BACKWARD) {
-            START_POWER = abs(START_POWER);
-            FULL_POWER = abs(FULL_POWER);
-            END_POWER = abs(END_POWER);
-        } else {
-            START_POWER = -abs(START_POWER);
-            FULL_POWER = -abs(FULL_POWER);
-            END_POWER = -abs(END_POWER);
+    public void setCurve(double start_position, double end_position){
+        this.startPosition      = start_position;
+        this.endPosition        = end_position;
+        this.movementIsBackward = start_position > end_position;
+        this.currentPosition    = start_position;
+    }
+
+    public void setCurrentPosition(double currentPosition){
+        this.currentPosition = currentPosition;
+        isAccelerating       = abs(startPosition - currentPosition) < acceleration_distance;
+        isDecelerating       = abs(endPosition - currentPosition) < deceleration_distance;
+    }
+
+    public double getCurrentPowerAccelDecel(){
+        if (isAccelerating && isDecelerating) {
+            return accelerationCurve() * decelerationCurve() * invert();
         }
+        else if (isAccelerating) {
+            return accelerationCurve();
+        }
+        else if (isDecelerating) {
+            return decelerationCurve();
+        }
+        else {
+            return full_power * invert();
+        }
+    }
+
+    public double getCurrentPowerDecel(){
+        if (isDecelerating) {
+            return decelerationCurve();
+        }
+        else {
+            return full_power * invert();
+        }
+    }
+
+    public double getCurrentPowerAccel(){
+        if (isAccelerating) {
+            return accelerationCurve();
+        }
+        else {
+            return full_power * invert();
+        }
+    }
+
+    public double getCurrentPowerFull(){
+
+        return full_power * invert();
 
     }
 
-    public double getMotorPower(double currentPosition) {
-
-        this.CURRENT_POSITION = currentPosition;
-
-        boolean accelerating;
-        boolean decelerating;
-
-        if (!IS_BACKWARD) {
-            accelerating = CURRENT_POSITION - START_POSITION < ACCELERATION_DISTANCE;
-            decelerating = END_POSITION - CURRENT_POSITION < DECELERATION_DISTANCE;
-        } else {
-            accelerating = START_POSITION - CURRENT_POSITION < ACCELERATION_DISTANCE;
-            decelerating = CURRENT_POSITION - END_POSITION < DECELERATION_DISTANCE;
-        }
-
-
-        if (accelerating) {
-            return processedAccelerationCurve();
-        } else if (decelerating) {
-            return processedDecelerationCurve();
-        } else {
-            return FULL_POWER;
-        }
-
-
-    }
-
-    public boolean isDone() {
-        return (abs(CURRENT_POSITION - END_POSITION) < DECELERATION_DISTANCE / 25);
+    public boolean isDone(){
+        return abs(currentPosition - endPosition) < deceleration_distance / 100;
     }
 
     public enum CURVE_TYPE {
-        SINE,
-        LINEAR
+        LINEAR,
+        SINUSOIDAL_NORMAL,
+        SINUSOIDAL_INVERTED,
+        SINUSOIDAL_SCURVE
     }
 }

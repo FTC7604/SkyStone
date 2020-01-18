@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.IO.DWAIAutonomousPropertiesLoader;
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.*;
 
 @TeleOp(name = "AutoTest", group = "TeleOp")
+@Disabled
 public class AutoTest extends LinearOpMode {
     private DWAIAutonomous auto;
     private DWAIAutonomousPropertiesLoader autonomousPropertiesLoader = new DWAIAutonomousPropertiesLoader();

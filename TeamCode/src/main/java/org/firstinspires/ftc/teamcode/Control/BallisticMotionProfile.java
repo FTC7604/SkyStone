@@ -9,7 +9,7 @@ public class BallisticMotionProfile {
     private double TOP_LIMIT;
     private double BOTTOM_LIMIT;
 
-    //This distance value describes how close the system must be to a limit to start decelerating
+    //This distance value describes how close the system must be to a limit to start isDecelerating
     //It can be thought of as the distance needed for a full deceleration for max power
     //Larger deceldistance = flatter curve, vice versa
     private double DECELERATION_DISTANCE;
@@ -108,7 +108,7 @@ public class BallisticMotionProfile {
         return motorPower;//this will always be positive
     }
 
-    //USED in TELEOP, this method keeps a system from oversteping its bounds, decelerating it as it APPROACHES one of the limits.
+    //USED in TELEOP, this method keeps a system from oversteping its bounds, isDecelerating it as it APPROACHES one of the limits.
     //This is different than limitWithAccel because it doesn't slow the system down when it is LEAVING one of the limits.
     public double limitWithoutAccel(double currentPosition, double requestedPower) {
 

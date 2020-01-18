@@ -62,12 +62,15 @@ public class AutoTransitioner extends Thread {
         this.opModeManager = null;
     }
 
+    public static DWAIAutonomous.ALLIANCE alliance;
+
     /**
      * Setup the next transition
      * @param onStop The program you'll be transitioning from (usually 'this')
      * @param transitionTo The name of the program you want to transition to
      */
-    public static void transitionOnStop(OpMode onStop, String transitionTo) {
+    public static void transitionOnStop(OpMode onStop, String transitionTo, DWAIAutonomous.ALLIANCE alliance) {
+        AutoTransitioner.alliance = alliance;
         INSTANCE.setNewTransition(onStop, transitionTo);
     }
 }
