@@ -225,9 +225,8 @@ public class SSfullTeleop extends LinearOpMode {
 
     }
 
-    //TODO: make it so that this gently grabs this
     private void holdMarker(){
-        markerLatchServo.setPosition(0);
+        markerLatchServo.setPosition(.3);
     }
 
     private void closeLatch(){
