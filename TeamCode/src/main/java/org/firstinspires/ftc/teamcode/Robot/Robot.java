@@ -11,9 +11,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.opencv.core.Mat;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 
 import java.io.File;
 
@@ -67,36 +67,33 @@ public class Robot {
 
     private ColorSensor leftWingCS;
     private DistanceSensor leftWingDS;
-    private ColorSensor leftCS;
-    private DistanceSensor leftDS;
-    private ColorSensor rightCS;
-    private DistanceSensor rightDS;
-    private COLOR_SENSOR activatedSensor;
 
     private DigitalChannel blockIntakeTouchSensor;
     private DigitalChannel openIntakeTouchSensor;
     private DigitalChannel foundationTouchSensor;
 
     private HardwareMap hardwareMap;
-    private int BLUE_LINE_VALUE;
-    private int RED_LINE_VALUE;
+
+    private PropertiesLoader propertiesLoader = new PropertiesLoader("Robot");
+
+    private double BLUE_LINE_DETECTED = propertiesLoader.getDoubleProperty("RED_LINE_DETECTED");
+    private double RED_LINE_DETECTED = propertiesLoader.getDoubleProperty("BLUE_LINE_DETECTED");
 
 
-    public Robot(OpMode opMode, COLOR_SENSOR activatedSensor) {
+    public Robot(OpMode opMode){
         this.hardwareMap = opMode.hardwareMap;
-        this.activatedSensor = activatedSensor;
         mapHardware();
     }
 
-    public Robot() {
+    public Robot(){
     }
 
-    private void mapHardware() {
+    private void mapHardware(){
         //DRIVE
         rightFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");
-        leftFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rf");
-        rightBackDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lb");
-        leftBackDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rb");
+        leftFrontDriveMotor  = (DcMotorEx) hardwareMap.get(DcMotor.class, "rf");
+        rightBackDriveMotor  = (DcMotorEx) hardwareMap.get(DcMotor.class, "lb");
+        leftBackDriveMotor   = (DcMotorEx) hardwareMap.get(DcMotor.class, "rb");
         rightFrontDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftFrontDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
         rightBackDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -104,24 +101,24 @@ public class Robot {
 
         //INTAKE
         rightIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ri");
-        leftIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "li");
+        leftIntakeMotor  = (DcMotorEx) hardwareMap.get(DcMotor.class, "li");
         rightIntakeMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftIntakeMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
         //ARM + LIFT
-        armMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ax");
+        armMotor  = (DcMotorEx) hardwareMap.get(DcMotor.class, "ax");
         liftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lx");
         liftMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
         //PLATFORM LATCH
-        leftLatchServo = hardwareMap.get(Servo.class, "ll");
+        leftLatchServo  = hardwareMap.get(Servo.class, "ll");
         rightLatchServo = hardwareMap.get(Servo.class, "rl");
         leftLatchServo.setDirection(Servo.Direction.FORWARD);
         rightLatchServo.setDirection(Servo.Direction.REVERSE);
 
         //CLAW + MARKER LATCH
         blockGrabberServo = hardwareMap.get(Servo.class, "bg");
-        markerLatchServo = hardwareMap.get(Servo.class, "ml");
+        markerLatchServo  = hardwareMap.get(Servo.class, "ml");
 
         //IMU
         imu1 = hardwareMap.get(BNO055IMU.class, "imu");
@@ -135,30 +132,19 @@ public class Robot {
         foundationTouchSensor = hardwareMap.get(DigitalChannel.class, "ft");
         foundationTouchSensor.setMode(DigitalChannel.Mode.INPUT);
 
-        //COLOR DISTANCE SENSOR
-        switch(activatedSensor) {
-            case UNDER:
-                leftWingCS = hardwareMap.get(ColorSensor.class, "cd");
-                leftWingDS = hardwareMap.get(DistanceSensor.class, "cd");
-                break;
-            case LEFT:
-                leftCS = hardwareMap.get(ColorSensor.class, "lcd");
-                leftDS = hardwareMap.get(DistanceSensor.class, "lcd");
-                break;
-            case RIGHT:
-                rightCS = hardwareMap.get(ColorSensor.class, "rcd");
-                rightDS = hardwareMap.get(DistanceSensor.class, "rcd");
-                break;
-            case NONE:
-                break;
-        }
+
+        leftWingCS = hardwareMap.get(ColorSensor.class, "cd");
+        leftWingDS = hardwareMap.get(DistanceSensor.class, "cd");
+
     }
 
     //1. 560
     //2. 450
     //3. 210
 
-    /**  ZERO POWER + RUNMODE METHODS  */
+    /**
+     * ZERO POWER + RUNMODE METHODS
+     */
     public void setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
         setDriveTrainZeroPowerProperty(zeroPowerBehavior);
         setIntakeZeroPowerProperty(zeroPowerBehavior);
@@ -173,7 +159,7 @@ public class Robot {
         setLiftRunMode(runMode);
     }
 
-    public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+    public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
         //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
         leftFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
         rightFrontDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
@@ -181,7 +167,7 @@ public class Robot {
         rightBackDriveMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
-    public void setDriveTrainRunMode(DcMotor.RunMode runMode) {
+    public void setDriveTrainRunMode(DcMotor.RunMode runMode){
         //sets the run mode for the drive train, RUN_WITH_ENCODERS, STOP_AND_RESET_ENCODERS, etc.
         leftFrontDriveMotor.setMode(runMode);
         rightFrontDriveMotor.setMode(runMode);
@@ -189,55 +175,77 @@ public class Robot {
         rightBackDriveMotor.setMode(runMode);
     }
 
-    public void setIntakeZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
+    private void setIntakeZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior){
         rightIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
         leftIntakeMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
-    public void setIntakeRunMode(DcMotor.RunMode runMode) {
+    private void setIntakeRunMode(DcMotor.RunMode runMode){
         rightIntakeMotor.setMode(runMode);
         leftIntakeMotor.setMode(runMode);
     }
 
-    public void setArmZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
+    public void setArmZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior){
         armMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
-    public void setArmRunMode(DcMotor.RunMode runMode) {
+    public void setArmRunMode(DcMotor.RunMode runMode){
         armMotor.setMode(runMode);
     }
 
-    public void setLiftZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior) {
+    public void setLiftZeroPowerProperty(DcMotorEx.ZeroPowerBehavior zeroPowerBehavior){
         liftMotor.setZeroPowerBehavior(zeroPowerBehavior);
     }
 
-    public void setLiftRunMode(DcMotor.RunMode runMode) {
+    public void setLiftRunMode(DcMotor.RunMode runMode){
         liftMotor.setMode(runMode);
     }
 
-    /**  IMU METHODS  */
+    /**
+     * IMU METHODS
+     */
     //initializes IMU
-    public void initIMU() {
+    public void initIMU(){
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
         parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingTag     = "IMU";
+        parameters.angleUnit      = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit      = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
 
         imu1.initialize(parameters);
         imu2.initialize(parameters);
     }
 
     //originally this saved the imu rile, but now I don't know its purpose, sice we can always reinit
-    public void calibrateIMU() {
-        BNO055IMU.CalibrationData calibrationData1 = imu1.readCalibrationData();
-        File file1 = AppUtil.getInstance().getSettingsFile("AdafruitIMUCalibration1.json");
-        ReadWriteFile.writeFile(file1, calibrationData1.serialize());
+    public File[] readIMUCalibrationFiles(){
+        File[] calibrationFiles = new File[2];
+        BNO055IMU.CalibrationData[] calibrationData = new BNO055IMU.CalibrationData[2];
 
-        BNO055IMU.CalibrationData calibrationData2 = imu2.readCalibrationData();
-        File file2 = AppUtil.getInstance().getSettingsFile("AdafruitIMUCalibration2.json");
-        ReadWriteFile.writeFile(file2, calibrationData2.serialize());
+        calibrationData[0] = imu1.readCalibrationData();
+        calibrationData[1] = imu2.readCalibrationData();
+
+        calibrationFiles[0] = AppUtil.getInstance().getSettingsFile("AdafruitIMUCalibration2.json");
+        calibrationFiles[1] = AppUtil.getInstance().getSettingsFile("AdafruitIMUCalibration1.json");
+
+        ReadWriteFile.writeFile(calibrationFiles[0], calibrationData[0].serialize());
+        ReadWriteFile.writeFile(calibrationFiles[1], calibrationData[1].serialize());
+
+        return calibrationFiles;
+    }
+
+    public void setCalibrationData(File[] calibrationFiles){
+        String[] data = new String[2];
+        BNO055IMU.CalibrationData[] calibrationData = new BNO055IMU.CalibrationData[2];
+
+        data[0] = ReadWriteFile.readFile(calibrationFiles[0]);
+        data[1] = ReadWriteFile.readFile(calibrationFiles[1]);
+
+        calibrationData[0] = BNO055IMU.CalibrationData.deserialize(data[0]);
+        calibrationData[1] = BNO055IMU.CalibrationData.deserialize(data[1]);
+
+        imu1.writeCalibrationData(calibrationData[0]);
+        imu2.writeCalibrationData(calibrationData[1]);
     }
 
     boolean IMUSAreCalibrated(){
@@ -245,45 +253,41 @@ public class Robot {
     }
 
     //gets the average angle from both IMUs
-    public double[] getBothIMUAngle() {
-        return new double[]{
+    public double[] getBothIMUAngle(){
+        return new double[] {
                 (imu1.getAngularOrientation().secondAngle + imu2.getAngularOrientation().secondAngle) / 2,
                 (imu1.getAngularOrientation().thirdAngle + imu2.getAngularOrientation().thirdAngle) / 2,
-                (imu1.getAngularOrientation().firstAngle + imu2.getAngularOrientation().firstAngle) / 2,
-        };
+                (imu1.getAngularOrientation().firstAngle + imu2.getAngularOrientation().firstAngle) / 2,};
     }
 
     //gets the angle from the one IMU
-    double[] getRev2IMUAngle() {
-        return new double[]{
+    double[] getRev2IMUAngle(){
+        return new double[] {
                 (imu1.getAngularOrientation().secondAngle),
                 (imu1.getAngularOrientation().thirdAngle),
-                (imu1.getAngularOrientation().firstAngle),
-        };
+                (imu1.getAngularOrientation().firstAngle),};
     }
 
     //gets the angle from the other IMU
-    public double[] getRev10IMUAngle() {
-        return new double[]{
+    double[] getRev10IMUAngle(){
+        return new double[] {
                 (imu2.getAngularOrientation().secondAngle),
                 (imu2.getAngularOrientation().thirdAngle),
-                (imu2.getAngularOrientation().firstAngle),
-        };
+                (imu2.getAngularOrientation().firstAngle),};
     }
 
-    public double[] getRev10IMUAngularVelocity(){
-        return new double[]{
+    double[] getRev10IMUAngularVelocity(){
+        return new double[] {
                 (imu2.getAngularVelocity().xRotationRate),
                 (imu2.getAngularVelocity().yRotationRate),
-                (imu2.getAngularVelocity().zRotationRate),
-        };
+                (imu2.getAngularVelocity().zRotationRate),};
     }
 
-    public double getRev10IMUSpeed(){
+    double getRev10IMUSpeed(){
         double answer = 0;
 
-        answer += Math.pow(imu2.getVelocity().xVeloc,2);
-        answer += Math.pow(imu2.getVelocity().yVeloc,2);
+        answer += Math.pow(imu2.getVelocity().xVeloc, 2);
+        answer += Math.pow(imu2.getVelocity().yVeloc, 2);
         answer = Math.sqrt(answer);
 
         //converts to inches
@@ -295,68 +299,44 @@ public class Robot {
     }
 
 
-
-    /**  SENSOR METHODS  */
+    /**
+     * SENSOR METHODS
+     */
     //returns the value of the touch sensor
-    public boolean getBlockSensorPressed() {
-        return !blockIntakeTouchSensor.getState();
+    public boolean getBlockSensorNotPressed(){
+        return blockIntakeTouchSensor.getState();
     }
 
-    public boolean getIntakeSensorPressed() {
-        return !openIntakeTouchSensor.getState();
+    boolean getIntakeSensorNotPressed(){
+        return openIntakeTouchSensor.getState();
     }
 
-    public boolean getFoundationSensorPressed() {
+    public boolean getFoundationSensorPressed(){
         return !foundationTouchSensor.getState();
     }
 
     public double[] getColors(){
         double[] colors = new double[4];
 
-        switch(activatedSensor){
-            case LEFT:
-                double[] tempC = {leftCS.red(), leftCS.green(), leftCS.blue(), leftCS.alpha()};
-                colors = tempC;
-                break;
-            case RIGHT:
-                double[] tempD = {rightCS.red(), rightCS.green(), rightCS.blue(), rightCS.alpha()};
-                colors = tempD;
-                break;
-            case UNDER:
-                double[] tempE = {leftWingCS.red(), leftWingCS.green(), leftWingCS.blue(), leftWingCS.alpha()};
-                colors = tempE;
-                break;
-            case NONE:
-                break;
-        }
+        double[] tempE = {
+                leftWingCS.red(), leftWingCS.green(), leftWingCS.blue(), leftWingCS.alpha()};
+
 
         return colors;
     }
 
     public double getDistance(){
-        double distance = 0;
 
-        switch(activatedSensor){
-            case LEFT:
-                distance = leftDS.getDistance(DistanceUnit.MM);
-                break;
-            case RIGHT:
-                distance = rightDS.getDistance(DistanceUnit.MM);
-                break;
-            case UNDER:
-                distance = leftWingDS.getDistance(DistanceUnit.MM);
-                break;
-            case NONE:
-                break;
-        }
-
-        return distance;
+        return leftWingDS.getDistance(DistanceUnit.MM);
     }
 
-    COLOR_UNDER_SENSOR color_under_sensor(){
-        if(leftWingCS.blue() > BLUE_LINE_VALUE) return COLOR_UNDER_SENSOR.BLUE;
-        else if(leftWingCS.red() > RED_LINE_VALUE) return COLOR_UNDER_SENSOR.RED;
-        else return COLOR_UNDER_SENSOR.GRAY;
+    public COLOR_UNDER_SENSOR color_under_sensor(){
+        if (leftWingCS.blue() > BLUE_LINE_DETECTED)
+            return COLOR_UNDER_SENSOR.BLUE;
+        else if (leftWingCS.red() > RED_LINE_DETECTED)
+            return COLOR_UNDER_SENSOR.RED;
+        else
+            return COLOR_UNDER_SENSOR.GRAY;
     }
 
 }

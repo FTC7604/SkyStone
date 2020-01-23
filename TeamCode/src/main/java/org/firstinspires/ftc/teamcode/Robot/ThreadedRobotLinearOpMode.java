@@ -79,14 +79,9 @@ public class ThreadedRobotLinearOpMode extends Robot {
     );
 
     /**  CONSTRUCTORS  */
-    public ThreadedRobotLinearOpMode(LinearOpMode linearOpMode, COLOR_SENSOR activatedSensor) {
-        super(linearOpMode, activatedSensor);
-        this.linearOpMode = linearOpMode;
-        drivePowerThread.start();
-    }
 
     public ThreadedRobotLinearOpMode(LinearOpMode linearOpMode){
-        super(linearOpMode, COLOR_SENSOR.UNDER);
+        super(linearOpMode);
         this.linearOpMode = linearOpMode;
         drivePowerThread.start();
     }
@@ -281,7 +276,7 @@ public class ThreadedRobotLinearOpMode extends Robot {
 
     /**  INTAKE+LIFT MOTOR METHODS  */
     public void setIntakePower(double intakePower) {
-        if (!getIntakeSensorPressed()) {
+        if (getIntakeSensorNotPressed()) {
             rightIntakeMotor.setPower(intakePower);
             leftIntakeMotor.setPower(-intakePower);
         } else {

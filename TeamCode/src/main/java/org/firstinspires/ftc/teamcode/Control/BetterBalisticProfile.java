@@ -13,6 +13,10 @@ public class BetterBalisticProfile {
     private final double end_power;
     private final CURVE_TYPE acceleration_curve;
     private final CURVE_TYPE deceleration_curve;
+    private final double topLimit;
+    private final double bottomLimit;
+    private final boolean has_limits;
+
     private double startPosition;
     private double endPosition;
     private double currentPosition;
@@ -37,6 +41,41 @@ public class BetterBalisticProfile {
         this.end_power             = end_power;
         this.acceleration_curve    = acceleration_curve;
         this.deceleration_curve    = deceleration_curve;
+        this.has_limits            = false;
+        this.topLimit              = 0;
+        this.bottomLimit           = 0;
+
+    }
+
+    public BetterBalisticProfile(
+            final double acceleration_distance,
+            final double deceleration_distance,
+            final double start_power,
+            final double full_power,
+            final double end_power,
+            final double first_limit,
+            final double second_limit,
+            final CURVE_TYPE acceleration_curve,
+            final CURVE_TYPE deceleration_curve
+    ){
+
+        this.acceleration_distance = acceleration_distance;
+        this.deceleration_distance = deceleration_distance;
+        this.start_power           = start_power;
+        this.full_power            = full_power;
+        this.end_power             = end_power;
+        this.acceleration_curve    = acceleration_curve;
+        this.deceleration_curve    = deceleration_curve;
+        this.has_limits            = true;
+
+        if (first_limit > second_limit) {
+            this.topLimit    = first_limit;
+            this.bottomLimit = second_limit;
+        }
+        else {
+            this.topLimit    = second_limit;
+            this.bottomLimit = first_limit;
+        }
 
     }
 
@@ -71,33 +110,34 @@ public class BetterBalisticProfile {
     }
 
     private int invert(){
-        if (movementIsBackward)
-            return -1;
-        else
-            return 1;
+        if (movementIsBackward) return -1;
+        else return 1;
     }
 
     private double accelerationCurve(){
-        return processedCurve((full_power - start_power) * invert(),
-                              (currentPosition - startPosition) * invert(),
-                              acceleration_distance,
-                              acceleration_curve,
-                              start_power * invert());
+        return processedCurve((full_power - start_power) * invert(), (currentPosition - startPosition) * invert(), acceleration_distance, acceleration_curve, start_power * invert());
     }
 
     private double decelerationCurve(){
-        return processedCurve((full_power - end_power) * invert(),
-                              (endPosition - currentPosition) * invert(),
-                              deceleration_distance,
-                              deceleration_curve,
-                              end_power * invert());
+        return processedCurve((full_power - end_power) * invert(), (endPosition - currentPosition) * invert(), deceleration_distance, deceleration_curve, end_power * invert());
     }
 
-    public void setCurve(double start_position, double end_position){
-        this.startPosition      = start_position;
-        this.endPosition        = end_position;
-        this.movementIsBackward = start_position > end_position;
-        this.currentPosition    = start_position;
+    public void setCurve(double startPosition, double endPosition){
+        if (has_limits) {
+            if (this.startPosition > topLimit) this.startPosition = topLimit;
+            else if (this.startPosition < bottomLimit) this.startPosition = bottomLimit;
+            else this.startPosition = startPosition;
+
+            if (this.endPosition > topLimit) this.endPosition = topLimit;
+            else if (this.endPosition < bottomLimit) this.endPosition = bottomLimit;
+            else this.endPosition = endPosition;
+        } else {
+            this.startPosition = startPosition;
+            this.endPosition = endPosition;
+        }
+
+        this.movementIsBackward = startPosition > endPosition;
+        this.currentPosition    = startPosition;
     }
 
     public void setCurrentPosition(double currentPosition){
@@ -145,8 +185,8 @@ public class BetterBalisticProfile {
 
     }
 
-    public boolean isDone(){
-        return abs(currentPosition - endPosition) < deceleration_distance / 100;
+    public boolean isNotDone(){
+        return !(abs(currentPosition - endPosition) < deceleration_distance / 25);
     }
 
     public enum CURVE_TYPE {

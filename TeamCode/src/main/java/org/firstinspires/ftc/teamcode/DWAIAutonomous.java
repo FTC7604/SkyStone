@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.*;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
-import org.firstinspires.ftc.teamcode.Robot.*;
+import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -19,124 +19,88 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.*;
+import static java.lang.Thread.sleep;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
 public class DWAIAutonomous {
 
-    private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
-
-    private double DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION                        = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL                       = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION                     = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT                               = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT");
-    private double DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION                       = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION               = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_FORWARD_TO_TURN                                = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_TURN");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD");
-
-    private double  HWALL_PARK_STRAFE_DISTANCE   = propertiesLoader.getDoubleProperty("HWALL_PARK_STRAFE_DISTANCE");
-    private double  HBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("HBRIDGE_PARK_STRAFE_DISTANCE");
-    private double  VWALL_PARK_STRAFE_DISTANCE   = propertiesLoader.getDoubleProperty("VWALL_PARK_STRAFE_DISTANCE");
-    private double  VBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VBRIDGE_PARK_STRAFE_DISTANCE");
-    private boolean PAUSE_STEPS                  = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
-    private double  STRAFE_MAX_POWER             = propertiesLoader.getDoubleProperty("STRAFE_MAX_POWER");
-    private double  MOVE_MAX_POWER               = propertiesLoader.getDoubleProperty("MOVE_MAX_POWER");
-
-    private double OPEN_LATCH_SERVO_POSITION  = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
-    private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
-
-    private double BLOCK_FORWARD_OFF_WALL_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_OFF_WALL_TO_BLOCK");
-    private double BLOCK_FORWARD_LITTLE_OFF_WALL   = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_LITTLE_OFF_WALL");
-
-    private double BLOCK_ONE_STRAFE_TO_BLOCK   = propertiesLoader.getDoubleProperty("BLOCK_ONE_STRAFE_TO_BLOCK");
-    private double BLOCK_TWO_STRAFE_TO_BLOCK   = propertiesLoader.getDoubleProperty("BLOCK_TWO_STRAFE_TO_BLOCK");
-    private double BLOCK_THREE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_STRAFE_TO_BLOCK");
-
-    private double BLOCK_ONE_FORWARD_TO_FOUNDATION   = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_FOUNDATION");
-    private double BLOCK_TWO_FORWARD_TO_FOUNDATION   = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_FOUNDATION");
-    private double BLOCK_THREE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_FOUNDATION");
-
-    private double BLOCK_FOUR_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FOUR_BACKWARD_TO_BLOCK");
-    private double BLOCK_FIVE_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FIVE_BACKWARD_TO_BLOCK");
-    private double BLOCK_SIX_BACKWARD_TO_BLOCK  = propertiesLoader.getDoubleProperty("BLOCK_SIX_BACKWARD_TO_BLOCK");
-
-    private double BLOCK_FOUR_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FOUR_FORWARD_TO_FOUNDATION");
-    private double BLOCK_FIVE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FIVE_FORWARD_TO_FOUNDATION");
-    private double BLOCK_SIX_FORWARD_TO_FOUNDATION  = propertiesLoader.getDoubleProperty("BLOCK_SIX_FORWARD_TO_FOUNDATION");
-
-    private double BLOCK_ANGLE_SUCK_BLOCK       = propertiesLoader.getDoubleProperty("BLOCK_ANGLE_SUCK_BLOCK");
-
-    private double BLOCK_FORWARD_SUCK_UP_FIRST_TIME = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_UP_FIRST_TIME");
-    private double BLOCK_BACKWARD_SUCK_UP_FIRST_TIME = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_SUCK_UP_FIRST_TIME");
-
-    private double BLOCK_FORWARD_SUCK_UP_SECOND_TIME = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_UP_SECOND_TIME");
-    private double BLOCK_BACKWARD_SUCK_UP_SECOND_TIME = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_SUCK_UP_SECOND_TIME");
-
-    private double BLOCK_FORWARD_SUCK_MIN_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MIN_POWER");
-    private double BLOCK_FORWARD_SUCK_MAX_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MAX_POWER");
-
-    double BLOCK_TO_FOUNDATION_ANGLE = 90;
-
-    private double BLOCK_ARM_UP_ENCODER_POSITION   = propertiesLoader.getDoubleProperty("BLOCK_ARM_UP_ENCODER_POSITION");
-    private double BLOCK_ARM_DOWN_ENCODER_POSITION = propertiesLoader.getDoubleProperty("BLOCK_ARM_DOWN_ENCODER_POSITION");
-
-    private double BLOCK_BACKWARD_TO_PARK                     = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_TO_PARK");
-    private double BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION");
-
-
-    private double horizontalTurnDegree = 90;
-    private double verticalTurnDegree   = 90;
-    private double fiddleDistance       = - 3;
-
-    Thread deployThread;
-    private volatile boolean deployed = false;
-
-    Thread firstIntakeThread;
-    Thread secondIntakeThread;
-    private volatile boolean blockIntookFirstTime = false;
-    private volatile boolean blockIntookSecondTime = false;
-
-    private ElapsedTime runtime = new ElapsedTime();
-
-    private RobotLinearOpMode robot;
-
-    private FOUNDATION_ORIENTATION foundationOrientation;
-    private PARK_POSITION          parkPosition;
-    private SIDE                   side;
-    private ALLIANCE               alliance;
-    private LinearOpMode           opMode;
-    private SKYSTONE_POSITION      skystone_position;
-
-    private LinkedBlockingQueue<Runnable> intakeAndArmThread = new LinkedBlockingQueue<>();
-
     //0 means skystone, 1 means yellow stone
     //-1 for debug, but we can keep it like this because if it works, it should change to either 0 or 255
-    private static int valMid   = - 1;
-    private static int valLeft  = - 1;
-    private static int valRight = - 1;
-
-    private static float[] midPos   = new float[2];
-    private static float[] leftPos  = new float[2];
+    private static int valMid = -1;
+    private static int valLeft = -1;
+    private static int valRight = -1;
+    private static float[] midPos = new float[2];
+    private static float[] leftPos = new float[2];
     private static float[] rightPos = new float[2];
-    //moves all rectangles right or left by amount. units are in ratio to monitor
+    private double BLOCK_TO_FOUNDATION_ANGLE = 90;
+    private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
+    private double DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION");
+    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL");
+    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION");
+    private double DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT");
+    private double DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION");
+    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION");
+    private double DRIVETRAIN_DISTANCE_FORWARD_TO_TURN = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_TURN");
+    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD");
+    private double HWALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("HWALL_PARK_STRAFE_DISTANCE");
+    private double HBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("HBRIDGE_PARK_STRAFE_DISTANCE");
+    private double VWALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VWALL_PARK_STRAFE_DISTANCE");
+    private double VBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VBRIDGE_PARK_STRAFE_DISTANCE");
+    private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
+    private double STRAFE_MAX_POWER = propertiesLoader.getDoubleProperty("STRAFE_MAX_POWER");
+    private double MOVE_MAX_POWER = propertiesLoader.getDoubleProperty("MOVE_MAX_POWER");
+    private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
+    private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
+    private double BLOCK_FORWARD_OFF_WALL_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_OFF_WALL_TO_BLOCK");
+    private double BLOCK_FORWARD_LITTLE_OFF_WALL = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_LITTLE_OFF_WALL");
+    private double BLOCK_ONE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ONE_STRAFE_TO_BLOCK");
+    private double BLOCK_TWO_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_TWO_STRAFE_TO_BLOCK");
+    private double BLOCK_THREE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_STRAFE_TO_BLOCK");
+    private double BLOCK_ONE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_FOUNDATION");
+    private double BLOCK_TWO_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_FOUNDATION");
+    private double BLOCK_THREE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_FOUNDATION");
+    private double BLOCK_FOUR_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FOUR_BACKWARD_TO_BLOCK");
+    private double BLOCK_FIVE_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FIVE_BACKWARD_TO_BLOCK");
+    private double BLOCK_SIX_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_SIX_BACKWARD_TO_BLOCK");
+    private double BLOCK_FOUR_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FOUR_FORWARD_TO_FOUNDATION");
+    private double BLOCK_FIVE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FIVE_FORWARD_TO_FOUNDATION");
+    private double BLOCK_SIX_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_SIX_FORWARD_TO_FOUNDATION");
+    private double BLOCK_ANGLE_SUCK_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ANGLE_SUCK_BLOCK");
+    private double BLOCK_FORWARD_SUCK_UP_FIRST_TIME = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_UP_FIRST_TIME");
+    private double BLOCK_BACKWARD_SUCK_UP_FIRST_TIME = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_SUCK_UP_FIRST_TIME");
+    private double BLOCK_FORWARD_SUCK_UP_SECOND_TIME = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_UP_SECOND_TIME");
+    private double BLOCK_BACKWARD_SUCK_UP_SECOND_TIME = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_SUCK_UP_SECOND_TIME");
+    private double BLOCK_FORWARD_SUCK_MIN_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MIN_POWER");
+    private double BLOCK_FORWARD_SUCK_MAX_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MAX_POWER");
+    private double BLOCK_ARM_UP_ENCODER_POSITION = propertiesLoader.getDoubleProperty("BLOCK_ARM_UP_ENCODER_POSITION");
+    private double BLOCK_ARM_DOWN_ENCODER_POSITION = propertiesLoader.getDoubleProperty("BLOCK_ARM_DOWN_ENCODER_POSITION");
+    private double BLOCK_ARM_RAISED_A_LITTLE_BIT = propertiesLoader.getDoubleProperty("BLOCK_ARM_RAISED_A_LITTLE_BIT");
+    private double BLOCK_BACKWARD_TO_PARK = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_TO_PARK");
+    private double BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION");
+    private double horizontalTurnDegree = 90;
+    private double verticalTurnDegree = 90;
+    private double fiddleDistance = -3;
+    private volatile boolean deployed = false;
+    private volatile boolean blockIntookFirstTime = false;
+    private volatile boolean blockIntookSecondTime = false;
+    private ElapsedTime runtime = new ElapsedTime();
+    private RobotLinearOpMode robot;
+    private FOUNDATION_ORIENTATION foundationOrientation;
+    private PARK_POSITION parkPosition;
+    private SIDE side;
+    private ALLIANCE alliance;
+    private LinearOpMode opMode;
+    private SKYSTONE_POSITION skystone_position;
 
-//    private Thread thread = new Thread(() -> {
-//
-//        while (true) {
-//
-//            try {
-//                intakeAndArmThread.take().run();
-//            } catch (InterruptedException ignored) {
-//
-//            }
-//
-//        }
-//
-//    });
-
-    public DWAIAutonomous(FOUNDATION_ORIENTATION foundationOrientation, PARK_POSITION parkPosition, SIDE side, ALLIANCE alliance, LinearOpMode opMode) {
+    public DWAIAutonomous(
+            FOUNDATION_ORIENTATION foundationOrientation,
+            PARK_POSITION parkPosition,
+            SIDE side,
+            ALLIANCE alliance,
+            LinearOpMode opMode
+    ){
         this.foundationOrientation = foundationOrientation;
         this.parkPosition          = parkPosition;
         this.side                  = side;
@@ -144,7 +108,7 @@ public class DWAIAutonomous {
         this.opMode                = opMode;
     }
 
-    public void runOpMode() {
+    public void runOpMode(){
         robot = new RobotLinearOpMode(opMode);
 
         //MAYBE PUT INTO CONSTRUCTOR
@@ -177,12 +141,7 @@ public class DWAIAutonomous {
             getSkyStonePosition();
             robot.moveByInchesFast(BLOCK_FORWARD_LITTLE_OFF_WALL, FORWARD);
 
-            deployThread = new Thread(() -> {
-                startDeploy();
-                deployed = true;
-            });
-
-            deployThread.start();
+            startDeploy();
 
             strafeToBlock();
             robot.moveByInchesFast(BLOCK_FORWARD_OFF_WALL_TO_BLOCK, FORWARD);
@@ -191,19 +150,25 @@ public class DWAIAutonomous {
 
             grabBlockFirstTime();
             forwardToFoundationFirstTime();
+
+            //while(opMode.opModeIsActive() && !blockIntookFirstTime){}
+
             dropOffBlock();
             backwardToBlocks();
+
+            //while(opMode.opModeIsActive() && !blockIntookSecondTime){}
+
             grabBlockSecondTime();
             forwardToFoundationSecondTime();
             dropOffBlock();
             blockPark();
         }
 
-        AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop",alliance);
+        AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop", alliance);
 
     }
 
-    private void getSkyStonePosition() {
+    private void getSkyStonePosition(){
         if (alliance == ALLIANCE.BLUE) {
             if (valLeft == 0)
                 skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
@@ -225,28 +190,30 @@ public class DWAIAutonomous {
             //throw new RuntimeException("No skystone detected!");
             opMode.telemetry.addLine("No Skystone detected!");
             opMode.telemetry.update();
-        } else {
+        }
+        else {
             opMode.telemetry.addLine(skystone_position.name());
             opMode.telemetry.update();
         }
 
     }
 
-    private void setupVariables() {
+    private void setupVariables(){
         //Necessary since all variables tuned to blue side
 
         if (alliance == ALLIANCE.RED && side == SIDE.FOUNDATION) {
-            DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION *= - 1;
-            horizontalTurnDegree *= - 1;
-            fiddleDistance *= - 1;
-            HWALL_PARK_STRAFE_DISTANCE *= - 1;
-            HBRIDGE_PARK_STRAFE_DISTANCE *= - 1;
+            DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION *= -1;
+            horizontalTurnDegree *= -1;
+            fiddleDistance *= -1;
+            HWALL_PARK_STRAFE_DISTANCE *= -1;
+            HBRIDGE_PARK_STRAFE_DISTANCE *= -1;
 
-            verticalTurnDegree *= - 1;
-            DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION *= - 1;
-            VWALL_PARK_STRAFE_DISTANCE *= - 1;
-            VBRIDGE_PARK_STRAFE_DISTANCE *= - 1;
-        } else if ((alliance == ALLIANCE.RED && side == SIDE.BLOCK)){
+            verticalTurnDegree *= -1;
+            DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION *= -1;
+            VWALL_PARK_STRAFE_DISTANCE *= -1;
+            VBRIDGE_PARK_STRAFE_DISTANCE *= -1;
+        }
+        else if ((alliance == ALLIANCE.RED && side == SIDE.BLOCK)) {
             BLOCK_ONE_STRAFE_TO_BLOCK *= -1;
             BLOCK_TWO_STRAFE_TO_BLOCK *= -1;
             BLOCK_THREE_STRAFE_TO_BLOCK *= -1;
@@ -257,26 +224,26 @@ public class DWAIAutonomous {
 
     }
 
-    private void moveToFoundation() {
+    private void moveToFoundation(){
         print("Moving towards foundation");
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD);
         robot.moveByInches(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
         robot.moveByInchesMaxPower(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD, MOVE_MAX_POWER);
     }
 
-    private void latchFoundation() {
+    private void latchFoundation(){
         print("Latching foundation");
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
 
-        while (! robot.getFoundationSensorPressed()) {
-            robot.mecanumPowerDrive(0, - .3, 0);
+        while(!robot.getFoundationSensorPressed()){
+            robot.mecanumPowerDrive(0, -.3, 0);
         }
 
         robot.setLatchPosition(CLOSE_LATCH_SERVO_POSITION);
-        robot.moveByInchesMaxPower(- 2, FORWARD, .6);
+        robot.moveByInchesMaxPower(-2, FORWARD, .6);
     }
 
-    private void placeHorizontal() {
+    private void placeHorizontal(){
         print("Driving forwards");
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
 
@@ -286,7 +253,7 @@ public class DWAIAutonomous {
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
     }
 
-    private void parkHorizontal() {
+    private void parkHorizontal(){
         print("Fiddling with latch");
         robot.moveByInches(fiddleDistance, STRAFE);
 
@@ -307,7 +274,7 @@ public class DWAIAutonomous {
         //rough movement, likely replace with color sensor line code
     }
 
-    private void placeVertical() {
+    private void placeVertical(){
         print("Driving forwards");
         robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT, FORWARD);
 
@@ -328,7 +295,7 @@ public class DWAIAutonomous {
         robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD, FORWARD);
     }
 
-    private void parkVertical() {
+    private void parkVertical(){
 
         if (parkPosition == PARK_POSITION.WALL) {
             print("Strafing against wall");
@@ -346,74 +313,77 @@ public class DWAIAutonomous {
         robot.moveByInches(22, FORWARD);
     }
 
-    private void print(String printString) {
+    private void print(String printString){
         opMode.telemetry.addLine(printString);
         opMode.telemetry.update();
 
         if (PAUSE_STEPS) {
             robot.stopAllMotors();
             //Ensures button is pressed and released before continuing
-            while (opMode.opModeIsActive() && ! opMode.gamepad1.a) {
-            }
-            while (opMode.opModeIsActive() && opMode.gamepad1.a) {
-            }
+            while(opMode.opModeIsActive() && !opMode.gamepad1.a){}
+
+
+            while(opMode.opModeIsActive() && opMode.gamepad1.a){}
+
         }
 
     }
 
-    public enum FOUNDATION_ORIENTATION {
-        HORIZONTAL, VERTICAL
+    private void blockPark(){
+        robot.moveByInchesFast(BLOCK_BACKWARD_TO_PARK - BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION, FORWARD);
     }
 
-    public enum PARK_POSITION {
-        WALL, BRIDGE
+    private void startDeploy(){
+        Thread thread = new Thread(() -> {
+            robot.setLiftPower(-0.4);
+            try {
+                sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            robot.setLiftPower(0);
+
+            robot.setArmPower(.2);
+            try {
+                sleep(750);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            robot.setArmPower(0);
+
+            robot.setLiftPower(0.2);
+            robot.setArmPower(-.2);
+
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            robot.setLiftPower(0);
+            robot.setArmPower(0);
+
+            robot.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+            robot.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
+
+            try {
+                sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            robot.setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            robot.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            deployed = true;
+        });
+        thread.start();
     }
 
-    public enum ALLIANCE {
-        RED, BLUE
-    }
-
-    public enum SIDE {
-        BLOCK, FOUNDATION
-    }
-
-    private void blockPark() {
-        robot.moveByInchesFast(
-                BLOCK_BACKWARD_TO_PARK - BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION, FORWARD);
-    }
-
-
-    private void startDeploy() {
-
-        robot.setLiftPower(- 0.2);
-        opMode.sleep(1000);
-        robot.setLiftPower(0);
-
-        robot.setArmPower(.2);
-        opMode.sleep(750);
-        robot.setArmPower(0);
-
-        robot.setLiftPower(0.2);
-        robot.setArmPower(-.2);
-
-        opMode.sleep(100);
-
-        robot.setLiftPower(0);
-        robot.setArmPower(0);
-
-        robot.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
-        robot.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        opMode.sleep(2000);
-
-        robot.setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        robot.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    private void strafeToBlock() {
+    private void strafeToBlock(){
         double strafeDistance = 0;
 
         //strafing to in front of the block
@@ -432,8 +402,8 @@ public class DWAIAutonomous {
         robot.moveByInchesFast(strafeDistance, STRAFE);
     }
 
-    private void forwardToFoundationFirstTime() {
-        robot.setIntakePower(- 1);
+    private void forwardToFoundationFirstTime(){
+        robot.setIntakePower(-1);
 
         double forwardDistance = 0;
 
@@ -461,7 +431,7 @@ public class DWAIAutonomous {
         robot.setIntakePower(0);
     }
 
-    private void backwardToBlocks() {
+    private void backwardToBlocks(){
         double backwardDistance = 0;
 
         switch (skystone_position) {
@@ -486,7 +456,7 @@ public class DWAIAutonomous {
         robot.moveByInchesFast(backwardDistance, FORWARD);
     }
 
-    private void forwardToFoundationSecondTime() {
+    private void forwardToFoundationSecondTime(){
         double forwardDistance = 0;
         switch (skystone_position) {
             case ONE_AND_FOUR:
@@ -510,35 +480,65 @@ public class DWAIAutonomous {
         robot.setIntakePower(0);
     }
 
-
-    private void grabBlockFirstTime() {
+    private void grabBlockFirstTime(){
         robot.turnToDegree(BLOCK_ANGLE_SUCK_BLOCK);
         robot.openGrabber();
+        robot.setIntakePower(-1);
 
-        firstIntakeThread = new Thread(() -> {
+        Thread thread = new Thread(() -> {
+            while(robot.getBlockSensorNotPressed())
+
+                robot.closeGrabber();
             robot.setIntakePower(-1);
-            while (!robot.getBlockSensorPressed())
-        });
 
-        robot.setIntakePower(- 1);
+            try {
+                sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            robot.threadedMoveArmByEncoder(BLOCK_ARM_RAISED_A_LITTLE_BIT);
+            blockIntookFirstTime = true;
+
+        });
+        thread.start();
+
         robot.moveByInches(BLOCK_FORWARD_SUCK_UP_FIRST_TIME, FORWARD, BLOCK_FORWARD_SUCK_MIN_POWER, BLOCK_FORWARD_SUCK_MAX_POWER);
         opMode.sleep(100);
         robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_FIRST_TIME, FORWARD);
         robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
-        robot.closeGrabber();
-        //robot.threadedMoveArmByEncoder(500);
     }
 
-    private void grabBlockSecondTime() {
+    private void grabBlockSecondTime(){
         robot.turnToDegree(BLOCK_ANGLE_SUCK_BLOCK);
         robot.openGrabber();
-        robot.setIntakePower(- 1);
+        robot.setIntakePower(-1);
+
+        Thread thread = new Thread(() -> {
+            while(robot.getBlockSensorNotPressed())
+                robot.closeGrabber();
+            robot.setIntakePower(-1);
+
+            try {
+                sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            robot.threadedMoveArmByEncoder(BLOCK_ARM_RAISED_A_LITTLE_BIT);
+            blockIntookSecondTime = true;
+
+        });
+
+        thread.start();
+
         robot.moveByInches(BLOCK_FORWARD_SUCK_UP_SECOND_TIME, FORWARD, BLOCK_FORWARD_SUCK_MIN_POWER, BLOCK_FORWARD_SUCK_MAX_POWER);
+        opMode.sleep(100);
         robot.moveByInches(BLOCK_BACKWARD_SUCK_UP_SECOND_TIME, FORWARD);
         robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
     }
 
-    private void dropOffBlock() {
+    private void dropOffBlock(){
         robot.setIntakePower(0);
         robot.closeGrabber();
         robot.moveArmByEncoder(BLOCK_ARM_UP_ENCODER_POSITION);
@@ -548,11 +548,7 @@ public class DWAIAutonomous {
         robot.setIntakePower(0);
     }
 
-    enum SKYSTONE_POSITION {
-        ONE_AND_FOUR, TWO_AND_FIVE, THREE_AND_SIX
-    }
-
-    private void openCVinit() {
+    private void openCVinit(){
         float offsetX   = propertiesLoader.getFloatProperty("OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
         float offsetY   = propertiesLoader.getFloatProperty("OFFSET_Y");//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
         float distScale = propertiesLoader.getFloatProperty("DIST_SCALE");
@@ -575,29 +571,48 @@ public class DWAIAutonomous {
         //width = height in this case, because camera is in portrait mode.
     }
 
+
+    public enum FOUNDATION_ORIENTATION {
+        HORIZONTAL,
+        VERTICAL
+    }
+
+    public enum PARK_POSITION {
+        WALL,
+        BRIDGE
+    }
+
+    public enum ALLIANCE {
+        RED,
+        BLUE
+    }
+
+    public enum SIDE {
+        BLOCK,
+        FOUNDATION
+    }
+
+    enum SKYSTONE_POSITION {
+        ONE_AND_FOUR,
+        TWO_AND_FIVE,
+        THREE_AND_SIX
+    }
+
     //detection pipeline (ignore)
     static class StageSwitchingPipeline extends OpenCvPipeline {
-        Mat              yCbCrChan2Mat = new Mat();
-        Mat              thresholdMat  = new Mat();
-        Mat              all           = new Mat();
-        List<MatOfPoint> contoursList  = new ArrayList<>();
-
-        enum Stage {//color difference. greyscale
-            detection,//includes outlines
-            THRESHOLD,//b&w
-            RAW_IMAGE,//displays raw view
-        }
-
+        Mat yCbCrChan2Mat = new Mat();
+        Mat thresholdMat = new Mat();
+        Mat all = new Mat();
+        List<MatOfPoint> contoursList = new ArrayList<>();
         private StageSwitchingPipeline.Stage stageToRenderToViewport;
+        private StageSwitchingPipeline.Stage[] stages = StageSwitchingPipeline.Stage.values();
 
         {
             stageToRenderToViewport = StageSwitchingPipeline.Stage.detection;
         }
 
-        private StageSwitchingPipeline.Stage[] stages = StageSwitchingPipeline.Stage.values();
-
         @Override
-        public void onViewportTapped() {
+        public void onViewportTapped(){
             /*
              * Note that this method is invoked from the UI thread
              * so whatever we do here, we must do quickly.
@@ -616,7 +631,7 @@ public class DWAIAutonomous {
         }
 
         @Override
-        public Mat processFrame(Mat input) {
+        public Mat processFrame(Mat input){
             contoursList.clear();
             /*
              * This pipeline finds the contours of yellow blobs such as the Gold Mineral
@@ -638,28 +653,22 @@ public class DWAIAutonomous {
             //Imgproc.drawContours(all, contoursList, -1, new Scalar(255, 0, 0), 3, 8);//draws blue contours
 
             //get values from frame
-            double[] pixMid = thresholdMat.get((int) (input.rows() * midPos[1]), (int) (input.cols()
-                                                                                        * midPos[0]));//gets value at circle
+            double[] pixMid = thresholdMat.get((int) (input.rows() * midPos[1]), (int) (input.cols() * midPos[0]));//gets value at circle
             valMid = (int) pixMid[0];
             //valMid = radialAverage(midPos, input);
 
-            double[] pixLeft = thresholdMat.get((int) (input.rows() * leftPos[1]), (int) (
-                    input.cols() * leftPos[0]));//gets value at circle
+            double[] pixLeft = thresholdMat.get((int) (input.rows() * leftPos[1]), (int) (input.cols() * leftPos[0]));//gets value at circle
             valLeft = (int) pixLeft[0];
             //valMid = radialAverage(leftPos, input);
 
-            double[] pixRight = thresholdMat.get((int) (input.rows() * rightPos[1]), (int) (
-                    input.cols() * rightPos[0]));//gets value at circle
+            double[] pixRight = thresholdMat.get((int) (input.rows() * rightPos[1]), (int) (input.cols() * rightPos[0]));//gets value at circle
             valRight = (int) pixRight[0];
             //valRight = radialAverage(rightPos, input);
 
             //create three points
-            Point pointMid   = new Point((int) (input.cols() * midPos[0]), (int) (input.rows()
-                                                                                  * midPos[1]));
-            Point pointLeft  = new Point((int) (input.cols() * leftPos[0]), (int) (input.rows()
-                                                                                   * leftPos[1]));
-            Point pointRight = new Point((int) (input.cols() * rightPos[0]), (int) (input.rows()
-                                                                                    * rightPos[1]));
+            Point pointMid = new Point((int) (input.cols() * midPos[0]), (int) (input.rows() * midPos[1]));
+            Point pointLeft = new Point((int) (input.cols() * leftPos[0]), (int) (input.rows() * leftPos[1]));
+            Point pointRight = new Point((int) (input.cols() * rightPos[0]), (int) (input.rows() * rightPos[1]));
 
             //draw circles on those points
             int radius = 5;
@@ -671,26 +680,11 @@ public class DWAIAutonomous {
             float rectHeight = .6f / 8f;
             float rectWidth  = 1.5f / 8f;
             Imgproc.rectangle(//1-3
-                    all, new Point(
-                            input.cols() * (leftPos[0] - rectWidth / 2),
-                            input.rows() * (leftPos[1] - rectHeight / 2)), new Point(
-                            input.cols() * (leftPos[0] + rectWidth / 2), input.rows() * (leftPos[1]
-                                                                                         +
-                                                                                         rectHeight
-                                                                                         / 2)), new Scalar(0, 255, 0), 3);
+                              all, new Point(input.cols() * (leftPos[0] - rectWidth / 2), input.rows() * (leftPos[1] - rectHeight / 2)), new Point(input.cols() * (leftPos[0] + rectWidth / 2), input.rows() * (leftPos[1] + rectHeight / 2)), new Scalar(0, 255, 0), 3);
             Imgproc.rectangle(//3-5
-                    all, new Point(
-                            input.cols() * (midPos[0] - rectWidth / 2),
-                            input.rows() * (midPos[1] - rectHeight / 2)), new Point(
-                            input.cols() * (midPos[0] + rectWidth / 2),
-                            input.rows() * (midPos[1] + rectHeight / 2)), new Scalar(0, 255, 0), 3);
+                              all, new Point(input.cols() * (midPos[0] - rectWidth / 2), input.rows() * (midPos[1] - rectHeight / 2)), new Point(input.cols() * (midPos[0] + rectWidth / 2), input.rows() * (midPos[1] + rectHeight / 2)), new Scalar(0, 255, 0), 3);
             Imgproc.rectangle(//5-7
-                    all, new Point(
-                            input.cols() * (rightPos[0] - rectWidth / 2),
-                            input.rows() * (rightPos[1] - rectHeight / 2)), new Point(
-                            input.cols() * (rightPos[0] + rectWidth / 2),
-                            input.rows() * (rightPos[1]
-                                            + rectHeight / 2)), new Scalar(0, 255, 0), 3);
+                              all, new Point(input.cols() * (rightPos[0] - rectWidth / 2), input.rows() * (rightPos[1] - rectHeight / 2)), new Point(input.cols() * (rightPos[0] + rectWidth / 2), input.rows() * (rightPos[1] + rectHeight / 2)), new Scalar(0, 255, 0), 3);
 
             switch (stageToRenderToViewport) {
                 case THRESHOLD: {
@@ -705,6 +699,12 @@ public class DWAIAutonomous {
                     return input;
                 }
             }
+        }
+
+        enum Stage {//color difference. greyscale
+            detection,//includes outlines
+            THRESHOLD,//b&w
+            RAW_IMAGE,//displays raw view
         }
 
     }

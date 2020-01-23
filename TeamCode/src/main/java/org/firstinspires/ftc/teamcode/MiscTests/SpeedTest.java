@@ -36,7 +36,7 @@ public class SpeedTest extends LinearOpMode {
             directions[i] = new Toggle(false);
         }
 
-        robotLinearOpMode = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
+        robotLinearOpMode = new RobotLinearOpMode(this);
 
         robotLinearOpMode.setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
         robotLinearOpMode.setDriveTrainRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

@@ -16,7 +16,7 @@ public class IntakeTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robot = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
+        robot = new RobotLinearOpMode(this);
         robot.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -27,7 +27,7 @@ public class IntakeTest extends LinearOpMode {
         robot.mecanumPowerDrive(0, 0.2, 0);
         robot.setIntakePower(1);
 
-        while(!robot.getBlockSensorPressed() && opModeIsActive()){
+        while(robot.getBlockSensorNotPressed() && opModeIsActive()){
 
         }
 

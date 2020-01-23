@@ -16,7 +16,7 @@ public class DeployLiftTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        robot = new RobotLinearOpMode(this, COLOR_SENSOR.NONE);
+        robot = new RobotLinearOpMode(this);
         robot.setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);

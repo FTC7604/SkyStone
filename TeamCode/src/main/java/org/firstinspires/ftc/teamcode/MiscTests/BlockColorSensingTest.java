@@ -38,7 +38,7 @@ public class BlockColorSensingTest extends LinearOpMode {
         double currentChange = 0;
         double smoothChange = 0;
 
-        robot = new RobotLinearOpMode(this, COLOR_SENSOR.UNDER);
+        robot = new RobotLinearOpMode(this);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         waitForStart();
