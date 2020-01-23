@@ -480,6 +480,7 @@ public class DWAIAutonomous {
         robot.setIntakePower(0);
     }
 
+    //TODO: make sure that this thread works
     private void grabBlockFirstTime(){
         robot.turnToDegree(BLOCK_ANGLE_SUCK_BLOCK);
         robot.openGrabber();
@@ -509,6 +510,7 @@ public class DWAIAutonomous {
         robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
     }
 
+    //TODO: make sure that this thread works
     private void grabBlockSecondTime(){
         robot.turnToDegree(BLOCK_ANGLE_SUCK_BLOCK);
         robot.openGrabber();
@@ -538,6 +540,7 @@ public class DWAIAutonomous {
         robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
     }
 
+    //TODO: thread when it goes 18 past line, state lift, and drop it but wait when its 18 until the line
     private void dropOffBlock(){
         robot.setIntakePower(0);
         robot.closeGrabber();

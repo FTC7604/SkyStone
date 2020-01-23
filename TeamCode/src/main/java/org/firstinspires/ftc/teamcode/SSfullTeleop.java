@@ -134,9 +134,9 @@ public class SSfullTeleop extends LinearOpMode {
         }
 
         //Well get rid of this telemetry for lag reduction
-        telemetry.addData("Arm Position: ", armPosition);
-        telemetry.addData("Lift Position: ", liftPosition);
-        telemetry.update();
+//        telemetry.addData("Arm Position: ", armPosition);
+//        telemetry.addData("Lift Position: ", liftPosition);
+//        telemetry.update();
     }
 
     //tells us if the arm is on target
@@ -222,8 +222,10 @@ public class SSfullTeleop extends LinearOpMode {
 
     private void dropMarker(){
         markerLatchServo.setPosition(1);
+
     }
 
+    //TODO: make it so that this gently grabs this
     private void holdMarker(){
         markerLatchServo.setPosition(0);
     }
@@ -258,13 +260,13 @@ public class SSfullTeleop extends LinearOpMode {
         rightFrontDriveMotor.setPower(forward + strafe - rotation);
         rightBackDriveMotor.setPower(forward - strafe - rotation);
 
-        telemetry.addData("leftFrontDriveMotor power", forward - strafe + rotation);
-        telemetry.addData("leftBackDriveMotor power", forward + strafe + rotation);
-        telemetry.addData("rightFrontDriveMotor power", forward + strafe - rotation);
-        telemetry.addData("rightBackDriveMotor power", forward - strafe - rotation);
-
-
-        telemetry.update();
+//        telemetry.addData("leftFrontDriveMotor power", forward - strafe + rotation);
+//        telemetry.addData("leftBackDriveMotor power", forward + strafe + rotation);
+//        telemetry.addData("rightFrontDriveMotor power", forward + strafe - rotation);
+//        telemetry.addData("rightBackDriveMotor power", forward - strafe - rotation);
+//
+//
+//        telemetry.update();
     }
 
     //compensates for change in center of gravity with arm swinging behind the robot
