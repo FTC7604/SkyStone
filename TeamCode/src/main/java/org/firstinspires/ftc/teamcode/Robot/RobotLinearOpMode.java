@@ -8,8 +8,14 @@ import org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.signum;
 import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.LINEAR;
 import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.SINUSOIDAL_SCURVE;
+
+//changes this commit
+//removed unused thread methods
+//changed to use average encoder vals
+//testing experimental angle compensation while moving forward/backward
 
 public class RobotLinearOpMode extends Robot {
 
@@ -58,7 +64,6 @@ public class RobotLinearOpMode extends Robot {
     private double LIFT_DECELLERATION_DISTANCE = propertiesLoader.getDoubleProperty("LIFT_DECELLERATION_DISTANCE");
     private double LIFT_END_POWER = propertiesLoader.getDoubleProperty("LIFT_END_POWER");
     private double LIFT_FULL_POWER = propertiesLoader.getDoubleProperty("LIFT_FULL_POWER");
-
 
     private BetterBalisticProfile preciseRrotationBetterBalisticProfile = new BetterBalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, PRECISE_ROTATION_START_POWER, ROTATION_FULL_POWER, PRECISE_ROTATION_END_POWER, SINUSOIDAL_SCURVE, LINEAR);
     private BetterBalisticProfile fastRotationBetterBalisticProfile = new BetterBalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, ROTATION_START_POWER, ROTATION_FULL_POWER, ROTATION_END_POWER, SINUSOIDAL_SCURVE, LINEAR);
@@ -122,7 +127,6 @@ public class RobotLinearOpMode extends Robot {
         rightBackDriveMotor.setPower(forward - strafe - rotation);
     }
 
-
     private void stopDriveMotors(){
         mecanumPowerDrive(0, 0, 0);
     }
@@ -134,8 +138,10 @@ public class RobotLinearOpMode extends Robot {
         double currentRotation;
         double motorPower;
 
-        if(startRotation < 0){
-            startRotation += 360;
+        if(abs(desiredEndRotation - startRotation + 360) < abs(desiredEndRotation - startRotation)){
+            desiredEndRotation += 360;
+        } else if(abs(desiredEndRotation - startRotation - 360) < abs(desiredEndRotation - startRotation)){
+            desiredEndRotation -= 360;
         }
 
         preciseRrotationBetterBalisticProfile.setCurve(startRotation, desiredEndRotation,.1,0);
@@ -143,7 +149,9 @@ public class RobotLinearOpMode extends Robot {
         while(!preciseRrotationBetterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
             currentRotation = getRev10IMUAngle()[2];
 
-            if(currentRotation < 0){
+            if(desiredEndRotation < 0 && currentRotation > 0){
+                currentRotation -= 360;
+            } else if(desiredEndRotation > 0 && currentRotation < 0){
                 currentRotation += 360;
             }
 
@@ -173,8 +181,10 @@ public class RobotLinearOpMode extends Robot {
         double currentRotation;
         double motorPower;
 
-        if(startRotation < 0){
-            startRotation += 360;
+        if(abs(desiredEndRotation - startRotation + 360) < abs(desiredEndRotation - startRotation)){
+            desiredEndRotation += 360;
+        } else if(abs(desiredEndRotation - startRotation - 360) < abs(desiredEndRotation - startRotation)){
+            desiredEndRotation -= 360;
         }
 
         fastRotationBetterBalisticProfile.setCurve(startRotation, desiredEndRotation);
@@ -182,7 +192,9 @@ public class RobotLinearOpMode extends Robot {
         while(!fastRotationBetterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
             currentRotation = getRev10IMUAngle()[2];
 
-            if(currentRotation < 0){
+            if(desiredEndRotation < 0 && currentRotation > 0){
+                currentRotation -= 360;
+            } else if(desiredEndRotation > 0 && currentRotation < 0){
                 currentRotation += 360;
             }
 
@@ -201,13 +213,86 @@ public class RobotLinearOpMode extends Robot {
         if(fastRotationBetterBalisticProfile.getEnd_power() == 0) {
             stopDriveMotors();
         }
+
         fastRotationBetterBalisticProfile.getRidOfTemp();
     }
 
-    public void moveByInchesFast(
-            double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction
-    ){
+    public void compensatingMoveByInchesFast(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double desiredAngle){
+        double startPosition = getAverageDriveTrainEncoder(movement_direction);
+        double endPosition   = startPosition + desiredPositionChangeInInches * inchesToEncoders;
+        double currentPosition;
+        double motorPower;
 
+        BetterBalisticProfile betterBalisticProfile;
+
+        switch (movement_direction) {
+            case STRAFE:
+                betterBalisticProfile = strafeBetterBalisticProfile;
+                break;
+            default:
+                betterBalisticProfile = forwardBetterBalisticProfile;
+                break;
+        }
+
+        betterBalisticProfile.setCurve(startPosition, endPosition);
+
+        while(!betterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
+            currentPosition = getAverageDriveTrainEncoder(movement_direction);
+            betterBalisticProfile.setCurrentPosition(currentPosition);
+            motorPower = betterBalisticProfile.getCurrentPowerAccelDecel();
+
+            if(movement_direction == MOVEMENT_DIRECTION.STRAFE) {
+                mecanumPowerDrive(movement_direction, motorPower);
+            } else{
+                double currentAngle = getRev10IMUAngle()[2];
+                double testDif = currentAngle - desiredAngle;
+                double ratio;
+
+                if(abs(currentAngle + 360 - desiredAngle) < abs(testDif)){
+                    testDif = currentAngle + 360 - desiredAngle;
+                }
+
+                if(abs(currentAngle - 360 - desiredAngle) < abs(testDif)){
+                    testDif = currentAngle - 360 - desiredAngle;
+                }
+
+                if(testDif < -90){
+                    ratio = 0.1;
+                } else if(testDif > 90){
+                    ratio = 1.9;
+                } else{
+                    ratio = (testDif / 100) + 1;
+                }
+
+                compensatedMecanumPowerDrive(0, motorPower, 0, ratio);
+            }
+
+        }
+
+        if(betterBalisticProfile.getEnd_power() == 0) {
+            stopDriveMotors();
+        }
+
+        betterBalisticProfile.getRidOfTemp();
+    }
+
+    public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation, double ratio){
+
+        if(ratio < 1) {
+            leftFrontDriveMotor.setPower((forward - strafe + rotation) * ratio);
+            leftBackDriveMotor.setPower((forward + strafe + rotation) * ratio);
+            rightFrontDriveMotor.setPower(forward + strafe - rotation);
+            rightBackDriveMotor.setPower(forward - strafe - rotation);
+        } else{
+            leftFrontDriveMotor.setPower((forward - strafe + rotation));
+            leftBackDriveMotor.setPower((forward + strafe + rotation));
+            rightFrontDriveMotor.setPower((forward + strafe - rotation) / ratio);
+            rightBackDriveMotor.setPower((forward - strafe - rotation) / ratio);
+        }
+
+    }
+
+    public void moveByInchesFast(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction){
         double startPosition = getAverageDriveTrainEncoder(movement_direction);
         double endPosition   = startPosition + desiredPositionChangeInInches * inchesToEncoders;
         double currentPosition;
@@ -245,35 +330,20 @@ public class RobotLinearOpMode extends Robot {
         betterBalisticProfile.getRidOfTemp();
     }
 
-    public void moveByInches(
-            double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction
-    ){
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction){
         moveByInches(desiredPositionChangeInInches, movement_direction, .05, 0.8);
     }
 
-    public void moveByInchesMinPower(
-            double desiredPositionChangeInInches,
-            MOVEMENT_DIRECTION movement_direction,
-            double minPower
-    ){
+    public void moveByInchesMinPower(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower){
         moveByInches(desiredPositionChangeInInches, movement_direction, minPower, .8);
 
     }
 
-    public void moveByInchesMaxPower(
-            double desiredPositionChangeInInches,
-            MOVEMENT_DIRECTION movement_direction,
-            double maxPower
-    ){
+    public void moveByInchesMaxPower(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double maxPower){
         moveByInches(desiredPositionChangeInInches, movement_direction, .05, maxPower);
     }
 
-    public void moveByInches(
-            double desiredPositionChangeInInches,
-            MOVEMENT_DIRECTION movement_direction,
-            double minPower,
-            double maxPower
-    ){
+    public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower, double maxPower){
         double currentAverageEncoderValue;
         double adjustedMotorPower;
         double startDriveTrainEncoders;
@@ -305,7 +375,6 @@ public class RobotLinearOpMode extends Robot {
      */
 
     public void turnToDegree(double endRotation){
-
         double currentRotation;
         double adjustedMotorPower;
         double startRotation;
@@ -337,14 +406,15 @@ public class RobotLinearOpMode extends Robot {
      * INTAKE+LIFT MOTOR METHODS
      */
     public void setIntakePower(double intakePower){
+
         if (getIntakeSensorNotPressed()) {
             rightIntakeMotor.setPower(intakePower);
             leftIntakeMotor.setPower(intakePower);
-        }
-        else {
+        } else {
             rightIntakeMotor.setPower(intakePower);
             leftIntakeMotor.setPower(-intakePower);
         }
+
     }
 
     public void setLiftPower(double liftPower){
@@ -356,10 +426,8 @@ public class RobotLinearOpMode extends Robot {
     }
 
     public void moveArmByEncoder(double desiredPositionChangeInEncoders){
-
         double startEncoderValue = armMotor.getCurrentPosition();
         double endEncoderValue   = desiredPositionChangeInEncoders + startEncoderValue;
-
         double currentEncoderValue;
         double adjustedMotorPower;
 
@@ -376,27 +444,9 @@ public class RobotLinearOpMode extends Robot {
             linearOpMode.telemetry.addData("Arm Encoder", currentEncoderValue);
             linearOpMode.telemetry.update();
 
-        }
-        while((abs(desiredPositionChangeInEncoders) > abs(startEncoderValue - currentEncoderValue)) && linearOpMode.opModeIsActive());
+        } while((abs(desiredPositionChangeInEncoders) > abs(startEncoderValue - currentEncoderValue)) && linearOpMode.opModeIsActive());
 
         setArmPower(0);
-    }
-
-    public boolean isArmIsUp(){
-        return armIsUp;
-    }
-
-    public volatile boolean armIsUp;
-    public void threadedMoveArmByEncoder(double desiredPosition){
-
-        Thread localThread = new Thread(() -> {
-            armIsUp = false;
-            moveArmByEncoder(desiredPosition);
-            armIsUp = true;
-        });
-
-        localThread.start();
-
     }
 
     /**
@@ -443,13 +493,13 @@ public class RobotLinearOpMode extends Robot {
 
     private double[] getChangeInDriveTrainEncoder(){
         return new double[] {
-                (leftBackDriveMotor.getCurrentPosition()),
-                (leftBackDriveMotor.getCurrentPosition()),
-                (leftBackDriveMotor.getCurrentPosition()),
+                //(leftBackDriveMotor.getCurrentPosition()),
+                //(leftBackDriveMotor.getCurrentPosition()),
+                //(leftBackDriveMotor.getCurrentPosition()),
 
-                //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
-                //(- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
-                //(+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+                (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() + rightBackDriveMotor.getCurrentPosition()) / 4,
+                (- leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() + rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
+                (+ leftFrontDriveMotor.getCurrentPosition() + leftBackDriveMotor.getCurrentPosition() - rightFrontDriveMotor.getCurrentPosition() - rightBackDriveMotor.getCurrentPosition()) / 4,
 
         };
     }

@@ -24,10 +24,6 @@ import static java.lang.Thread.sleep;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
-//TODO:
-//make movements faster (turns linear?)
-//make one-block auto
-
 public class DWAIAutonomous {
 
     //0 means skystone, 1 means yellow stone
@@ -96,13 +92,11 @@ public class DWAIAutonomous {
     private LinearOpMode opMode;
     private SKYSTONE_POSITION skystone_position;
 
-    public DWAIAutonomous(
-            FOUNDATION_ORIENTATION foundationOrientation,
-            PARK_POSITION parkPosition,
-            SIDE side,
-            ALLIANCE alliance,
-            LinearOpMode opMode
-    ){
+    private double BLOCK_TO_BRIDGE_STRAFE = 9;
+
+    private int check = 0;
+
+    public DWAIAutonomous(FOUNDATION_ORIENTATION foundationOrientation, PARK_POSITION parkPosition, SIDE side, ALLIANCE alliance, LinearOpMode opMode){
         this.foundationOrientation = foundationOrientation;
         this.parkPosition          = parkPosition;
         this.side                  = side;
@@ -135,7 +129,12 @@ public class DWAIAutonomous {
             }
 
         } else if (side == SIDE.BLOCK) {
-            getSkyStonePosition();
+
+            while(skystone_position == null || check < 10){
+                getSkyStonePosition();
+                opMode.sleep(50);
+                check++;
+            }
 
             Thread deploy = new Thread(() -> {
                 startDeploy();
@@ -151,7 +150,7 @@ public class DWAIAutonomous {
             grabBlockSecondTime();
             forwardToFoundationSecondTime();
             dropOffBlock(false);
-            blockPark();
+            //blockPark();
         }
 
         AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop", alliance);
@@ -160,7 +159,6 @@ public class DWAIAutonomous {
     private void waitForFlag(){
         print("Waiting for flag");
         while(opMode.opModeIsActive() && !flag){}
-
         print("Done waiting");
         flag = false;
     }
@@ -174,7 +172,6 @@ public class DWAIAutonomous {
             //Ensures button is pressed and released before continuing
             while(opMode.opModeIsActive() && !opMode.gamepad1.a){}
             while(opMode.opModeIsActive() && opMode.gamepad1.a){}
-
         }
 
     }
@@ -201,6 +198,7 @@ public class DWAIAutonomous {
 
             BLOCK_ANGLE_SUCK_BLOCK *= -1;
             BLOCK_TO_FOUNDATION_ANGLE *= -1;
+            BLOCK_TO_BRIDGE_STRAFE *= -1;
         }
 
     }
@@ -336,12 +334,8 @@ public class DWAIAutonomous {
         robot.moveByInches(22, FORWARD);
     }
 
-    private void blockPark(){
-        print("Parking");
-        robot.moveByInchesFast(BLOCK_BACKWARD_TO_PARK + BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION, FORWARD);
-    }
-
     private void getSkyStonePosition(){
+
         if (alliance == ALLIANCE.BLUE) {
             if (valLeft == 0)
                 skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
@@ -387,11 +381,49 @@ public class DWAIAutonomous {
 
         print("Strafing to block");
         robot.moveByInchesFast(BLOCK_FORWARD_OFF_WALL_TO_BLOCK, FORWARD);
-        robot.moveByInchesFast(strafeDistance, STRAFE);
+
+        if(strafeDistance != 0) {
+            robot.moveByInchesFast(strafeDistance, STRAFE);
+        }
+
+    }
+
+    //TODO: make sure that this thread works
+    private void grabBlockFirstTime(){
+        print("Turning to block");
+        robot.turnToDegreeFast(BLOCK_ANGLE_SUCK_BLOCK);
+        robot.openGrabber();
+
+        waitForFlag();
+
+        print("Sucking up block");
+        runIntake(-1);
+        robot.moveByInchesFast(BLOCK_FORWARD_SUCK_UP_FIRST_TIME, FORWARD);
+        opMode.sleep(100);
+
+        print("Moving away from block");
+        robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_FIRST_TIME, FORWARD);
+        robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
+    }
+
+    //TODO: make sure that this thread works
+    private void grabBlockSecondTime(){
+        print("Turning to block");
+        robot.turnToDegreeFast(BLOCK_ANGLE_SUCK_BLOCK);
+        robot.openGrabber();
+
+        print("Sucking up block");
+        runIntake(-1);
+        robot.moveByInchesFast(BLOCK_FORWARD_SUCK_UP_SECOND_TIME,FORWARD);
+        opMode.sleep(100);
+
+        print("Moving away from block");
+        robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_SECOND_TIME,FORWARD);
+        robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
     }
 
     private void forwardToFoundationFirstTime(){
-        robot.setIntakePower(-1);
+        runIntake(-1);
 
         double forwardDistance = 0;
 
@@ -416,8 +448,33 @@ public class DWAIAutonomous {
 
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.moveByInchesFast(forwardDistance, FORWARD);
+        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
+        stopIntake();
+    }
+
+    //TODO: thread when it goes 18 past line, state lift, and drop it but wait when its 18 until the line
+    private void dropOffBlock(boolean precise){
+        print("Dropping block off");
+        /*robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
         robot.setIntakePower(0);
+        robot.closeGrabber();
+        robot.moveArmByEncoder(BLOCK_ARM_UP_ENCODER_POSITION);
+        robot.setIntakePower(.5);
+        robot.openGrabber();
+        robot.moveArmByEncoder(BLOCK_ARM_DOWN_ENCODER_POSITION);
+        robot.setIntakePower(0);*/
+
+        robot.turnToDegreeFast(180);
+        runIntake(1);
+
+        if(precise) {
+            robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
+        } else{
+            robot.moveByInchesFast(BLOCK_TO_BRIDGE_STRAFE, STRAFE);
+        }
+
+
+        stopIntake();
     }
 
     private void backwardToBlocks(){
@@ -443,7 +500,7 @@ public class DWAIAutonomous {
         }
 
         print("Moving forwards to blocks");
-        robot.moveByInchesFast(backwardDistance, FORWARD);
+        robot.compensatingMoveByInchesFast(backwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
     }
 
     private void forwardToFoundationSecondTime(){
@@ -453,7 +510,6 @@ public class DWAIAutonomous {
                 forwardDistance = BLOCK_FOUR_FORWARD_TO_FOUNDATION;
                 break;
             case TWO_AND_FIVE:
-
                 forwardDistance = BLOCK_FIVE_FORWARD_TO_FOUNDATION;
                 break;
             case THREE_AND_SIX:
@@ -468,69 +524,43 @@ public class DWAIAutonomous {
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
         robot.moveByInchesFast(forwardDistance, FORWARD);
+        stopIntake();
+    }
+
+    private void runIntake(double power){
+        stopIntake();
+        flag = true;
+
+        Thread thread = new Thread(() -> {
+
+            while(flag){
+                robot.setIntakePower(power);
+            }
+
+        });
+
+        thread.start();
+    }
+
+    private void stopIntake(){
+        flag = false;
         robot.setIntakePower(0);
     }
 
-    //TODO: make sure that this thread works
-    private void grabBlockFirstTime(){
-        print("Turning to block");
-        robot.turnToDegreeFast(BLOCK_ANGLE_SUCK_BLOCK);
-        robot.openGrabber();
-
-        waitForFlag();
-
-        print("Sucking up block");
-        robot.setIntakePower(-1);
-        robot.moveByInchesFast(BLOCK_FORWARD_SUCK_UP_FIRST_TIME, FORWARD);
-        opMode.sleep(100);
-
-        print("Moving away from block");
-        robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_FIRST_TIME, FORWARD);
-        robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
-    }
-
-    //TODO: make sure that this thread works
-    private void grabBlockSecondTime(){
-        print("Turning to block");
-        robot.turnToDegreeFast(BLOCK_ANGLE_SUCK_BLOCK);
-        robot.openGrabber();
-
-        print("Sucking up block");
-        robot.setIntakePower(-1);
-        robot.moveByInchesFast(BLOCK_FORWARD_SUCK_UP_SECOND_TIME,FORWARD);
-        opMode.sleep(100);
-
-        print("Moving away from block");
-        robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_SECOND_TIME,FORWARD);
-        robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
-    }
-
-    //TODO: thread when it goes 18 past line, state lift, and drop it but wait when its 18 until the line
-    private void dropOffBlock(boolean turn){
-        print("Dropping block off");
-        /*robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
-        robot.setIntakePower(0);
-        robot.closeGrabber();
-        robot.moveArmByEncoder(BLOCK_ARM_UP_ENCODER_POSITION);
-        robot.setIntakePower(.5);
-        robot.openGrabber();
-        robot.moveArmByEncoder(BLOCK_ARM_DOWN_ENCODER_POSITION);
-        robot.setIntakePower(0);*/
-
-        robot.turnToDegreeFast(180);
-        robot.setIntakePower(1);
-
-        if(turn) {
-            robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
-        }
-
-        robot.setIntakePower(0);
+    private void blockPark(){
+        print("Parking");
+        robot.moveByInchesFast(BLOCK_BACKWARD_TO_PARK - BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION, FORWARD);
     }
 
     private void openCVinit(){
         float offsetX   = propertiesLoader.getFloatProperty("OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
+        float allianceOffsetX   = propertiesLoader.getFloatProperty("ALLIANCE_OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
         float offsetY   = propertiesLoader.getFloatProperty("OFFSET_Y");//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
         float distScale = propertiesLoader.getFloatProperty("DIST_SCALE");
+
+        if(alliance == ALLIANCE.BLUE){
+            offsetX -= allianceOffsetX;
+        }
 
         midPos[0]   = (4f + offsetX) / 8f;
         midPos[1]   = (4f + offsetY) / 8f;
@@ -549,7 +579,6 @@ public class DWAIAutonomous {
         //width, height
         //width = height in this case, because camera is in portrait mode.
     }
-
 
     public enum FOUNDATION_ORIENTATION {
         HORIZONTAL,

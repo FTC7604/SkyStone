@@ -220,14 +220,16 @@ public class BetterBalisticProfile {
 
     }
 
+    public boolean isBackwards(){return movementIsBackward;}
+
     public boolean isDone(){
         //return currentPosition * invert() > endPosition;
         //return abs(currentPosition - endPosition) < deceleration_distance / 25;
 
         if(movementIsBackward){
-            return currentPosition <= endPosition + deceleration_distance / 100;
+            return currentPosition <= endPosition + deceleration_distance / 100 && currentPosition >= endPosition - deceleration_distance;
         } else{
-            return endPosition <= currentPosition + deceleration_distance / 100;
+            return endPosition <= currentPosition + deceleration_distance / 100 && endPosition >= currentPosition - deceleration_distance;
         }
 
     }
