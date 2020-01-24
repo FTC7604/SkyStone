@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.DWAIAutonomous;
@@ -11,6 +12,7 @@ import static org.firstinspires.ftc.teamcode.DWAIAutonomous.FOUNDATION_ORIENTATI
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.SIDE;
 
 @Autonomous(name = "Red Block Vertical Bridge", group = "Autonomous")
+@Disabled
 public class RED_BLOCK_VERTICAL_BRIDGE extends LinearOpMode {
     private DWAIAutonomous auto;
 

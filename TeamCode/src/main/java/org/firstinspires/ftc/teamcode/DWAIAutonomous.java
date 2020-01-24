@@ -143,18 +143,14 @@ public class DWAIAutonomous {
             });
 
             deploy.start();
-
             strafeToBlock();
-
-            waitForFlag();
-
             grabBlockFirstTime();
             forwardToFoundationFirstTime();
-            dropOffBlock();
+            dropOffBlock(true);
             backwardToBlocks();
             grabBlockSecondTime();
             forwardToFoundationSecondTime();
-            dropOffBlock();
+            dropOffBlock(false);
             blockPark();
         }
 
@@ -342,7 +338,7 @@ public class DWAIAutonomous {
 
     private void blockPark(){
         print("Parking");
-        robot.moveByInchesFast(BLOCK_BACKWARD_TO_PARK - BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION, FORWARD);
+        robot.moveByInchesFast(BLOCK_BACKWARD_TO_PARK + BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION, FORWARD);
     }
 
     private void getSkyStonePosition(){
@@ -420,7 +416,7 @@ public class DWAIAutonomous {
 
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.moveByInchesFast(-forwardDistance, FORWARD);
+        robot.moveByInchesFast(forwardDistance, FORWARD);
         robot.setIntakePower(0);
     }
 
@@ -471,7 +467,7 @@ public class DWAIAutonomous {
 
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.moveByInchesFast(-forwardDistance, FORWARD);
+        robot.moveByInchesFast(forwardDistance, FORWARD);
         robot.setIntakePower(0);
     }
 
@@ -481,15 +477,16 @@ public class DWAIAutonomous {
         robot.turnToDegreeFast(BLOCK_ANGLE_SUCK_BLOCK);
         robot.openGrabber();
 
+        waitForFlag();
+
         print("Sucking up block");
         robot.setIntakePower(-1);
-        robot.moveByInches(BLOCK_FORWARD_SUCK_UP_FIRST_TIME, FORWARD, BLOCK_FORWARD_SUCK_MIN_POWER, BLOCK_FORWARD_SUCK_MAX_POWER);
+        robot.moveByInchesFast(BLOCK_FORWARD_SUCK_UP_FIRST_TIME, FORWARD);
         opMode.sleep(100);
 
         print("Moving away from block");
         robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_FIRST_TIME, FORWARD);
-        //robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
-        robot.turnToDegreeFast(270);
+        robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
     }
 
     //TODO: make sure that this thread works
@@ -500,17 +497,16 @@ public class DWAIAutonomous {
 
         print("Sucking up block");
         robot.setIntakePower(-1);
-        robot.moveByInches(BLOCK_FORWARD_SUCK_UP_SECOND_TIME, FORWARD, BLOCK_FORWARD_SUCK_MIN_POWER, BLOCK_FORWARD_SUCK_MAX_POWER);
+        robot.moveByInchesFast(BLOCK_FORWARD_SUCK_UP_SECOND_TIME,FORWARD);
         opMode.sleep(100);
 
         print("Moving away from block");
-        robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_SECOND_TIME, FORWARD);
-        //robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
-        robot.turnToDegreeFast(270);
+        robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_SECOND_TIME,FORWARD);
+        robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
     }
 
     //TODO: thread when it goes 18 past line, state lift, and drop it but wait when its 18 until the line
-    private void dropOffBlock(){
+    private void dropOffBlock(boolean turn){
         print("Dropping block off");
         /*robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
         robot.setIntakePower(0);
@@ -521,8 +517,13 @@ public class DWAIAutonomous {
         robot.moveArmByEncoder(BLOCK_ARM_DOWN_ENCODER_POSITION);
         robot.setIntakePower(0);*/
 
+        robot.turnToDegreeFast(180);
         robot.setIntakePower(1);
-        robot.turnToDegreeFast(BLOCK_TO_FOUNDATION_ANGLE);
+
+        if(turn) {
+            robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
+        }
+
         robot.setIntakePower(0);
     }
 

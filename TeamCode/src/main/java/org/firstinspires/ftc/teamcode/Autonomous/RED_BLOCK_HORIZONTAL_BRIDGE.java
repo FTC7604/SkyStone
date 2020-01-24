@@ -9,7 +9,7 @@ import static org.firstinspires.ftc.teamcode.DWAIAutonomous.ALLIANCE;
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.PARK_POSITION;
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.SIDE;
 
-@Autonomous(name = "Red Block Horizontal Bridge", group = "Autonomous")
+@Autonomous(name = "Red Block", group = "Autonomous")
 public class RED_BLOCK_HORIZONTAL_BRIDGE extends LinearOpMode {
     private DWAIAutonomous auto;
 

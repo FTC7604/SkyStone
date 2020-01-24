@@ -115,7 +115,7 @@ public class BetterBalisticProfile {
     }
 
     private double accelerationCurve() {
-        if (tempPowerSet) {
+        if (!tempPowerSet) {
             return processedCurve((full_power - start_power) * invert(), (currentPosition - startPosition) * invert(), acceleration_distance, acceleration_curve, start_power * invert());
         } else {
             return processedCurve((full_power - tempStartPower) * invert(), (currentPosition - startPosition) * invert(), acceleration_distance, acceleration_curve, tempStartPower * invert());
@@ -123,7 +123,7 @@ public class BetterBalisticProfile {
     }
 
     private double decelerationCurve(){
-        if(tempPowerSet) {
+        if(!tempPowerSet) {
             return processedCurve((full_power - end_power) * invert(), (endPosition - currentPosition) * invert(), deceleration_distance, deceleration_curve, end_power * invert());
 
 
@@ -134,6 +134,7 @@ public class BetterBalisticProfile {
     }
 
     public void setCurve(double startPosition, double endPosition){
+
         if (has_limits) {
             if (this.startPosition > topLimit) this.startPosition = topLimit;
             else if (this.startPosition < bottomLimit) this.startPosition = bottomLimit;
@@ -174,7 +175,12 @@ public class BetterBalisticProfile {
         isDecelerating       = abs(endPosition - currentPosition) < deceleration_distance;
     }
 
+    public void getRidOfTemp(){
+        tempPowerSet = false;
+    }
+
     public double getCurrentPowerAccelDecel(){
+
         if (isAccelerating && isDecelerating) {
             return accelerationCurve() * decelerationCurve() * invert();
         }
@@ -187,6 +193,7 @@ public class BetterBalisticProfile {
         else {
             return full_power * invert();
         }
+
     }
 
     public double getCurrentPowerDecel(){
@@ -215,7 +222,14 @@ public class BetterBalisticProfile {
 
     public boolean isDone(){
         //return currentPosition * invert() > endPosition;
-        return abs(currentPosition - endPosition) < deceleration_distance / 25;
+        //return abs(currentPosition - endPosition) < deceleration_distance / 25;
+
+        if(movementIsBackward){
+            return currentPosition <= endPosition + deceleration_distance / 100;
+        } else{
+            return endPosition <= currentPosition + deceleration_distance / 100;
+        }
+
     }
 
     public enum CURVE_TYPE {
@@ -224,6 +238,5 @@ public class BetterBalisticProfile {
         SINUSOIDAL_INVERTED,
         SINUSOIDAL_SCURVE
     }
-
 
 }
