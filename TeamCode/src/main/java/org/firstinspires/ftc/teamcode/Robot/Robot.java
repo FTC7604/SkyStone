@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -63,6 +64,9 @@ public class Robot {
     Servo rightLatchServo;
     Servo blockGrabberServo;
     Servo markerLatchServo;
+
+    RevBlinkinLedDriver blinkin;
+
     private BNO055IMU imu1 = null, imu2 = null;
 
     private ColorSensor leftWingCS;
@@ -132,9 +136,15 @@ public class Robot {
         foundationTouchSensor = hardwareMap.get(DigitalChannel.class, "ft");
         foundationTouchSensor.setMode(DigitalChannel.Mode.INPUT);
 
-
+        //OTHER
         leftWingCS = hardwareMap.get(ColorSensor.class, "cd");
         leftWingDS = hardwareMap.get(DistanceSensor.class, "cd");
+
+        try {
+            blinkin = hardwareMap.get(RevBlinkinLedDriver.class, "bk");
+        } catch(Exception e){
+
+        }
 
     }
 
@@ -321,7 +331,6 @@ public class Robot {
         double[] tempE = {
                 leftWingCS.red(), leftWingCS.green(), leftWingCS.blue(), leftWingCS.alpha()};
 
-
         return colors;
     }
 
@@ -337,6 +346,14 @@ public class Robot {
             return COLOR_UNDER_SENSOR.RED;
         else
             return COLOR_UNDER_SENSOR.GRAY;
+    }
+
+    public void setPattern(RevBlinkinLedDriver.BlinkinPattern pattern){
+
+        if(blinkin != null) {
+            blinkin.setPattern(pattern);
+        }
+        
     }
 
 }

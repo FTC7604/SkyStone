@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern;
 
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
@@ -116,6 +117,7 @@ public class DWAIAutonomous {
         runtime.reset();
 
         if (side == SIDE.FOUNDATION) {
+            robot.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
             moveToFoundation();
             latchFoundation();
 
@@ -129,12 +131,15 @@ public class DWAIAutonomous {
             }
 
         } else if (side == SIDE.BLOCK) {
+            robot.setPattern(BlinkinPattern.BLACK);
 
             while(skystone_position == null || check < 10){
                 getSkyStonePosition();
                 opMode.sleep(50);
                 check++;
             }
+
+            robot.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
 
             Thread deploy = new Thread(() -> {
                 startDeploy();
