@@ -23,8 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.*;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.*;
+
 
 /**
  * IMPORTANT NOTES
@@ -56,8 +57,8 @@ public class DWAIAutonomous {
     private static float[] midPos = new float[2];
     private static float[] leftPos = new float[2];
     private static float[] rightPos = new float[2];
-    private double BLOCK_TO_FOUNDATION_ANGLE = 90;
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
+    private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
     private double DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION");
     private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL");
     private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION");
@@ -70,13 +71,9 @@ public class DWAIAutonomous {
     private double HBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("HBRIDGE_PARK_STRAFE_DISTANCE");
     private double VWALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VWALL_PARK_STRAFE_DISTANCE");
     private double VBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VBRIDGE_PARK_STRAFE_DISTANCE");
-    private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
-    private double STRAFE_MAX_POWER = propertiesLoader.getDoubleProperty("STRAFE_MAX_POWER");
-    private double MOVE_MAX_POWER = propertiesLoader.getDoubleProperty("MOVE_MAX_POWER");
     private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
     private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
     private double BLOCK_FORWARD_OFF_WALL_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_OFF_WALL_TO_BLOCK");
-    private double BLOCK_FORWARD_LITTLE_OFF_WALL = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_LITTLE_OFF_WALL");
     private double BLOCK_ONE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ONE_STRAFE_TO_BLOCK");
     private double BLOCK_TWO_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_TWO_STRAFE_TO_BLOCK");
     private double BLOCK_THREE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_STRAFE_TO_BLOCK");
@@ -89,18 +86,8 @@ public class DWAIAutonomous {
     private double BLOCK_FOUR_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FOUR_FORWARD_TO_FOUNDATION");
     private double BLOCK_FIVE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FIVE_FORWARD_TO_FOUNDATION");
     private double BLOCK_SIX_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_SIX_FORWARD_TO_FOUNDATION");
-    private double BLOCK_ANGLE_SUCK_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ANGLE_SUCK_BLOCK");
-    private double BLOCK_FORWARD_SUCK_UP_FIRST_TIME = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_UP_FIRST_TIME");
-    private double BLOCK_BACKWARD_SUCK_UP_FIRST_TIME = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_SUCK_UP_FIRST_TIME");
-    private double BLOCK_FORWARD_SUCK_UP_SECOND_TIME = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_UP_SECOND_TIME");
-    private double BLOCK_BACKWARD_SUCK_UP_SECOND_TIME = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_SUCK_UP_SECOND_TIME");
-    private double BLOCK_FORWARD_SUCK_MIN_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MIN_POWER");
-    private double BLOCK_FORWARD_SUCK_MAX_POWER = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_SUCK_MAX_POWER");
-    private double BLOCK_ARM_UP_ENCODER_POSITION = propertiesLoader.getDoubleProperty("BLOCK_ARM_UP_ENCODER_POSITION");
-    private double BLOCK_ARM_DOWN_ENCODER_POSITION = propertiesLoader.getDoubleProperty("BLOCK_ARM_DOWN_ENCODER_POSITION");
-    private double BLOCK_ARM_RAISED_A_LITTLE_BIT = propertiesLoader.getDoubleProperty("BLOCK_ARM_RAISED_A_LITTLE_BIT");
-    private double BLOCK_BACKWARD_TO_PARK = propertiesLoader.getDoubleProperty("BLOCK_BACKWARD_TO_PARK");
     private double BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION");
+    private double BLOCK_STRAFE_DIST = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST");
     private double horizontalTurnDegree = 90;
     private double verticalTurnDegree = 90;
     private double fiddleDistance = -3;
@@ -172,43 +159,51 @@ public class DWAIAutonomous {
             deploy.start();
 
             strafeToBlock();
-            robot.turnToDegreePrecise(90);
+            robot.turnToDegreePrecise(-90);
 
             print("Lowering grabber");
-            robot.setLeftGrabberPosition(1, 0);
+            setGrabberPosition(READY);
             opMode.sleep(500);
+
+            print("Strafing against block");
+            robot.moveByInchesFast(BLOCK_STRAFE_DIST, STRAFE);
+
             print("Grabbing block");
-            robot.setLeftGrabberPosition(0.4, 0);
+            setGrabberPosition(GRABBING);
             opMode.sleep(500);
             print("Stowing block");
-            robot.setLeftGrabberPosition(0.4, 0.1);
+            setGrabberPosition(STOWED);
 
             forwardToFoundationFirstTime();
 
             print("Dropping block off");
-            robot.setLeftGrabberPosition(1, 0);
+            setGrabberPosition(READY);
             opMode.sleep(1000);
             print("Raising to starting position");
-            robot.setLeftGrabberPosition(0.4, 1);
+            setGrabberPosition(DEFAULT);
 
             backwardToBlocks();
 
             print("Lowering grabber");
-            robot.setLeftGrabberPosition(1, 0);
+            setGrabberPosition(READY);
             opMode.sleep(500);
+
+            print("Strafing against block");
+            robot.moveByInchesFast(BLOCK_STRAFE_DIST, STRAFE);
+
             print("Grabbing block");
-            robot.setLeftGrabberPosition(0.4, 0);
+            setGrabberPosition(GRABBING);
             opMode.sleep(500);
             print("Stowing block");
-            robot.setLeftGrabberPosition(0.4, 1);
+            setGrabberPosition(STOWED);
 
             forwardToFoundationSecondTime();
 
             print("Dropping block off");
-            robot.setLeftGrabberPosition(1, 0);
+            setGrabberPosition(READY);
             opMode.sleep(1000);
             print("Raising to starting position");
-            robot.setLeftGrabberPosition(0.4, 1);
+            setGrabberPosition(DEFAULT);
 
             robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
 
@@ -236,6 +231,17 @@ public class DWAIAutonomous {
         }
 
         AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop", alliance);
+    }
+
+    private void setGrabberPosition(RobotLinearOpMode.GRABBER_POSITION pos){
+
+        switch(alliance){
+            case RED:
+                robot.setLeftGrabberPosition(pos);
+            case BLUE:
+                robot.setRightGrabberPosition(pos);
+        }
+
     }
 
     private void waitForFlag(){
@@ -277,9 +283,6 @@ public class DWAIAutonomous {
             BLOCK_ONE_STRAFE_TO_BLOCK *= -1;
             BLOCK_TWO_STRAFE_TO_BLOCK *= -1;
             BLOCK_THREE_STRAFE_TO_BLOCK *= -1;
-
-            BLOCK_ANGLE_SUCK_BLOCK *= -1;
-            BLOCK_TO_FOUNDATION_ANGLE *= -1;
             BLOCK_TO_BRIDGE *= -1;
         }
 
@@ -473,40 +476,6 @@ public class DWAIAutonomous {
 
     }
 
-    //TODO: make sure that this thread works
-    private void grabBlockFirstTime(){
-        print("Turning to block");
-        robot.turnToDegreeFast(BLOCK_ANGLE_SUCK_BLOCK);
-        robot.openGrabber();
-
-        waitForFlag();
-
-        print("Sucking up block");
-        runIntake(-1);
-        robot.moveByInchesFast(BLOCK_FORWARD_SUCK_UP_FIRST_TIME, FORWARD);
-        opMode.sleep(100);
-
-        print("Moving away from block");
-        robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_FIRST_TIME, FORWARD);
-        robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
-    }
-
-    //TODO: make sure that this thread works
-    private void grabBlockSecondTime(){
-        print("Turning to block");
-        robot.turnToDegreeFast(BLOCK_ANGLE_SUCK_BLOCK);
-        robot.openGrabber();
-
-        print("Sucking up block");
-        runIntake(-1);
-        robot.moveByInchesFast(BLOCK_FORWARD_SUCK_UP_SECOND_TIME,FORWARD);
-        opMode.sleep(100);
-
-        print("Moving away from block");
-        robot.moveByInchesFast(BLOCK_BACKWARD_SUCK_UP_SECOND_TIME,FORWARD);
-        robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
-    }
-
     private void forwardToFoundationFirstTime(){
         //runIntake(-1);
 
@@ -534,32 +503,6 @@ public class DWAIAutonomous {
         print("Moving backwards to foundation");
         robot.moveByInchesFast(forwardDistance, FORWARD);
         //robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
-        stopIntake();
-    }
-
-    //TODO: thread when it goes 18 past line, state lift, and drop it but wait when its 18 until the line
-    private void dropOffBlock(boolean precise){
-        print("Dropping block off");
-        /*robot.turnToDegree(BLOCK_TO_FOUNDATION_ANGLE);
-        robot.setIntakePower(0);
-        robot.closeGrabber();
-        robot.moveArmByEncoder(BLOCK_ARM_UP_ENCODER_POSITION);
-        robot.setIntakePower(.5);
-        robot.openGrabber();
-        robot.moveArmByEncoder(BLOCK_ARM_DOWN_ENCODER_POSITION);
-        robot.setIntakePower(0);*/
-
-        robot.turnToDegreeFast(180);
-        runIntake(1);
-
-        if(precise) {
-            robot.turnToDegreePrecise(BLOCK_TO_FOUNDATION_ANGLE);
-        } else{
-            robot.moveByInchesFast(BLOCK_TO_BRIDGE_STRAFE, STRAFE);
-        }
-
-
-        stopIntake();
     }
 
     private void backwardToBlocks(){
@@ -610,32 +553,6 @@ public class DWAIAutonomous {
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
         robot.moveByInchesFast(forwardDistance, FORWARD);
-        stopIntake();
-    }
-
-    private void runIntake(double power){
-        stopIntake();
-        flag = true;
-
-        Thread thread = new Thread(() -> {
-
-            while(flag && opMode.opModeIsActive()){
-                robot.setIntakePower(power);
-            }
-
-        });
-
-        thread.start();
-    }
-
-    private void stopIntake(){
-        flag = false;
-        robot.setIntakePower(0);
-    }
-
-    private void blockPark(){
-        print("Parking");
-        robot.moveByInchesFast(BLOCK_BACKWARD_TO_PARK - BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION, FORWARD);
     }
 
     private void openCVinit(){

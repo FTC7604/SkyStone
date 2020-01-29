@@ -12,6 +12,9 @@ public class GrabberTest extends LinearOpMode{
 
     @Override
     public void runOpMode(){
+        double pos1 = 0;
+        double pos2 = 0;
+
         robot = new RobotLinearOpMode(this);
 
         telemetry.addData("Status", "Initialized");
@@ -25,17 +28,41 @@ public class GrabberTest extends LinearOpMode{
 
             if(gamepad1.a){
                 while(gamepad1.a){}
-                robot.setLeftGrabberPosition(gamepad1.left_stick_y, gamepad1.left_stick_x);
-
-                //start pos: grabber @ 1, servo @ 0
-                //grab pos: grabber @ 0.4, servo @ 0
-                //float pos: grabber @ 0.4, servo @ 0.1
-
-                telemetry.addData("Grabber position", gamepad1.left_stick_y);
-                telemetry.addData("Servo position", gamepad1.left_stick_x);
-                telemetry.update();
+                pos1 -= 0.1;
             }
 
+            if(gamepad1.y){
+                while(gamepad1.y){}
+                pos1 += 0.1;
+            }
+
+            if(gamepad1.x){
+                while(gamepad1.x){}
+                pos2 -= 0.1;
+            }
+
+            if(gamepad1.b){
+                while(gamepad1.b){}
+                pos2 += 0.1;
+            }
+
+            robot.setLeftGrabberPosition(pos1, pos2);
+
+            //left
+            //float pos: grabber @ 0.45, servo @ 0.6 (stowed)
+            //grab pos: grabber @ 0.45, servo @ 0
+            //start pos: grabber @ 1, servo @ 0
+            //default pos: grabber @ 0.3, servo @ 0.8
+
+            //right
+            //float pos: grabber @ 0.7, servo @ 0.3 (stowed)
+            //grab pos: grabber @ 0.7, servo @ 0.8
+            //start pos: grabber @ 0, servo @ 0.8
+            //default pos: grabber @ 0.85, servo @ -0.1
+
+            telemetry.addData("Grabber position", pos1);
+            telemetry.addData("Servo position", pos2);
+            telemetry.update();
         }
 
     }

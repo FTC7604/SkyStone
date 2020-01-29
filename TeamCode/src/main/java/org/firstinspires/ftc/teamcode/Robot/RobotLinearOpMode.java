@@ -65,6 +65,26 @@ public class RobotLinearOpMode extends Robot {
     private double LIFT_END_POWER = propertiesLoader.getDoubleProperty("LIFT_END_POWER");
     private double LIFT_FULL_POWER = propertiesLoader.getDoubleProperty("LIFT_FULL_POWER");
 
+    /**
+     * SIDE GRABBER POSITIONS
+     */
+    private double LEFT_STOWED_GRABBER = propertiesLoader.getDoubleProperty("LEFT_STOWED_GRABBER");
+    private double LEFT_STOWED_SERVO = propertiesLoader.getDoubleProperty("LEFT_STOWED_SERVO");
+    private double LEFT_GRABBING_GRABBER = propertiesLoader.getDoubleProperty("LEFT_GRABBING_GRABBER");
+    private double LEFT_GRABBING_SERVO = propertiesLoader.getDoubleProperty("LEFT_GRABBING_SERVO");
+    private double LEFT_READY_GRABBER = propertiesLoader.getDoubleProperty("LEFT_READY_GRABBER");
+    private double LEFT_READY_SERVO = propertiesLoader.getDoubleProperty("LEFT_READY_SERVO");
+    private double LEFT_DEFAULT_GRABBER = propertiesLoader.getDoubleProperty("LEFT_DEFAULT_GRABBER");
+    private double LEFT_DEFAULT_SERVO = propertiesLoader.getDoubleProperty("LEFT_DEFAULT_SERVO");
+    private double RIGHT_STOWED_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_STOWED_GRABBER");
+    private double RIGHT_STOWED_SERVO = propertiesLoader.getDoubleProperty("RIGHT_STOWED_SERVO");
+    private double RIGHT_GRABBING_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_GRABBING_GRABBER");
+    private double RIGHT_GRABBING_SERVO = propertiesLoader.getDoubleProperty("RIGHT_GRABBING_SERVO");
+    private double RIGHT_READY_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_READY_GRABBER");
+    private double RIGHT_READY_SERVO = propertiesLoader.getDoubleProperty("RIGHT_READY_SERVO");
+    private double RIGHT_DEFAULT_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_DEFAULT_GRABBER");
+    private double RIGHT_DEFAULT_SERVO = propertiesLoader.getDoubleProperty("RIGHT_DEFAULT_SERVO");
+
     private BetterBalisticProfile preciseRrotationBetterBalisticProfile = new BetterBalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, PRECISE_ROTATION_START_POWER, ROTATION_FULL_POWER, PRECISE_ROTATION_END_POWER, SINUSOIDAL_SCURVE, LINEAR);
     private BetterBalisticProfile fastRotationBetterBalisticProfile = new BetterBalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, ROTATION_START_POWER, ROTATION_FULL_POWER, ROTATION_END_POWER, SINUSOIDAL_SCURVE, LINEAR);
     private BetterBalisticProfile forwardBetterBalisticProfile = new BetterBalisticProfile(FORWARD_ACCELERATION_DISTANCE, FORWARD_DECELLERATION_DISTANCE, FORWARD_START_POWER, FORWARD_FULL_POWER, FORWARD_END_POWER, LINEAR, LINEAR);
@@ -490,6 +510,57 @@ public class RobotLinearOpMode extends Robot {
         leftSideGrabberServo.setPosition(servoPos);
     }
 
+    public void setLeftGrabberPosition(GRABBER_POSITION pos){
+
+        switch(pos){
+            case DEFAULT:
+                leftSideGrabber.setPosition(LEFT_DEFAULT_GRABBER);
+                leftSideGrabberServo.setPosition(LEFT_DEFAULT_SERVO);
+                break;
+            case READY:
+                leftSideGrabber.setPosition(LEFT_READY_GRABBER);
+                leftSideGrabberServo.setPosition(LEFT_READY_SERVO);
+                break;
+            case GRABBING:
+                leftSideGrabber.setPosition(LEFT_GRABBING_GRABBER);
+                leftSideGrabberServo.setPosition(LEFT_GRABBING_SERVO);
+                break;
+            case STOWED:
+                leftSideGrabber.setPosition(LEFT_STOWED_GRABBER);
+                leftSideGrabberServo.setPosition(LEFT_STOWED_SERVO);
+                break;
+        }
+
+    }
+
+    public void setRightGrabberPosition(GRABBER_POSITION pos){
+
+        switch(pos){
+            case DEFAULT:
+                rightSideGrabber.setPosition(RIGHT_DEFAULT_GRABBER);
+                rightSideGrabberServo.setPosition(RIGHT_DEFAULT_SERVO);
+                break;
+            case READY:
+                rightSideGrabber.setPosition(RIGHT_READY_GRABBER);
+                rightSideGrabberServo.setPosition(RIGHT_READY_SERVO);
+                break;
+            case GRABBING:
+                rightSideGrabber.setPosition(RIGHT_GRABBING_GRABBER);
+                rightSideGrabberServo.setPosition(RIGHT_GRABBING_SERVO);
+                break;
+            case STOWED:
+                rightSideGrabber.setPosition(RIGHT_STOWED_GRABBER);
+                rightSideGrabberServo.setPosition(RIGHT_STOWED_SERVO);
+                break;
+        }
+
+    }
+
+    public void setRightGrabberPosition(double grabberPos, double servoPos){
+        rightSideGrabber.setPosition(grabberPos);
+        rightSideGrabberServo.setPosition(servoPos);
+    }
+
     /**
      * ENCODER MEASUREMENT METHODS
      */
@@ -561,6 +632,13 @@ public class RobotLinearOpMode extends Robot {
         STRAFE,
         FORWARD,
         ROTATION,
+    }
+
+    public enum GRABBER_POSITION {
+        DEFAULT,
+        READY,
+        GRABBING,
+        STOWED
     }
 
 }
