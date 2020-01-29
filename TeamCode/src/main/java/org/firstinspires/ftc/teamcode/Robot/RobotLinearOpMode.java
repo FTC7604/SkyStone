@@ -119,7 +119,6 @@ public class RobotLinearOpMode extends Robot {
         }
     }
 
-
     public void mecanumPowerDrive(double strafe, double forward, double rotation){
         leftFrontDriveMotor.setPower(forward - strafe + rotation);
         leftBackDriveMotor.setPower(forward + strafe + rotation);
@@ -127,7 +126,23 @@ public class RobotLinearOpMode extends Robot {
         rightBackDriveMotor.setPower(forward - strafe - rotation);
     }
 
-    private void stopDriveMotors(){
+    public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation, double ratio){
+
+        if(ratio < 1) {
+            leftFrontDriveMotor.setPower((forward - strafe + rotation) * ratio);
+            leftBackDriveMotor.setPower((forward + strafe + rotation) * ratio);
+            rightFrontDriveMotor.setPower(forward + strafe - rotation);
+            rightBackDriveMotor.setPower(forward - strafe - rotation);
+        } else{
+            leftFrontDriveMotor.setPower((forward - strafe + rotation));
+            leftBackDriveMotor.setPower((forward + strafe + rotation));
+            rightFrontDriveMotor.setPower((forward + strafe - rotation) / ratio);
+            rightBackDriveMotor.setPower((forward - strafe - rotation) / ratio);
+        }
+
+    }
+
+    public void stopDriveMotors(){
         mecanumPowerDrive(0, 0, 0);
     }
 
@@ -144,7 +159,7 @@ public class RobotLinearOpMode extends Robot {
             desiredEndRotation -= 360;
         }
 
-        preciseRrotationBetterBalisticProfile.setCurve(startRotation, desiredEndRotation,.1,0);
+        preciseRrotationBetterBalisticProfile.setCurve(startRotation, desiredEndRotation,PRECISE_ROTATION_START_POWER,PRECISE_ROTATION_END_POWER);
 
         while(!preciseRrotationBetterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
             currentRotation = getRev10IMUAngle()[2];
@@ -164,15 +179,12 @@ public class RobotLinearOpMode extends Robot {
             //linearOpMode.telemetry.update();
 
             linearOpMode.telemetry.addData("Rotation", currentRotation);
+            linearOpMode.telemetry.addData("Power", motorPower);
             linearOpMode.telemetry.update();
         }
 
         preciseRrotationBetterBalisticProfile.getRidOfTemp();
-
-        if(preciseRrotationBetterBalisticProfile.getEnd_power() == 0) {
-            stopDriveMotors();
-        }
-
+        stopDriveMotors();
     }
 
     public void turnToDegreeFast(double desiredEndRotation){
@@ -207,6 +219,7 @@ public class RobotLinearOpMode extends Robot {
             //linearOpMode.telemetry.update();
 
             linearOpMode.telemetry.addData("Rotation", currentRotation);
+            linearOpMode.telemetry.addData("Power", motorPower);
             linearOpMode.telemetry.update();
         }
 
@@ -217,6 +230,36 @@ public class RobotLinearOpMode extends Robot {
         fastRotationBetterBalisticProfile.getRidOfTemp();
     }
 
+    private double calcRatio(double desiredAngle){
+        double currentAngle = getRev10IMUAngle()[2];
+        double testDif = currentAngle - desiredAngle;
+        double ratio;
+
+        if(abs(currentAngle + 360 - desiredAngle) < abs(testDif)){
+            testDif = currentAngle + 360 - desiredAngle;
+        }
+
+        if(abs(currentAngle - 360 - desiredAngle) < abs(testDif)){
+            testDif = currentAngle - 360 - desiredAngle;
+        }
+
+        if(testDif < -90){
+            ratio = 1.9;
+        } else if(testDif > 90){
+            ratio = 0.1;
+        } else{
+            ratio = (testDif / -100) + 1;
+        }
+
+        linearOpMode.telemetry.addData("Ratio", ratio);
+        linearOpMode.telemetry.addData("Difference", testDif);
+        linearOpMode.telemetry.update();
+        return ratio;
+    }
+
+    /**
+     * Steers robot ever so slightly during movement to account for rotation differences
+     */
     public void compensatingMoveByInchesFast(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double desiredAngle){
         double startPosition = getAverageDriveTrainEncoder(movement_direction);
         double endPosition   = startPosition + desiredPositionChangeInInches * inchesToEncoders;
@@ -241,30 +284,10 @@ public class RobotLinearOpMode extends Robot {
             betterBalisticProfile.setCurrentPosition(currentPosition);
             motorPower = betterBalisticProfile.getCurrentPowerAccelDecel();
 
-            if(movement_direction == MOVEMENT_DIRECTION.STRAFE) {
+            if(movement_direction != MOVEMENT_DIRECTION.FORWARD) {
                 mecanumPowerDrive(movement_direction, motorPower);
             } else{
-                double currentAngle = getRev10IMUAngle()[2];
-                double testDif = currentAngle - desiredAngle;
-                double ratio;
-
-                if(abs(currentAngle + 360 - desiredAngle) < abs(testDif)){
-                    testDif = currentAngle + 360 - desiredAngle;
-                }
-
-                if(abs(currentAngle - 360 - desiredAngle) < abs(testDif)){
-                    testDif = currentAngle - 360 - desiredAngle;
-                }
-
-                if(testDif < -90){
-                    ratio = 0.1;
-                } else if(testDif > 90){
-                    ratio = 1.9;
-                } else{
-                    ratio = (testDif / 100) + 1;
-                }
-
-                compensatedMecanumPowerDrive(0, motorPower, 0, ratio);
+                compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle));
             }
 
         }
@@ -274,22 +297,6 @@ public class RobotLinearOpMode extends Robot {
         }
 
         betterBalisticProfile.getRidOfTemp();
-    }
-
-    public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation, double ratio){
-
-        if(ratio < 1) {
-            leftFrontDriveMotor.setPower((forward - strafe + rotation) * ratio);
-            leftBackDriveMotor.setPower((forward + strafe + rotation) * ratio);
-            rightFrontDriveMotor.setPower(forward + strafe - rotation);
-            rightBackDriveMotor.setPower(forward - strafe - rotation);
-        } else{
-            leftFrontDriveMotor.setPower((forward - strafe + rotation));
-            leftBackDriveMotor.setPower((forward + strafe + rotation));
-            rightFrontDriveMotor.setPower((forward + strafe - rotation) / ratio);
-            rightBackDriveMotor.setPower((forward - strafe - rotation) / ratio);
-        }
-
     }
 
     public void moveByInchesFast(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction){
@@ -319,8 +326,8 @@ public class RobotLinearOpMode extends Robot {
             motorPower = betterBalisticProfile.getCurrentPowerAccelDecel();
             mecanumPowerDrive(movement_direction, motorPower);
 
-            //linearOpMode.telemetry.addLine("Motor Power:" + motorPower);
-            //linearOpMode.telemetry.update();
+            linearOpMode.telemetry.addData("Encoder", currentPosition);
+            linearOpMode.telemetry.update();
         }
 
         if(betterBalisticProfile.getEnd_power() == 0) {
@@ -330,19 +337,23 @@ public class RobotLinearOpMode extends Robot {
         betterBalisticProfile.getRidOfTemp();
     }
 
+    @Deprecated
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction){
         moveByInches(desiredPositionChangeInInches, movement_direction, .05, 0.8);
     }
 
+    @Deprecated
     public void moveByInchesMinPower(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower){
         moveByInches(desiredPositionChangeInInches, movement_direction, minPower, .8);
 
     }
 
+    @Deprecated
     public void moveByInchesMaxPower(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double maxPower){
         moveByInches(desiredPositionChangeInInches, movement_direction, .05, maxPower);
     }
 
+    @Deprecated
     public void moveByInches(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction, double minPower, double maxPower){
         double currentAverageEncoderValue;
         double adjustedMotorPower;
@@ -362,8 +373,7 @@ public class RobotLinearOpMode extends Robot {
             adjustedMotorPower         = DriveProfile.RunToPositionWithAccel(startDriveTrainEncoders, currentAverageEncoderValue, desiredPositionChangeInEncoders);
             mecanumPowerDrive(movement_direction, adjustedMotorPower);
 
-        }
-        while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 20) && linearOpMode.opModeIsActive());
+        } while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 20) && linearOpMode.opModeIsActive());
 
 
         stopDriveMotors();
@@ -373,7 +383,7 @@ public class RobotLinearOpMode extends Robot {
      * Turns relative to starting position
      * i.e. starts at 0, 90 will always mean the same position, moving counter-clockwise
      */
-
+    @Deprecated
     public void turnToDegree(double endRotation){
         double currentRotation;
         double adjustedMotorPower;
@@ -450,7 +460,7 @@ public class RobotLinearOpMode extends Robot {
     }
 
     /**
-     * LATCH+CLAW+MARKER METHODS
+     * SERVO METHODS
      */
 
     public void openGrabber(){
@@ -475,8 +485,13 @@ public class RobotLinearOpMode extends Robot {
         rightLatchServo.setPosition(pos + .05);
     }
 
+    public void setLeftGrabberPosition(double grabberPos, double servoPos){
+        leftSideGrabber.setPosition(grabberPos);
+        leftSideGrabberServo.setPosition(servoPos);
+    }
+
     /**
-     * GET ENCODER METHODS
+     * ENCODER MEASUREMENT METHODS
      */
     public double getAverageDriveTrainEncoder(MOVEMENT_DIRECTION movement_direction){
         switch (movement_direction) {

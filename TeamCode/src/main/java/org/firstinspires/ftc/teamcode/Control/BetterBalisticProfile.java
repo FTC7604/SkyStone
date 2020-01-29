@@ -227,9 +227,9 @@ public class BetterBalisticProfile {
         //return abs(currentPosition - endPosition) < deceleration_distance / 25;
 
         if(movementIsBackward){
-            return currentPosition <= endPosition + deceleration_distance / 100 && currentPosition >= endPosition - deceleration_distance;
+            return currentPosition <= endPosition + deceleration_distance / 40 && currentPosition >= endPosition - deceleration_distance;
         } else{
-            return endPosition <= currentPosition + deceleration_distance / 100 && endPosition >= currentPosition - deceleration_distance;
+            return endPosition <= currentPosition + deceleration_distance / 40 && endPosition >= currentPosition - deceleration_distance;
         }
 
     }

@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 import org.firstinspires.ftc.teamcode.Robot.*;
 
 @TeleOp(name="Turn Test")
+@Disabled
 public class TurnTest extends LinearOpMode{
     private RobotLinearOpMode robot;
 

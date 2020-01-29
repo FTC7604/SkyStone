@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern;
+import com.vuforia.EyewearDevice;
 
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
@@ -24,6 +25,26 @@ import java.util.List;
 import static java.lang.Thread.sleep;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
+
+/**
+ * IMPORTANT NOTES
+ * FOR BLOCK AUTO: VERTICAL = ONE-BLOCK, HORIZONTAL = TWO-BLOCK AT THIS POINT IN TIME
+ * LIKELY WILL BE CHANGED BACK FOR FUTURE TOURNAMENTS
+ * MUST CHANGE TO + FIGURE OUT ODOMETRY BECAUSE FIELD TILE FRICTION CHANGES
+ * WOULD BE VERY NICE TO HAVE A SERVO CLAW ON THE SIDE (QUICKER SAMPLING)
+ * REMEMBER TO MAKE A BRIDGE PARK AUTO (park is only against the wall right now)
+ * REMEMBER TO RECALIBRATE AUTOS (again), POSSIBLY INCLUDE 'friction constant' IN PROPERTIES
+ *
+ * FIELD SETUP:
+ * ALWAYS CHECK ENCODER WIRES AND SUCH!
+ * ALWAYS CHECK CAMERA IS NOT BLOCKED BY FOUNDATION CLAMP CLAW!
+ * ALWAYS CHECK STRINGS ARE ON PULLEYS!
+ * ALWAYS CHECK FOUNDATION CLAMP CLAWS ARE NOT BENT!
+ * ALWAYS CHECK LIFT IS CLIPPED ONTO INTAKE!
+ * ALWAYS CHECK GAME CONTROLLERS BOTH FUNCTIONING!!!!
+ * FOR BLOCK-SIDE: PLACE SIDESKIRT ALIGNED ALONG TILE LINE CLOSE TO DEPOT
+ * FOR FOUNDATION-SIDE: PLACE SIDESKIRT ALIGNED ALONG LINE CLOSE TO BRIDGE
+ */
 
 public class DWAIAutonomous {
 
@@ -93,9 +114,9 @@ public class DWAIAutonomous {
     private LinearOpMode opMode;
     private SKYSTONE_POSITION skystone_position;
 
-    private double BLOCK_TO_BRIDGE_STRAFE = 9;
+    private int checks = 0;
 
-    private int check = 0;
+    private double BLOCK_TO_BRIDGE = -9;
 
     public DWAIAutonomous(FOUNDATION_ORIENTATION foundationOrientation, PARK_POSITION parkPosition, SIDE side, ALLIANCE alliance, LinearOpMode opMode){
         this.foundationOrientation = foundationOrientation;
@@ -110,13 +131,16 @@ public class DWAIAutonomous {
         setupVariables();
 
         if (side == SIDE.BLOCK) {
+            robot.setPattern(BlinkinPattern.BLACK);
             openCVinit();
         }
 
+        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
         opMode.waitForStart();
         runtime.reset();
 
         if (side == SIDE.FOUNDATION) {
+
             robot.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
             moveToFoundation();
             latchFoundation();
@@ -124,19 +148,18 @@ public class DWAIAutonomous {
             if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
                 placeHorizontal();
                 parkHorizontal();
-            }
-            else {
+            } else {
                 placeVertical();
                 parkVertical();
             }
 
+            robot.stopDriveMotors();
         } else if (side == SIDE.BLOCK) {
-            robot.setPattern(BlinkinPattern.BLACK);
 
-            while(skystone_position == null || check < 10){
+            while(skystone_position == null || checks < 10){
                 getSkyStonePosition();
-                opMode.sleep(50);
-                check++;
+                checks++;
+                opMode.sleep(100);
             }
 
             robot.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
@@ -147,15 +170,69 @@ public class DWAIAutonomous {
             });
 
             deploy.start();
+
             strafeToBlock();
+            robot.turnToDegreePrecise(90);
+
+            print("Lowering grabber");
+            robot.setLeftGrabberPosition(1, 0);
+            opMode.sleep(500);
+            print("Grabbing block");
+            robot.setLeftGrabberPosition(0.4, 0);
+            opMode.sleep(500);
+            print("Stowing block");
+            robot.setLeftGrabberPosition(0.4, 0.1);
+
+            forwardToFoundationFirstTime();
+
+            print("Dropping block off");
+            robot.setLeftGrabberPosition(1, 0);
+            opMode.sleep(1000);
+            print("Raising to starting position");
+            robot.setLeftGrabberPosition(0.4, 1);
+
+            backwardToBlocks();
+
+            print("Lowering grabber");
+            robot.setLeftGrabberPosition(1, 0);
+            opMode.sleep(500);
+            print("Grabbing block");
+            robot.setLeftGrabberPosition(0.4, 0);
+            opMode.sleep(500);
+            print("Stowing block");
+            robot.setLeftGrabberPosition(0.4, 1);
+
+            forwardToFoundationSecondTime();
+
+            print("Dropping block off");
+            robot.setLeftGrabberPosition(1, 0);
+            opMode.sleep(1000);
+            print("Raising to starting position");
+            robot.setLeftGrabberPosition(0.4, 1);
+
+            robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
+
+            /*strafeToBlock();
             grabBlockFirstTime();
             forwardToFoundationFirstTime();
-            dropOffBlock(true);
-            backwardToBlocks();
-            grabBlockSecondTime();
-            forwardToFoundationSecondTime();
-            dropOffBlock(false);
-            //blockPark();
+
+            if(foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
+                dropOffBlock(true);
+                backwardToBlocks();
+                grabBlockSecondTime();
+                forwardToFoundationSecondTime();
+                dropOffBlock(false);
+                //blockPark();
+                robot.stopDriveMotors();
+            } else if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+                dropOffBlock(false);
+                robot.stopDriveMotors();
+            }*/
+
+        } else if(side == SIDE.JUST_PARK){
+            startDeploy();
+            robot.moveByInchesFast(12, FORWARD);
+            robot.stopDriveMotors();
         }
 
         AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop", alliance);
@@ -203,7 +280,7 @@ public class DWAIAutonomous {
 
             BLOCK_ANGLE_SUCK_BLOCK *= -1;
             BLOCK_TO_FOUNDATION_ANGLE *= -1;
-            BLOCK_TO_BRIDGE_STRAFE *= -1;
+            BLOCK_TO_BRIDGE *= -1;
         }
 
     }
@@ -255,88 +332,91 @@ public class DWAIAutonomous {
 
     private void moveToFoundation(){
         print("Moving towards foundation");
-        robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD);
-        robot.moveByInches(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
-        robot.moveByInchesMaxPower(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD, MOVE_MAX_POWER);
+        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD);
+        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
+        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD);
     }
 
     private void latchFoundation(){
         print("Latching foundation");
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
 
-        while(!robot.getFoundationSensorPressed()){
+        while(!robot.getFoundationSensorPressed() && opMode.opModeIsActive()){
             robot.mecanumPowerDrive(0, -.3, 0);
         }
 
         print("Latched foundation");
         robot.setLatchPosition(CLOSE_LATCH_SERVO_POSITION);
-        robot.moveByInchesMaxPower(-2, FORWARD, .6);
+        robot.moveByInchesFast(-2, FORWARD);
     }
 
     private void placeHorizontal(){
         print("Driving forwards");
-        robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
+        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
 
         print("Turning to be forward");
-        robot.turnToDegree(horizontalTurnDegree);
+        robot.turnToDegreePrecise(horizontalTurnDegree);
+        robot.stopDriveMotors();
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
     }
 
     private void parkHorizontal(){
         print("Fiddling with latch");
-        robot.moveByInches(fiddleDistance, STRAFE);
+        robot.moveByInchesFast(fiddleDistance, STRAFE);
 
         if (parkPosition == PARK_POSITION.WALL) {
             print("Strafing against wall");
-            robot.moveByInches(HWALL_PARK_STRAFE_DISTANCE, STRAFE);
+            robot.moveByInchesFast(HWALL_PARK_STRAFE_DISTANCE, STRAFE);
         } else {
             print("Strafing towards bridge");
-            robot.moveByInches(HBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
+            robot.moveByInchesFast(HBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
         }
 
+        robot.stopDriveMotors();
         print("Deploying intake");
         startDeploy();
 
         print("Moving under bridge");
-        robot.moveByInches(36, FORWARD);
+        robot.moveByInchesFast(36, FORWARD);
         //rough movement, likely replace with color sensor line code
     }
 
     private void placeVertical(){
         print("Driving forwards");
-        robot.moveByInches(DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT, FORWARD);
+        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT, FORWARD);
 
         print("Opening latch");
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
 
         print("Strafing away from the platform");
-        robot.moveByInchesMaxPower(DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE, STRAFE_MAX_POWER);
+        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE);
 
         print("Moving up parallel with platform");
-        robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
+        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
 
         print("Turning to be forward");
-        robot.turnToDegree(verticalTurnDegree);
+        robot.turnToDegreePrecise(verticalTurnDegree);
 
         print("Slamming foundation against the wall really really hard");
-        robot.moveByInches(DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD, FORWARD);
+        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD, FORWARD);
     }
 
     private void parkVertical(){
 
         if (parkPosition == PARK_POSITION.WALL) {
             print("Strafing against wall");
-            robot.moveByInches(VWALL_PARK_STRAFE_DISTANCE, STRAFE);
+            robot.moveByInchesFast(VWALL_PARK_STRAFE_DISTANCE, STRAFE);
         } else {
             print("Strafing against bridge");
-            robot.moveByInches(VBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
+            robot.moveByInchesFast(VBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
         }
 
+        robot.stopDriveMotors();
         print("Deploying intake");
         startDeploy();
 
         print("Moving under bridge");
-        robot.moveByInches(22, FORWARD);
+        robot.moveByInchesFast(22, FORWARD);
     }
 
     private void getSkyStonePosition(){
@@ -428,7 +508,7 @@ public class DWAIAutonomous {
     }
 
     private void forwardToFoundationFirstTime(){
-        runIntake(-1);
+        //runIntake(-1);
 
         double forwardDistance = 0;
 
@@ -447,13 +527,13 @@ public class DWAIAutonomous {
                 break;
         }
 
-        if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
+        //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
             forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
-        }
+        //}
 
         print("Moving backwards to foundation");
-        //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
+        robot.moveByInchesFast(forwardDistance, FORWARD);
+        //robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
         stopIntake();
     }
 
@@ -500,12 +580,13 @@ public class DWAIAutonomous {
                 break;
         }
 
-        if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
+        //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
             backwardDistance -= BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
-        }
+        //}
 
         print("Moving forwards to blocks");
-        robot.compensatingMoveByInchesFast(backwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
+        robot.moveByInchesFast(backwardDistance, FORWARD);
+        //robot.compensatingMoveByInchesFast(backwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
     }
 
     private void forwardToFoundationSecondTime(){
@@ -538,7 +619,7 @@ public class DWAIAutonomous {
 
         Thread thread = new Thread(() -> {
 
-            while(flag){
+            while(flag && opMode.opModeIsActive()){
                 robot.setIntakePower(power);
             }
 
@@ -574,8 +655,8 @@ public class DWAIAutonomous {
         rightPos[0] = (4f + offsetX + distScale * 2f) / 8f;
         rightPos[1] = (4f + offsetY) / 8f;
 
-        int          cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
-        OpenCvCamera phoneCam            = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
+        int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
+        OpenCvCamera phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
         phoneCam.openCameraDevice();//open camera
         phoneCam.setPipeline(new StageSwitchingPipeline());//different stages
         int rows = 640;
@@ -602,13 +683,14 @@ public class DWAIAutonomous {
 
     public enum SIDE {
         BLOCK,
-        FOUNDATION
+        FOUNDATION,
+        JUST_PARK
     }
 
     enum SKYSTONE_POSITION {
         ONE_AND_FOUR,
         TWO_AND_FIVE,
-        THREE_AND_SIX
+        THREE_AND_SIX,
     }
 
     //detection pipeline (ignore)

@@ -10,11 +10,9 @@ import static org.firstinspires.ftc.teamcode.DWAIAutonomous.ALLIANCE;
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.PARK_POSITION;
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.SIDE;
 
-@Autonomous(name = "Blue Block Vertical Bridge", group = "Autonomous")
-@Disabled
+@Autonomous(name = "Blue One-Block", group = "Autonomous")
 public class BLUE_BLOCK_VERTICAL_BRIDGE extends LinearOpMode {
     private DWAIAutonomous auto;
-
 
     @Override
     public void runOpMode() {
