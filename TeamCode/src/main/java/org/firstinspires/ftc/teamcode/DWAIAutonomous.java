@@ -88,9 +88,12 @@ public class DWAIAutonomous {
     private double BLOCK_SIX_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_SIX_FORWARD_TO_FOUNDATION");
     private double BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION");
     private double BLOCK_STRAFE_DIST = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST");
+    private double BLOCK_STRAFE_DIST_2 = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST_2");
+    private double BLOCK_STRAFE_DIFF_DIST_2 = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST_DIFF_2");
     private double horizontalTurnDegree = 90;
     private double verticalTurnDegree = 90;
     private double fiddleDistance = -3;
+    private double blockRotation = -90;
     private volatile boolean flag = false;
     private ElapsedTime runtime = new ElapsedTime();
     private RobotLinearOpMode robot;
@@ -158,24 +161,27 @@ public class DWAIAutonomous {
 
             deploy.start();
 
-            strafeToBlock();
-            robot.turnToDegreePrecise(-90);
+            goToBlock();
 
+            robot.stopDriveMotors();
             print("Lowering grabber");
             setGrabberPosition(READY);
             opMode.sleep(500);
 
             print("Strafing against block");
             robot.moveByInchesFast(BLOCK_STRAFE_DIST, STRAFE);
+            opMode.sleep(500);
 
             print("Grabbing block");
             setGrabberPosition(GRABBING);
             opMode.sleep(500);
             print("Stowing block");
             setGrabberPosition(STOWED);
+            robot.moveByInchesFast(-BLOCK_STRAFE_DIST, STRAFE);
 
             forwardToFoundationFirstTime();
 
+            robot.stopDriveMotors();
             print("Dropping block off");
             setGrabberPosition(READY);
             opMode.sleep(1000);
@@ -184,21 +190,25 @@ public class DWAIAutonomous {
 
             backwardToBlocks();
 
+            robot.stopDriveMotors();
             print("Lowering grabber");
             setGrabberPosition(READY);
             opMode.sleep(500);
 
             print("Strafing against block");
-            robot.moveByInchesFast(BLOCK_STRAFE_DIST, STRAFE);
+            robot.moveByInchesFast(BLOCK_STRAFE_DIST_2, STRAFE);
 
+            robot.stopDriveMotors();
             print("Grabbing block");
             setGrabberPosition(GRABBING);
             opMode.sleep(500);
             print("Stowing block");
             setGrabberPosition(STOWED);
+            robot.moveByInchesFast(-(BLOCK_STRAFE_DIST_2 + BLOCK_STRAFE_DIFF_DIST_2), STRAFE);
 
             forwardToFoundationSecondTime();
 
+            robot.stopDriveMotors();
             print("Dropping block off");
             setGrabberPosition(READY);
             opMode.sleep(1000);
@@ -284,6 +294,7 @@ public class DWAIAutonomous {
             BLOCK_TWO_STRAFE_TO_BLOCK *= -1;
             BLOCK_THREE_STRAFE_TO_BLOCK *= -1;
             BLOCK_TO_BRIDGE *= -1;
+            blockRotation *= -1;
         }
 
     }
@@ -451,27 +462,28 @@ public class DWAIAutonomous {
 
     }
 
-    private void strafeToBlock(){
-        double strafeDistance = 0;
+    private void goToBlock(){
+        double dist = 0;
 
         //strafing to in front of the block
         switch (skystone_position) {
             case ONE_AND_FOUR:
-                strafeDistance = BLOCK_ONE_STRAFE_TO_BLOCK;
+                dist = BLOCK_ONE_STRAFE_TO_BLOCK;
                 break;
             case TWO_AND_FIVE:
-                strafeDistance = BLOCK_TWO_STRAFE_TO_BLOCK;
+                dist = BLOCK_TWO_STRAFE_TO_BLOCK;
                 break;
             case THREE_AND_SIX:
-                strafeDistance = BLOCK_THREE_STRAFE_TO_BLOCK;
+                dist = BLOCK_THREE_STRAFE_TO_BLOCK;
                 break;
         }
 
-        print("Strafing to block");
+        print("Going to block");
         robot.moveByInchesFast(BLOCK_FORWARD_OFF_WALL_TO_BLOCK, FORWARD);
+        robot.turnToDegreePrecise(blockRotation);
 
-        if(strafeDistance != 0) {
-            robot.moveByInchesFast(strafeDistance, STRAFE);
+        if(dist != 0) {
+            robot.moveByInchesFast(dist, FORWARD);
         }
 
     }
@@ -501,8 +513,8 @@ public class DWAIAutonomous {
         //}
 
         print("Moving backwards to foundation");
-        robot.moveByInchesFast(forwardDistance, FORWARD);
-        //robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
+        //robot.moveByInchesFast(forwardDistance, FORWARD);
+        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, blockRotation);
     }
 
     private void backwardToBlocks(){
@@ -528,8 +540,8 @@ public class DWAIAutonomous {
         //}
 
         print("Moving forwards to blocks");
-        robot.moveByInchesFast(backwardDistance, FORWARD);
-        //robot.compensatingMoveByInchesFast(backwardDistance, FORWARD, BLOCK_TO_FOUNDATION_ANGLE);
+        //robot.moveByInchesFast(backwardDistance, FORWARD);
+        robot.compensatingMoveByInchesFast(backwardDistance, FORWARD, blockRotation);
     }
 
     private void forwardToFoundationSecondTime(){
@@ -552,7 +564,7 @@ public class DWAIAutonomous {
 
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.moveByInchesFast(forwardDistance, FORWARD);
+        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, blockRotation);
     }
 
     private void openCVinit(){

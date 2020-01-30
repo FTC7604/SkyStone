@@ -39,8 +39,10 @@ rightLatchServo -> "rl"
 blockGrabberServo -> "bg"
 markerLatchServo -> "ml"
 
-leftSideGrabberServo -> "sl"
-leftSideGrabber -> "sg"
+leftSideGrabberServo -> "lsl"
+leftSideGrabber -> "lsg"
+rightSideGrabberServo -> "rsl"
+rightSideGrabber -> "rsg"
 
 blockIntakeTouchSensor -> "bt"
 openIntakeTouchSensor -> "it"
@@ -132,11 +134,11 @@ public class Robot {
         markerLatchServo  = hardwareMap.get(Servo.class, "ml");
 
         //SIDE GRABBERS
-        leftSideGrabberServo = hardwareMap.get(Servo.class, "sl");
-        leftSideGrabber = hardwareMap.get(Servo.class, "sg");
+        leftSideGrabberServo = hardwareMap.get(Servo.class, "lsl");
+        leftSideGrabber = hardwareMap.get(Servo.class, "lsg");
 
-        rightSideGrabberServo = hardwareMap.get(Servo.class, "something something");
-        rightSideGrabber = hardwareMap.get(Servo.class, "something something something");
+        rightSideGrabberServo = hardwareMap.get(Servo.class, "rsl");
+        rightSideGrabber = hardwareMap.get(Servo.class, "rsg");
 
         //IMU
         imu1 = hardwareMap.get(BNO055IMU.class, "imu");

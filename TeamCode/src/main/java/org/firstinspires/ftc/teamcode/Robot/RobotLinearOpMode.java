@@ -148,9 +148,9 @@ public class RobotLinearOpMode extends Robot {
 
     public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation, double ratio){
 
-        if(ratio < 1) {
-            leftFrontDriveMotor.setPower((forward - strafe + rotation) * ratio);
-            leftBackDriveMotor.setPower((forward + strafe + rotation) * ratio);
+        if(ratio < 0) {
+            leftFrontDriveMotor.setPower((forward - strafe + rotation) / -ratio);
+            leftBackDriveMotor.setPower((forward + strafe + rotation) / -ratio);
             rightFrontDriveMotor.setPower(forward + strafe - rotation);
             rightBackDriveMotor.setPower(forward - strafe - rotation);
         } else{
@@ -263,12 +263,24 @@ public class RobotLinearOpMode extends Robot {
             testDif = currentAngle - 360 - desiredAngle;
         }
 
-        if(testDif < -90){
-            ratio = 1.9;
-        } else if(testDif > 90){
-            ratio = 0.1;
+        while(testDif > 180){
+            testDif -= 360;
+        };
+
+        while(testDif < -180){
+            testDif += 360;
+        };
+
+        if(testDif < -2){
+            ratio = 3;
+        } else if(testDif > 2){
+            ratio = -3;
         } else{
-            ratio = (testDif / -100) + 1;
+            ratio = abs(testDif / 45) + 1;
+        }
+
+        if(testDif > 0){
+            ratio *= -1;
         }
 
         linearOpMode.telemetry.addData("Ratio", ratio);
