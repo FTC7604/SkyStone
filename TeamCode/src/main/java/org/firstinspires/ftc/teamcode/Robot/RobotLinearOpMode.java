@@ -331,6 +331,59 @@ public class RobotLinearOpMode extends Robot {
         betterBalisticProfile.getRidOfTemp();
     }
 
+    public void compensatedMoveByInchesFast(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction){
+        double startAngle = getRev10IMUAngle()[2];
+        double angleOff = 0;
+        double startPosition = getAverageDriveTrainEncoder(movement_direction);
+        double endPosition   = startPosition + desiredPositionChangeInInches * inchesToEncoders;
+        double currentPosition;
+        double motorPower;
+
+        BetterBalisticProfile betterBalisticProfile;
+
+        switch (movement_direction) {
+            case STRAFE:
+                betterBalisticProfile = strafeBetterBalisticProfile;
+                break;
+            case FORWARD:
+            default:
+                betterBalisticProfile = forwardBetterBalisticProfile;
+        }
+
+        betterBalisticProfile.setCurve(startPosition, endPosition);
+
+        while(!betterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
+            angleOff = getRev10IMUAngle()[2] - startAngle;
+
+            currentPosition = getAverageDriveTrainEncoder(movement_direction);
+            betterBalisticProfile.setCurrentPosition(currentPosition);
+
+            motorPower = betterBalisticProfile.getCurrentPowerAccelDecel();
+            if(movement_direction == MOVEMENT_DIRECTION.FORWARD) {
+                willCompensatedMecanumPowerDrive(motorPower, angleOff);
+            } else {
+                mecanumPowerDrive(movement_direction, motorPower);
+            }
+
+            linearOpMode.telemetry.addData("Encoder", currentPosition);
+            linearOpMode.telemetry.update();
+        }
+
+        if(betterBalisticProfile.getEnd_power() == 0) {
+            stopDriveMotors();
+        }
+
+        betterBalisticProfile.getRidOfTemp();
+    }
+
+    private void willCompensatedMecanumPowerDrive(double motorPower, double angleOff){
+        double ratio = 2;
+        leftFrontDriveMotor.setPower(motorPower + (angleOff * ratio));
+        leftBackDriveMotor.setPower(motorPower + (angleOff * ratio));
+        rightFrontDriveMotor.setPower(motorPower - (angleOff * ratio));
+        rightBackDriveMotor.setPower(motorPower - (angleOff * ratio));
+    }
+
     public void moveByInchesFast(double desiredPositionChangeInInches, MOVEMENT_DIRECTION movement_direction){
         double startPosition = getAverageDriveTrainEncoder(movement_direction);
         double endPosition   = startPosition + desiredPositionChangeInInches * inchesToEncoders;

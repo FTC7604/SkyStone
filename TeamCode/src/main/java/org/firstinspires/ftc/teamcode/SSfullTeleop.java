@@ -12,8 +12,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
 import org.firstinspires.ftc.teamcode.Control.HumanController;
 import org.firstinspires.ftc.teamcode.Control.Toggle;
+import org.firstinspires.ftc.teamcode.LED.LED;
+import org.firstinspires.ftc.teamcode.LED.Step;
 
+import static com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern;
 import static java.lang.Math.abs;
+import static org.firstinspires.ftc.teamcode.DWAIAutonomous.ALLIANCE;
+import static org.firstinspires.ftc.teamcode.DWAIAutonomous.ALLIANCE.BLUE;
 
 @TeleOp(name = "Skystone Main Teleop", group = "Linear Opmode")
 public class SSfullTeleop extends LinearOpMode {
@@ -21,22 +26,15 @@ public class SSfullTeleop extends LinearOpMode {
     private final double WEIGHT_COMP_RATIO = 1.15;
     private final double ARM_HOME_POSITION = 0;
     private final double ARM_SCORING_POSITION = 2300;
-    DWAIAutonomous.ALLIANCE alliance = AutoTransitioner.alliance;
-    RevBlinkinLedDriver blinkin;
+    boolean cardPattern = false;
+    boolean rainbowPattern = false;
+    private ALLIANCE alliance = AutoTransitioner.alliance;
+    private RevBlinkinLedDriver blinkin;
+    private BlinkinPattern dPadPattern;
     private double intakeCorrectionStartTime = -200;
     private double[] driveTrainController = new double[3];
-    private BallisticMotionProfile liftProfile = new BallisticMotionProfile(-1300,
-                                                                            -10,
-                                                                            500,
-                                                                            0.25,
-                                                                            1,
-                                                                            .7);
-    private BallisticMotionProfile armProfile = new BallisticMotionProfile(3300,
-                                                                           0,
-                                                                           1000,
-                                                                           0.3,
-                                                                           1,
-                                                                           1);
+    private BallisticMotionProfile liftProfile = new BallisticMotionProfile(-1300, -10, 500, 0.25, 1, .7);
+    private BallisticMotionProfile armProfile = new BallisticMotionProfile(3300, 0, 1000, 0.3, 1, 1);
     private double intakePower = 0;
     private double armPower = 0;
     private double liftPower = 0;
@@ -49,17 +47,17 @@ public class SSfullTeleop extends LinearOpMode {
     private double initialArmPosition = 0;
     private HumanController humanController = new HumanController(0.1, 1);
     private ElapsedTime runtime = new ElapsedTime();
+    LED cardBlinkinPatter = new LED(new Step[] {
+            new Step(BlinkinPattern.WHITE, .5), new Step(BlinkinPattern.RED, .5)}, runtime.time());
+    LED rainbowBlinkingPattern = new LED(new Step[] {
+            new Step(BlinkinPattern.RED, .2), new Step(BlinkinPattern.ORANGE, .2),
+            new Step(BlinkinPattern.YELLOW, .2), new Step(BlinkinPattern.GREEN, .2),
+            new Step(BlinkinPattern.BLUE, .2), new Step(BlinkinPattern.VIOLET, .2)
+
+    }, runtime.time());
     private DcMotor rightFrontDriveMotor;
     private DcMotor leftFrontDriveMotor;
     private DcMotor rightBackDriveMotor;
-    /*private void holdLiftUp() {
-        if (liftPosition > liftHoldposition) {
-            liftMotor.setPower(-0.4);
-        }
-        else {
-            liftMotor.setPower(0);
-        }
-    }*/
     private DcMotor leftBackDriveMotor;
     private DcMotor rightIntakeMotor;
     private DcMotor leftIntakeMotor;
@@ -74,6 +72,7 @@ public class SSfullTeleop extends LinearOpMode {
     private Toggle latchIsDown = new Toggle(false);
     private Toggle grabberIsEngaged = new Toggle(false);
     private Toggle driveMode = new Toggle(false);
+    //private boolean liftGoingToHomePosition = false;//added new
     private Toggle markerDropper = new Toggle(true);
 
     @Override
@@ -89,7 +88,7 @@ public class SSfullTeleop extends LinearOpMode {
 
         openGrabber();
 
-        while (opModeIsActive()) {
+        while(opModeIsActive()){
 
             runDrive();
 
@@ -106,37 +105,73 @@ public class SSfullTeleop extends LinearOpMode {
             sendDriverFeedback();
         }
     }
-    //private boolean liftGoingToHomePosition = false;//added new
 
     //This is the LED method
     private void sendDriverFeedback(){
 
-        //TODO the main thing we want to get feedback on is the latch, though I have looped in something with the intake sensor so that we know if we have a stone.
+        if (gamepad1.dpad_down) {
+            cardPattern    = true;
+            rainbowPattern = false;
+        }
+        else if (gamepad1.dpad_right) {
+            dPadPattern    = BlinkinPattern.RAINBOW_WITH_GLITTER;
+            cardPattern    = false;
+            rainbowPattern = false;
+        }
+        else if (gamepad1.dpad_up) {
+            cardPattern    = false;
+            rainbowPattern = true;
+        }
+        else if (gamepad1.dpad_left) {
+            dPadPattern    = BlinkinPattern.HEARTBEAT_WHITE;
+            cardPattern    = false;
+            rainbowPattern = false;
+        }
+        else if (gamepad1.a || gamepad1.b || gamepad1.x || gamepad1.y) {
+            dPadPattern    = null;
+            cardPattern    = false;
+            rainbowPattern = false;
+        }
+
         if (!intakeFull.getState()) {
-            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
+            blinkin.setPattern(BlinkinPattern.STROBE_GOLD);
             //LEDs flashing bright or something
         }
         else if (latchIsDown.get()) {
-            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
+            blinkin.setPattern(BlinkinPattern.STROBE_WHITE);
             //LEDS a certain color to indicate the latch is down
         }
         else {
+
             //LEDs some other way, maybe an alliance color if we want
-            if (alliance == DWAIAutonomous.ALLIANCE.BLUE) {
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_OCEAN_PALETTE);
+            if (dPadPattern != null) {
+                if (!cardPattern && !rainbowPattern) {
+                    blinkin.setPattern(dPadPattern);
+                }
+                else if (cardPattern) {
+                    cardBlinkinPatter.update(runtime.time());
+                    blinkin.setPattern(cardBlinkinPatter.getPattern());
+                }
+                else if (rainbowPattern) {
+                    rainbowBlinkingPattern.update(runtime.time());
+                    blinkin.setPattern(rainbowBlinkingPattern.getPattern());
+                }
             }
-            else if (alliance == DWAIAutonomous.ALLIANCE.RED) {
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_LAVA_PALETTE);
+            else if (alliance == BLUE) {
+                blinkin.setPattern(BlinkinPattern.COLOR_WAVES_OCEAN_PALETTE);
+            }
+            else if (alliance == ALLIANCE.RED) {
+                blinkin.setPattern(BlinkinPattern.COLOR_WAVES_LAVA_PALETTE);
             }
             else {
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+                blinkin.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
             }
         }
 
         //Well get rid of this telemetry for lag reduction
-//        telemetry.addData("Arm Position: ", armPosition);
-//        telemetry.addData("Lift Position: ", liftPosition);
-//        telemetry.update();
+        //        telemetry.addData("Arm Position: ", armPosition);
+        //        telemetry.addData("Lift Position: ", liftPosition);
+        //        telemetry.update();
     }
 
     //tells us if the arm is on target
@@ -147,8 +182,7 @@ public class SSfullTeleop extends LinearOpMode {
         if ((initialArmPosition <= target) && (target <= current)) {
             arrived = true;
         }
-        else
-            arrived = (initialArmPosition >= target) && (target >= current);
+        else arrived = (initialArmPosition >= target) && (target >= current);
         return arrived;
     }
     //private double initialLiftPosition = 0;
@@ -209,14 +243,12 @@ public class SSfullTeleop extends LinearOpMode {
     }
 
     private void closeGrabber(){
-        if (!grabberIsEngaged.get())
-            grabberIsEngaged.update(true);
+        if (!grabberIsEngaged.get()) grabberIsEngaged.update(true);
         blockGrabberServo.setPosition(0);
     }
 
     private void openGrabber(){
-        if (grabberIsEngaged.get())
-            grabberIsEngaged.update(true);
+        if (grabberIsEngaged.get()) grabberIsEngaged.update(true);
         blockGrabberServo.setPosition(.7);
     }
 
@@ -235,8 +267,8 @@ public class SSfullTeleop extends LinearOpMode {
     }
 
     private void openLatch(){
-        leftLatchServo.setPosition(.5);
-        rightLatchServo.setPosition(.65);
+        leftLatchServo.setPosition(.8);
+        rightLatchServo.setPosition(.95);
     }
 
     private void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power){
@@ -259,21 +291,18 @@ public class SSfullTeleop extends LinearOpMode {
         rightFrontDriveMotor.setPower(forward + strafe - rotation);
         rightBackDriveMotor.setPower(forward - strafe - rotation);
 
-//        telemetry.addData("leftFrontDriveMotor power", forward - strafe + rotation);
-//        telemetry.addData("leftBackDriveMotor power", forward + strafe + rotation);
-//        telemetry.addData("rightFrontDriveMotor power", forward + strafe - rotation);
-//        telemetry.addData("rightBackDriveMotor power", forward - strafe - rotation);
-//
-//
-//        telemetry.update();
+        //        telemetry.addData("leftFrontDriveMotor power", forward - strafe + rotation);
+        //        telemetry.addData("leftBackDriveMotor power", forward + strafe + rotation);
+        //        telemetry.addData("rightFrontDriveMotor power", forward + strafe - rotation);
+        //        telemetry.addData("rightBackDriveMotor power", forward - strafe - rotation);
+        //
+        //
+        //        telemetry.update();
     }
 
     //compensates for change in center of gravity with arm swinging behind the robot
     private void compensatedMecanumPowerDrive(
-            double strafe,
-            double forward,
-            double rotation,
-            double ratio
+            double strafe, double forward, double rotation, double ratio
     ){
         leftFrontDriveMotor.setPower(forward - strafe + rotation);
         leftBackDriveMotor.setPower(forward + strafe * ratio + rotation);
@@ -291,8 +320,7 @@ public class SSfullTeleop extends LinearOpMode {
             leftIntakeMotor.setPower(1);
             intakeCorrectionStartTime = runtime.milliseconds();
         }
-        else if (runtime.milliseconds() <
-                intakeCorrectionStartTime + 100) {//unjammed but still needs fixing
+        else if (runtime.milliseconds() < intakeCorrectionStartTime + 100) {//unjammed but still needs fixing
             rightIntakeMotor.setPower(intakePower);
             leftIntakeMotor.setPower(1);
         }
@@ -308,14 +336,9 @@ public class SSfullTeleop extends LinearOpMode {
         driveMode.update(gamepad1.right_bumper);
 
         if (driveMode.get()) {//tank
-            driveTrainController[1] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) *
-                    (abs(-gamepad1.right_stick_y)) +
-                    ((-gamepad1.left_stick_y) * (abs(-gamepad1.left_stick_y)))) / 2);
-            driveTrainController[0] = humanController.linearDriveProfile(-(((-gamepad1.right_stick_x) *
-                    (abs(-gamepad1.right_stick_x)) +
-                    ((-gamepad1.left_stick_x) * (abs(-gamepad1.left_stick_x)))) / 2));
-            driveTrainController[2] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) -
-                    (-gamepad1.left_stick_y)) / 2);
+            driveTrainController[1] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) * (abs(-gamepad1.right_stick_y)) + ((-gamepad1.left_stick_y) * (abs(-gamepad1.left_stick_y)))) / 2);
+            driveTrainController[0] = humanController.linearDriveProfile(-(((-gamepad1.right_stick_x) * (abs(-gamepad1.right_stick_x)) + ((-gamepad1.left_stick_x) * (abs(-gamepad1.left_stick_x)))) / 2));
+            driveTrainController[2] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) - (-gamepad1.left_stick_y)) / 2);
         }
         else {//normal
             driveTrainController[1] = humanController.linearDriveProfile(-gamepad1.left_stick_y);
@@ -328,10 +351,7 @@ public class SSfullTeleop extends LinearOpMode {
             driveTrainController[1] /= 3;///should be a bit slower if these changes work
             driveTrainController[0] /= 2;
             driveTrainController[2] /= 3;
-            compensatedMecanumPowerDrive(driveTrainController[0],
-                                         driveTrainController[1],
-                                         driveTrainController[2],
-                                         WEIGHT_COMP_RATIO);
+            compensatedMecanumPowerDrive(driveTrainController[0], driveTrainController[1], driveTrainController[2], WEIGHT_COMP_RATIO);
 
             //I am trying a different drive mode without weight comp
 
@@ -342,8 +362,7 @@ public class SSfullTeleop extends LinearOpMode {
     }
 
     private void runLifter(){
-        liftPower    = liftProfile.limitWithoutAccel(liftMotor.getCurrentPosition(),
-                                                     -gamepad2.right_stick_y);
+        liftPower    = liftProfile.limitWithoutAccel(liftMotor.getCurrentPosition(), -gamepad2.right_stick_y);
         liftPosition = liftMotor.getCurrentPosition();
         liftMotor.setPower(liftPower);
     }
@@ -362,9 +381,7 @@ public class SSfullTeleop extends LinearOpMode {
                 //stop trying to go there
             }
             else {
-                armPower = armProfile.RunToPositionWithAccel(initialArmPosition,
-                                                             armPosition,
-                                                             ARM_SCORING_POSITION);
+                armPower = armProfile.RunToPositionWithAccel(initialArmPosition, armPosition, ARM_SCORING_POSITION);
             }
         }
         else if ((liftPower != 0) && armPosition < 200 && gamepad2.left_stick_y <= 0) {
@@ -380,9 +397,7 @@ public class SSfullTeleop extends LinearOpMode {
                 //stop trying to go there
             }
             else {
-                armPower = armProfile.RunToPositionWithAccel(initialArmPosition,
-                                                             armPosition,
-                                                             ARM_HOME_POSITION);
+                armPower = armProfile.RunToPositionWithAccel(initialArmPosition, armPosition, ARM_HOME_POSITION);
             }
 
         }
@@ -432,22 +447,15 @@ public class SSfullTeleop extends LinearOpMode {
         //grabberIsEngaged.update(gamepad2.right_bumper);
 
         //peter gets full control
-        if (armGoingToHomePosition)
-            openGrabber();
-        else if (gamepad2.y)
-            closeGrabber();
-        else if (gamepad2.right_bumper)
-            openGrabber();
+        if (armGoingToHomePosition) openGrabber();
+        else if (gamepad2.y) closeGrabber();
+        else if (gamepad2.right_bumper) openGrabber();
 
-        if (!latchIsDown.get())
-            openLatch();
-        else
-            closeLatch();
+        if (!latchIsDown.get()) openLatch();
+        else closeLatch();
 
-        if (markerDropper.get())
-            holdMarker();
-        else
-            dropMarker();
+        if (markerDropper.get()) holdMarker();
+        else dropMarker();
     }
 
     private void holdArmUp(){
