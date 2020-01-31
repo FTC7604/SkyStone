@@ -175,6 +175,10 @@ public class BetterBalisticProfile {
         isDecelerating       = abs(endPosition - currentPosition) < deceleration_distance;
     }
 
+    public boolean isDecelerating(){
+        return abs(endPosition - currentPosition) < 3 * deceleration_distance;
+    }
+
     public void getRidOfTemp(){
         tempPowerSet = false;
     }
@@ -240,5 +244,6 @@ public class BetterBalisticProfile {
         SINUSOIDAL_INVERTED,
         SINUSOIDAL_SCURVE
     }
+
 
 }

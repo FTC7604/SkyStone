@@ -170,7 +170,6 @@ public class DWAIAutonomous {
 
             print("Strafing against block");
             robot.moveByInchesFast(BLOCK_STRAFE_DIST, STRAFE);
-            opMode.sleep(500);
 
             print("Grabbing block");
             setGrabberPosition(GRABBING);
