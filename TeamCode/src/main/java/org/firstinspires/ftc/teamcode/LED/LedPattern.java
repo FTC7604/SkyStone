@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.LED;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 
-public class LED {
+public class LedPattern {
 
-    Step[] flashPattern;
+    LedPatternStep[] flashPattern;
     int stepNumber;
 
     double timeOfLastPattern;
@@ -12,7 +12,7 @@ public class LED {
     RevBlinkinLedDriver.BlinkinPattern oldPattern;
 
     //consturctor
-    public LED(Step[] flashPattern, double time){
+    public LedPattern(LedPatternStep[] flashPattern, double time){
         this.flashPattern = flashPattern;
         start(time);
     }

@@ -115,22 +115,17 @@ public class BetterBalisticProfile {
     }
 
     private double accelerationCurve() {
-        if (!tempPowerSet) {
+
             return processedCurve((full_power - start_power) * invert(), (currentPosition - startPosition) * invert(), acceleration_distance, acceleration_curve, start_power * invert());
-        } else {
-            return processedCurve((full_power - tempStartPower) * invert(), (currentPosition - startPosition) * invert(), acceleration_distance, acceleration_curve, tempStartPower * invert());
-        }
+
     }
 
     private double decelerationCurve(){
-        if(!tempPowerSet) {
+
             return processedCurve((full_power - end_power) * invert(), (endPosition - currentPosition) * invert(), deceleration_distance, deceleration_curve, end_power * invert());
 
 
-        } else  {
-            return processedCurve((full_power - tempEndPower) * invert(), (endPosition - currentPosition) * invert(), deceleration_distance, deceleration_curve, tempEndPower * invert());
 
-        }
     }
 
     public void setCurve(double startPosition, double endPosition){
@@ -152,22 +147,8 @@ public class BetterBalisticProfile {
         this.currentPosition    = startPosition;
     }
 
-    double tempStartPower;
-    double tempEndPower;
-    boolean tempPowerSet = false;
 
-    public void setCurve(double startPosition, double endPosition, double tempMinPower, double tempMaxPower){
-        this.tempStartPower = tempMinPower;
-        this.tempEndPower = tempMaxPower;
-        tempPowerSet = true;
-        setCurve(startPosition, endPosition);
-    }
 
-    public void endCurve(){
-        tempPowerSet = false;
-        this.tempStartPower = 0;
-        this.tempEndPower = 0;
-    }
 
     public void setCurrentPosition(double currentPosition){
         this.currentPosition = currentPosition;
@@ -179,9 +160,7 @@ public class BetterBalisticProfile {
         return abs(endPosition - currentPosition) < 3 * deceleration_distance;
     }
 
-    public void getRidOfTemp(){
-        tempPowerSet = false;
-    }
+
 
     public double getCurrentPowerAccelDecel(){
 

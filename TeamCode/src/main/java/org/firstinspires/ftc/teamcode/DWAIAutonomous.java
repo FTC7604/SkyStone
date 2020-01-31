@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern;
-import com.vuforia.EyewearDevice;
 
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
@@ -23,8 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.*;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.*;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.DEFAULT;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.GRABBING;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.READY;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.STOWED;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
 
 /**
@@ -35,7 +38,7 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POS
  * WOULD BE VERY NICE TO HAVE A SERVO CLAW ON THE SIDE (QUICKER SAMPLING)
  * REMEMBER TO MAKE A BRIDGE PARK AUTO (park is only against the wall right now)
  * REMEMBER TO RECALIBRATE AUTOS (again), POSSIBLY INCLUDE 'friction constant' IN PROPERTIES
- *
+ * <p>
  * FIELD SETUP:
  * ALWAYS CHECK ENCODER WIRES AND SUCH!
  * ALWAYS CHECK CAMERA IS NOT BLOCKED BY FOUNDATION CLAMP CLAW!
@@ -108,7 +111,13 @@ public class DWAIAutonomous {
 
     private double BLOCK_TO_BRIDGE = -9;
 
-    public DWAIAutonomous(FOUNDATION_ORIENTATION foundationOrientation, PARK_POSITION parkPosition, SIDE side, ALLIANCE alliance, LinearOpMode opMode){
+    public DWAIAutonomous(
+            FOUNDATION_ORIENTATION foundationOrientation,
+            PARK_POSITION parkPosition,
+            SIDE side,
+            ALLIANCE alliance,
+            LinearOpMode opMode
+    ){
         this.foundationOrientation = foundationOrientation;
         this.parkPosition          = parkPosition;
         this.side                  = side;
@@ -138,13 +147,15 @@ public class DWAIAutonomous {
             if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
                 placeHorizontal();
                 parkHorizontal();
-            } else {
+            }
+            else {
                 placeVertical();
                 parkVertical();
             }
 
             robot.stopDriveMotors();
-        } else if (side == SIDE.BLOCK) {
+        }
+        else if (side == SIDE.BLOCK) {
 
             while(skystone_position == null || checks < 10){
                 getSkyStonePosition();
@@ -178,8 +189,10 @@ public class DWAIAutonomous {
             setGrabberPosition(STOWED);
             robot.moveByInchesFast(-BLOCK_STRAFE_DIST, STRAFE);
 
+            waitForFlag();
             forwardToFoundationFirstTime();
 
+            //TODO slow this down so that it does thing well
             robot.stopDriveMotors();
             print("Dropping block off");
             setGrabberPosition(READY);
@@ -233,7 +246,8 @@ public class DWAIAutonomous {
                 robot.stopDriveMotors();
             }*/
 
-        } else if(side == SIDE.JUST_PARK){
+        }
+        else if (side == SIDE.JUST_PARK) {
             startDeploy();
             robot.moveByInchesFast(12, FORWARD);
             robot.stopDriveMotors();
@@ -244,7 +258,7 @@ public class DWAIAutonomous {
 
     private void setGrabberPosition(RobotLinearOpMode.GRABBER_POSITION pos){
 
-        switch(alliance){
+        switch (alliance) {
             case RED:
                 robot.setLeftGrabberPosition(pos);
             case BLUE:
@@ -255,7 +269,8 @@ public class DWAIAutonomous {
 
     private void waitForFlag(){
         print("Waiting for flag");
-        while(opMode.opModeIsActive() && !flag){}
+        while(opMode.opModeIsActive() && !flag){
+        }
         print("Done waiting");
         flag = false;
     }
@@ -267,8 +282,10 @@ public class DWAIAutonomous {
         if (PAUSE_STEPS) {
             robot.stopAllMotors();
             //Ensures button is pressed and released before continuing
-            while(opMode.opModeIsActive() && !opMode.gamepad1.a){}
-            while(opMode.opModeIsActive() && opMode.gamepad1.a){}
+            while(opMode.opModeIsActive() && !opMode.gamepad1.a){
+            }
+            while(opMode.opModeIsActive() && opMode.gamepad1.a){
+            }
         }
 
     }
@@ -299,7 +316,7 @@ public class DWAIAutonomous {
     }
 
     private void startDeploy(){
-        robot.setLiftPower(-0.4);
+        robot.setLiftPower(-0.5);
         try {
             sleep(1000);
         } catch (InterruptedException e) {
@@ -368,7 +385,7 @@ public class DWAIAutonomous {
         robot.moveByInchesFast(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
 
         print("Turning to be forward");
-        robot.turnToDegreePrecise(horizontalTurnDegree);
+        robot.turnToDegreeFast(horizontalTurnDegree);
         robot.stopDriveMotors();
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
     }
@@ -380,7 +397,8 @@ public class DWAIAutonomous {
         if (parkPosition == PARK_POSITION.WALL) {
             print("Strafing against wall");
             robot.moveByInchesFast(HWALL_PARK_STRAFE_DISTANCE, STRAFE);
-        } else {
+        }
+        else {
             print("Strafing towards bridge");
             robot.moveByInchesFast(HBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
         }
@@ -408,7 +426,7 @@ public class DWAIAutonomous {
         robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
 
         print("Turning to be forward");
-        robot.turnToDegreePrecise(verticalTurnDegree);
+        robot.turnToDegreeFast(verticalTurnDegree);
 
         print("Slamming foundation against the wall really really hard");
         robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD, FORWARD);
@@ -419,7 +437,8 @@ public class DWAIAutonomous {
         if (parkPosition == PARK_POSITION.WALL) {
             print("Strafing against wall");
             robot.moveByInchesFast(VWALL_PARK_STRAFE_DISTANCE, STRAFE);
-        } else {
+        }
+        else {
             print("Strafing against bridge");
             robot.moveByInchesFast(VBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
         }
@@ -435,26 +454,22 @@ public class DWAIAutonomous {
     private void getSkyStonePosition(){
 
         if (alliance == ALLIANCE.BLUE) {
-            if (valLeft == 0)
-                skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
-            if (valMid == 0)
-                skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
-            if (valRight == 0)
-                skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
-        } else {
-            if (valLeft == 0)
-                skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
-            if (valMid == 0)
-                skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
-            if (valRight == 0)
-                skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
+            if (valLeft == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
+            if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
+            if (valRight == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
+        }
+        else {
+            if (valLeft == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
+            if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
+            if (valRight == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
         }
 
         if (skystone_position == null) {
             //throw new RuntimeException("No skystone detected!");
             opMode.telemetry.addLine("No Skystone detected!");
             opMode.telemetry.update();
-        } else {
+        }
+        else {
             opMode.telemetry.addLine(skystone_position.name());
             opMode.telemetry.update();
         }
@@ -479,9 +494,9 @@ public class DWAIAutonomous {
 
         print("Going to block");
         robot.moveByInchesFast(BLOCK_FORWARD_OFF_WALL_TO_BLOCK, FORWARD);
-        robot.turnToDegreePrecise(blockRotation);
+        robot.turnToDegreeFast(blockRotation);
 
-        if(dist != 0) {
+        if (dist != 0) {
             robot.moveByInchesFast(dist, FORWARD);
         }
 
@@ -508,7 +523,7 @@ public class DWAIAutonomous {
         }
 
         //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-            forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
+        forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
         //}
 
         print("Moving backwards to foundation");
@@ -535,7 +550,7 @@ public class DWAIAutonomous {
         }
 
         //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-            backwardDistance -= BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
+        backwardDistance -= BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
         //}
 
         print("Moving forwards to blocks");
@@ -567,12 +582,12 @@ public class DWAIAutonomous {
     }
 
     private void openCVinit(){
-        float offsetX   = propertiesLoader.getFloatProperty("OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
-        float allianceOffsetX   = propertiesLoader.getFloatProperty("ALLIANCE_OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
-        float offsetY   = propertiesLoader.getFloatProperty("OFFSET_Y");//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
-        float distScale = propertiesLoader.getFloatProperty("DIST_SCALE");
+        float offsetX         = propertiesLoader.getFloatProperty("OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
+        float allianceOffsetX = propertiesLoader.getFloatProperty("ALLIANCE_OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
+        float offsetY         = propertiesLoader.getFloatProperty("OFFSET_Y");//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
+        float distScale       = propertiesLoader.getFloatProperty("DIST_SCALE");
 
-        if(alliance == ALLIANCE.BLUE){
+        if (alliance == ALLIANCE.BLUE) {
             offsetX -= allianceOffsetX;
         }
 
@@ -583,8 +598,8 @@ public class DWAIAutonomous {
         rightPos[0] = (4f + offsetX + distScale * 2f) / 8f;
         rightPos[1] = (4f + offsetY) / 8f;
 
-        int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
-        OpenCvCamera phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
+        int          cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
+        OpenCvCamera phoneCam            = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
         phoneCam.openCameraDevice();//open camera
         phoneCam.setPipeline(new StageSwitchingPipeline());//different stages
         int rows = 640;
@@ -689,8 +704,8 @@ public class DWAIAutonomous {
             //valRight = radialAverage(rightPos, input);
 
             //create three points
-            Point pointMid = new Point((int) (input.cols() * midPos[0]), (int) (input.rows() * midPos[1]));
-            Point pointLeft = new Point((int) (input.cols() * leftPos[0]), (int) (input.rows() * leftPos[1]));
+            Point pointMid   = new Point((int) (input.cols() * midPos[0]), (int) (input.rows() * midPos[1]));
+            Point pointLeft  = new Point((int) (input.cols() * leftPos[0]), (int) (input.rows() * leftPos[1]));
             Point pointRight = new Point((int) (input.cols() * rightPos[0]), (int) (input.rows() * rightPos[1]));
 
             //draw circles on those points

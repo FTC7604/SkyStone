@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.LED;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 
-public class Step {
+public class LedPatternStep {
     private RevBlinkinLedDriver.BlinkinPattern stepPattern;
     private double timeStep;
 
-    public Step(RevBlinkinLedDriver.BlinkinPattern pattern, double time){
+    public LedPatternStep(RevBlinkinLedDriver.BlinkinPattern pattern, double time){
         this.stepPattern = pattern;
         this.timeStep = time;
     }
