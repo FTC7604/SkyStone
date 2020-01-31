@@ -148,16 +148,16 @@ public class RobotLinearOpMode extends Robot {
 
     public void compensatedMecanumPowerDrive(double strafe, double forward, double rotation, double ratio){
 
-        if(ratio < 0) {
-            leftFrontDriveMotor.setPower((forward - strafe + rotation) / -ratio);
-            leftBackDriveMotor.setPower((forward + strafe + rotation) / -ratio);
+        if((ratio < 0 && forward > 0) || (ratio > 0 && forward < 0)) {
+            leftFrontDriveMotor.setPower((forward - strafe + rotation) / abs(ratio));
+            leftBackDriveMotor.setPower((forward + strafe + rotation) / abs(ratio));
             rightFrontDriveMotor.setPower(forward + strafe - rotation);
             rightBackDriveMotor.setPower(forward - strafe - rotation);
-        } else{
+        } else if((ratio > 0 && forward > 0) || (ratio < 0 && forward < 0)){
             leftFrontDriveMotor.setPower((forward - strafe + rotation));
             leftBackDriveMotor.setPower((forward + strafe + rotation));
-            rightFrontDriveMotor.setPower((forward + strafe - rotation) / ratio);
-            rightBackDriveMotor.setPower((forward - strafe - rotation) / ratio);
+            rightFrontDriveMotor.setPower((forward + strafe - rotation) / abs(ratio));
+            rightBackDriveMotor.setPower((forward - strafe - rotation) / abs(ratio));
         }
 
     }
@@ -255,14 +255,6 @@ public class RobotLinearOpMode extends Robot {
         double testDif = currentAngle - desiredAngle;
         double ratio;
 
-        if(abs(currentAngle + 360 - desiredAngle) < abs(testDif)){
-            testDif = currentAngle + 360 - desiredAngle;
-        }
-
-        if(abs(currentAngle - 360 - desiredAngle) < abs(testDif)){
-            testDif = currentAngle - 360 - desiredAngle;
-        }
-
         while(testDif > 180){
             testDif -= 360;
         };
@@ -271,16 +263,17 @@ public class RobotLinearOpMode extends Robot {
             testDif += 360;
         };
 
-        if(testDif < -2){
+        if(testDif < -90){
             ratio = 3;
-        } else if(testDif > 2){
+        } else if(testDif > 90){
             ratio = -3;
         } else{
-            ratio = abs(testDif / 45) + 1;
-        }
+            ratio = abs(testDif / 30) + 1;
 
-        if(testDif > 0){
-            ratio *= -1;
+            if(testDif > 0){
+                ratio *= -1;
+            }
+
         }
 
         linearOpMode.telemetry.addData("Ratio", ratio);
@@ -319,7 +312,11 @@ public class RobotLinearOpMode extends Robot {
             if(movement_direction != MOVEMENT_DIRECTION.FORWARD) {
                 mecanumPowerDrive(movement_direction, motorPower);
             } else{
-                compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle));
+                if(!betterBalisticProfile.isDecelerating()) {
+                    compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle));
+                } else {
+                    mecanumPowerDrive(movement_direction, motorPower);
+                }
             }
 
         }
