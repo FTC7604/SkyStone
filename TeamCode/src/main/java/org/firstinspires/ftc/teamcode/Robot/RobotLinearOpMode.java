@@ -152,6 +152,18 @@ public class RobotLinearOpMode extends Robot {
             rightFrontDriveMotor.setPower((forward + strafe - rotation) / abs(ratio));
             rightBackDriveMotor.setPower((forward - strafe - rotation) / abs(ratio));
         }
+        else if((ratio > 0 && strafe > 0) || (ratio < 0 && strafe < 0)){
+            leftFrontDriveMotor.setPower((forward - strafe + rotation) / abs(ratio));
+            leftBackDriveMotor.setPower(forward + strafe + rotation);
+            rightFrontDriveMotor.setPower((forward + strafe - rotation) / abs(ratio));
+            rightBackDriveMotor.setPower(forward - strafe - rotation);
+        }
+        else if((ratio < 0 && strafe > 0) || (ratio > 0 && strafe < 0)){
+            leftFrontDriveMotor.setPower(forward - strafe + rotation);
+            leftBackDriveMotor.setPower((forward + strafe + rotation) / abs(ratio));
+            rightFrontDriveMotor.setPower(forward + strafe - rotation);
+            rightBackDriveMotor.setPower((forward - strafe - rotation) / abs(ratio));
+        }
 
     }
 
@@ -270,16 +282,12 @@ public class RobotLinearOpMode extends Robot {
             betterBalisticProfile.setCurrentPosition(currentPosition);
             motorPower = betterBalisticProfile.getCurrentPowerAccelDecel();
 
-            if (movement_direction != MOVEMENT_DIRECTION.FORWARD) {
+            if(movement_direction == MOVEMENT_DIRECTION.STRAFE) {
+                compensatedMecanumPowerDrive(motorPower, 0, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
+            } else if(movement_direction == MOVEMENT_DIRECTION.FORWARD) {
+                compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
+            } else{
                 mecanumPowerDrive(movement_direction, motorPower);
-            }
-            else {
-                if (!betterBalisticProfile.isDecelerating()) {
-                    compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
-                }
-                else {
-                    mecanumPowerDrive(movement_direction, motorPower);
-                }
             }
 
         }
