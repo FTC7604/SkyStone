@@ -108,7 +108,7 @@ public class DWAIAutonomous {
 
     private int checks = 0;
 
-    private double BLOCK_TO_BRIDGE = -9;
+    private double BLOCK_TO_BRIDGE = propertiesLoader.getDoubleProperty("BLOCK_TO_BRIDGE");;
 
     public DWAIAutonomous(
             FOUNDATION_ORIENTATION foundationOrientation,
