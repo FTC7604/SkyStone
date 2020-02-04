@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.max;
 import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.LINEAR;
 import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.SINUSOIDAL_SCURVE;
 
@@ -139,6 +140,7 @@ public class RobotLinearOpMode extends Robot {
             double rotation,
             double ratio
     ){
+        ratio = Math.max(abs(ratio), 1) * Math.signum(ratio);
 
         if ((ratio < 0 && forward > 0) || (ratio > 0 && forward < 0)) {
             leftFrontDriveMotor.setPower((forward - strafe + rotation) / abs(ratio));
@@ -150,6 +152,18 @@ public class RobotLinearOpMode extends Robot {
             leftFrontDriveMotor.setPower((forward - strafe + rotation));
             leftBackDriveMotor.setPower((forward + strafe + rotation));
             rightFrontDriveMotor.setPower((forward + strafe - rotation) / abs(ratio));
+            rightBackDriveMotor.setPower((forward - strafe - rotation) / abs(ratio));
+        }
+        else if((ratio > 0 && strafe > 0) || (ratio < 0 && strafe < 0)){
+            leftFrontDriveMotor.setPower((forward - strafe + rotation) / abs(ratio));
+            leftBackDriveMotor.setPower(forward + strafe + rotation);
+            rightFrontDriveMotor.setPower((forward + strafe - rotation) / abs(ratio));
+            rightBackDriveMotor.setPower(forward - strafe - rotation);
+        }
+        else if((ratio < 0 && strafe > 0) || (ratio > 0 && strafe < 0)){
+            leftFrontDriveMotor.setPower(forward - strafe + rotation);
+            leftBackDriveMotor.setPower((forward + strafe + rotation) / abs(ratio));
+            rightFrontDriveMotor.setPower(forward + strafe - rotation);
             rightBackDriveMotor.setPower((forward - strafe - rotation) / abs(ratio));
         }
 
@@ -270,11 +284,12 @@ public class RobotLinearOpMode extends Robot {
             betterBalisticProfile.setCurrentPosition(currentPosition);
             motorPower = betterBalisticProfile.getCurrentPowerAccelDecel();
 
-            if (movement_direction != MOVEMENT_DIRECTION.FORWARD) {
+            if(movement_direction == MOVEMENT_DIRECTION.STRAFE) {
+                compensatedMecanumPowerDrive(motorPower, 0, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
+            } else if(movement_direction == MOVEMENT_DIRECTION.FORWARD) {
+                compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
+            } else{
                 mecanumPowerDrive(movement_direction, motorPower);
-            }
-            else {
-                    compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
             }
 
         }
