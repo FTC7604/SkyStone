@@ -274,12 +274,7 @@ public class RobotLinearOpMode extends Robot {
                 mecanumPowerDrive(movement_direction, motorPower);
             }
             else {
-                if (!betterBalisticProfile.isDecelerating()) {
                     compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
-                }
-                else {
-                    mecanumPowerDrive(movement_direction, motorPower);
-                }
             }
 
         }
