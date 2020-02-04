@@ -160,7 +160,16 @@ public class BetterBalisticProfile {
         return abs(endPosition - currentPosition) < 3 * deceleration_distance;
     }
 
+    public double getPercentLeft(){
+        double distanceLeft = abs(endPosition - currentPosition);
 
+        if(distanceLeft > abs(deceleration_distance)){
+            return 1;
+        } else{
+            return distanceLeft / abs(deceleration_distance);
+        }
+
+    }
 
     public double getCurrentPowerAccelDecel(){
 

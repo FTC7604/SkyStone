@@ -275,7 +275,7 @@ public class RobotLinearOpMode extends Robot {
             }
             else {
                 if (!betterBalisticProfile.isDecelerating()) {
-                    compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle));
+                    compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
                 }
                 else {
                     mecanumPowerDrive(movement_direction, motorPower);
@@ -287,7 +287,6 @@ public class RobotLinearOpMode extends Robot {
         if (betterBalisticProfile.getEnd_power() == 0) {
             stopDriveMotors();
         }
-
 
     }
 

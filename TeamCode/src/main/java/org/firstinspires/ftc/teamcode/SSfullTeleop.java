@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
 import org.firstinspires.ftc.teamcode.Control.HumanController;
 import org.firstinspires.ftc.teamcode.Control.Toggle;
-import org.firstinspires.ftc.teamcode.LED.LED;
-import org.firstinspires.ftc.teamcode.LED.Step;
+import org.firstinspires.ftc.teamcode.LED.LedPattern;
+import org.firstinspires.ftc.teamcode.LED.LedPatternStep;
 
 import static com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern;
 import static java.lang.Math.abs;
@@ -22,12 +22,12 @@ import static org.firstinspires.ftc.teamcode.DWAIAutonomous.ALLIANCE.BLUE;
 
 @TeleOp(name = "Skystone Main Teleop", group = "Linear Opmode")
 public class SSfullTeleop extends LinearOpMode {
-    //private final double LIFT_HOME_POSITION = -20;//for controlling the lifter
+    private final double LIFT_HOME_POSITION = -20;
     private final double WEIGHT_COMP_RATIO = 1.15;
     private final double ARM_HOME_POSITION = 0;
     private final double ARM_SCORING_POSITION = 2300;
-    boolean cardPattern = false;
-    boolean rainbowPattern = false;
+    private boolean cardPattern = false;
+    private boolean rainbowPattern = false;
     private ALLIANCE alliance = AutoTransitioner.alliance;
     private RevBlinkinLedDriver blinkin;
     private BlinkinPattern dPadPattern;
@@ -40,19 +40,18 @@ public class SSfullTeleop extends LinearOpMode {
     private double liftPower = 0;
     private double armPosition = 0;
     private double liftPosition = 0;
-    //private double liftHoldposition = 0;
     private double armHoldPosition = 0;
     private boolean armGoingToScoringPosition = false;
     private boolean armGoingToHomePosition = false;
     private double initialArmPosition = 0;
     private HumanController humanController = new HumanController(0.1, 1);
     private ElapsedTime runtime = new ElapsedTime();
-    LED cardBlinkinPatter = new LED(new Step[] {
-            new Step(BlinkinPattern.WHITE, .5), new Step(BlinkinPattern.RED, .5)}, runtime.time());
-    LED rainbowBlinkingPattern = new LED(new Step[] {
-            new Step(BlinkinPattern.RED, .2), new Step(BlinkinPattern.ORANGE, .2),
-            new Step(BlinkinPattern.YELLOW, .2), new Step(BlinkinPattern.GREEN, .2),
-            new Step(BlinkinPattern.BLUE, .2), new Step(BlinkinPattern.VIOLET, .2)
+    LedPattern cardBlinkinPatter = new LedPattern(new LedPatternStep[] {
+            new LedPatternStep(BlinkinPattern.WHITE, .5), new LedPatternStep(BlinkinPattern.RED, .5)}, runtime.time());
+    LedPattern rainbowBlinkingPattern = new LedPattern(new LedPatternStep[] {
+            new LedPatternStep(BlinkinPattern.RED, .2), new LedPatternStep(BlinkinPattern.ORANGE, .2),
+            new LedPatternStep(BlinkinPattern.YELLOW, .2), new LedPatternStep(BlinkinPattern.GREEN, .2),
+            new LedPatternStep(BlinkinPattern.BLUE, .2), new LedPatternStep(BlinkinPattern.VIOLET, .2)
 
     }, runtime.time());
     private DcMotor rightFrontDriveMotor;
@@ -106,7 +105,7 @@ public class SSfullTeleop extends LinearOpMode {
         }
     }
 
-    //This is the LED method
+    //This is the LedPattern method
     private void sendDriverFeedback(){
 
         if (gamepad1.dpad_down) {
@@ -152,7 +151,7 @@ public class SSfullTeleop extends LinearOpMode {
                     cardBlinkinPatter.update(runtime.time());
                     blinkin.setPattern(cardBlinkinPatter.getPattern());
                 }
-                else if (rainbowPattern) {
+                else {
                     rainbowBlinkingPattern.update(runtime.time());
                     blinkin.setPattern(rainbowBlinkingPattern.getPattern());
                 }
@@ -269,20 +268,6 @@ public class SSfullTeleop extends LinearOpMode {
     private void openLatch(){
         leftLatchServo.setPosition(.8);
         rightLatchServo.setPosition(.95);
-    }
-
-    private void mecanumPowerDrive(MOVEMENT_DIRECTION movement_direction, double power){
-        switch (movement_direction) {
-            case STRAFE:
-                mecanumPowerDrive(power, 0, 0);
-                break;
-            case FORWARD:
-                mecanumPowerDrive(0, power, 0);
-                break;
-            case ROTATION:
-                mecanumPowerDrive(0, 0, power);
-                break;
-        }
     }
 
     private void mecanumPowerDrive(double strafe, double forward, double rotation){
@@ -467,9 +452,5 @@ public class SSfullTeleop extends LinearOpMode {
         }
     }
 
-    private enum MOVEMENT_DIRECTION {
-        STRAFE,
-        FORWARD,
-        ROTATION,
-    }
+
 }

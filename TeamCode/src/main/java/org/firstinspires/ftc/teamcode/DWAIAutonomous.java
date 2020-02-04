@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.DEFAULT;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.GRABBING;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.READY;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.STOWED;
@@ -77,9 +76,9 @@ public class DWAIAutonomous {
     private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
     private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
     private double BLOCK_FORWARD_OFF_WALL_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_OFF_WALL_TO_BLOCK");
-    private double BLOCK_ONE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ONE_STRAFE_TO_BLOCK");
-    private double BLOCK_TWO_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_TWO_STRAFE_TO_BLOCK");
-    private double BLOCK_THREE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_STRAFE_TO_BLOCK");
+    private double BLOCK_ONE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_BLOCK");
+    private double BLOCK_TWO_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_BLOCK");
+    private double BLOCK_THREE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_BLOCK");
     private double BLOCK_ONE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_FOUNDATION");
     private double BLOCK_TWO_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_FOUNDATION");
     private double BLOCK_THREE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_FOUNDATION");
@@ -172,12 +171,11 @@ public class DWAIAutonomous {
 
             deploy.start();
 
-            goToBlock();
-
-            robot.stopDriveMotors();
             print("Lowering grabber");
             setGrabberPosition(READY);
-            opMode.sleep(500);
+
+            goToBlock();
+            robot.stopDriveMotors();
 
             print("Strafing against block");
             robot.moveByInchesFast(BLOCK_STRAFE_DIST, STRAFE);
@@ -195,17 +193,16 @@ public class DWAIAutonomous {
             //TODO slow this down so that it does thing well
             robot.stopDriveMotors();
             print("Dropping block off");
+            setGrabberPosition(GRABBING);
+            opMode.sleep(500);
             setGrabberPosition(READY);
-            opMode.sleep(1000);
-            print("Raising to starting position");
-            setGrabberPosition(DEFAULT);
+//            opMode.sleep(1000);
+//            print("Raising to starting position");
+//            setGrabberPosition(DEFAULT);
 
             backwardToBlocks();
 
             robot.stopDriveMotors();
-            print("Lowering grabber");
-            setGrabberPosition(READY);
-            opMode.sleep(500);
 
             print("Strafing against block");
             robot.moveByInchesFast(BLOCK_STRAFE_DIST_2, STRAFE);
@@ -222,10 +219,12 @@ public class DWAIAutonomous {
 
             robot.stopDriveMotors();
             print("Dropping block off");
+            setGrabberPosition(GRABBING);
+            opMode.sleep(500);
             setGrabberPosition(READY);
-            opMode.sleep(1000);
-            print("Raising to starting position");
-            setGrabberPosition(DEFAULT);
+//            opMode.sleep(1000);
+//            print("Raising to starting position");
+//            setGrabberPosition(DEFAULT);
 
             robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
 
