@@ -510,8 +510,13 @@ public class DWAIAutonomous {
         //}
 
         print("Moving backwards to foundation");
+
+        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+            forwardDistance += BLOCK_EXTRA_DIST_TO_FOUNDATION;
+        }
+
         //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(forwardDistance + BLOCK_EXTRA_DIST_TO_FOUNDATION, FORWARD, blockRotation);
+        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, blockRotation);
     }
 
     private void backwardToBlocks(){
@@ -536,9 +541,13 @@ public class DWAIAutonomous {
         backwardDistance -= BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
         //}
 
+        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+            backwardDistance -= BLOCK_EXTRA_DIST_TO_FOUNDATION;
+        }
+
         print("Moving forwards to blocks");
         //robot.moveByInchesFast(backwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(backwardDistance - BLOCK_EXTRA_DIST_TO_FOUNDATION, FORWARD, blockRotation);
+        robot.compensatingMoveByInchesFast(backwardDistance, FORWARD, blockRotation);
     }
 
     private void forwardToFoundationSecondTime(){
@@ -559,9 +568,13 @@ public class DWAIAutonomous {
             forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
         //}
 
+        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+            forwardDistance += BLOCK_EXTRA_DIST_TO_FOUNDATION;
+        }
+
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(forwardDistance + BLOCK_EXTRA_DIST_TO_FOUNDATION, FORWARD, blockRotation);
+        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, blockRotation);
     }
 
     private void openCVinit(){
