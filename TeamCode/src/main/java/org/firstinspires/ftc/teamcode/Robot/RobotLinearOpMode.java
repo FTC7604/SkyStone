@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.LINEAR;
+import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.SINUSOIDAL_NORMAL;
 import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.SINUSOIDAL_SCURVE;
 
 //changes this commit
@@ -75,7 +76,7 @@ public class RobotLinearOpMode extends Robot {
     private BetterBalisticProfile forwardBetterBalisticProfile = new BetterBalisticProfile(FORWARD_ACCELERATION_DISTANCE, FORWARD_DECELLERATION_DISTANCE, FORWARD_START_POWER, FORWARD_FULL_POWER, FORWARD_END_POWER, LINEAR, LINEAR);
     private BetterBalisticProfile strafeBetterBalisticProfile = new BetterBalisticProfile(STRAFE_ACCELERATION_DISTANCE, STRAFE_DECELLERATION_DISTANCE, STRAFE_START_POWER, STRAFE_FULL_POWER, STRAFE_END_POWER, LINEAR, LINEAR);
     private BetterBalisticProfile armBetterBalisticProfile = new BetterBalisticProfile(ARM_ACCELERATION_DISTANCE, ARM_DECELLERATION_DISTANCE, ARM_START_POWER, ARM_FULL_POWER, ARM_END_POWER, ARM_LIMIT_ONE, ARM_LIMIT_TWO, LINEAR, LINEAR);
-    private BetterBalisticProfile liftBetterBalisticProfile = new BetterBalisticProfile(LIFT_ACCELERATION_DISTANCE, LIFT_DECELLERATION_DISTANCE, LIFT_START_POWER, LIFT_FULL_POWER, LIFT_END_POWER, LIFT_LIMIT_ONE, LIFT_LIMIT_TWO, LINEAR, LINEAR);
+    //private BetterBalisticProfile liftBetterBalisticProfile = new BetterBalisticProfile(LIFT_ACCELERATION_DISTANCE, LIFT_DECELLERATION_DISTANCE, LIFT_START_POWER, LIFT_FULL_POWER, LIFT_END_POWER, LIFT_LIMIT_ONE, LIFT_LIMIT_TWO, LINEAR, LINEAR);
     /**
      * CONSTRUCTORS
      */
@@ -339,98 +340,6 @@ public class RobotLinearOpMode extends Robot {
         }
 
 
-    }
-
-    @Deprecated
-    public void moveByInches(
-            double desiredPositionChangeInInches,
-            MOVEMENT_DIRECTION movement_direction
-    ){
-        moveByInches(desiredPositionChangeInInches, movement_direction, .05, 0.8);
-    }
-
-    @Deprecated
-    public void moveByInchesMinPower(
-            double desiredPositionChangeInInches,
-            MOVEMENT_DIRECTION movement_direction,
-            double minPower
-    ){
-        moveByInches(desiredPositionChangeInInches, movement_direction, minPower, .8);
-
-    }
-
-    @Deprecated
-    public void moveByInchesMaxPower(
-            double desiredPositionChangeInInches,
-            MOVEMENT_DIRECTION movement_direction,
-            double maxPower
-    ){
-        moveByInches(desiredPositionChangeInInches, movement_direction, .05, maxPower);
-    }
-
-    @Deprecated
-    public void moveByInches(
-            double desiredPositionChangeInInches,
-            MOVEMENT_DIRECTION movement_direction,
-            double minPower,
-            double maxPower
-    ){
-        double currentAverageEncoderValue;
-        double adjustedMotorPower;
-        double startDriveTrainEncoders;
-
-        BallisticMotionProfile DriveProfile = new BallisticMotionProfile(0, 0, 400, minPower, 1, maxPower);
-
-        double desiredPositionChangeInEncoders = desiredPositionChangeInInches * inchesToEncoders;
-
-        setDriveTrainRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setDriveTrainRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        startDriveTrainEncoders = getAverageDriveTrainEncoder(movement_direction);
-
-        do {
-            currentAverageEncoderValue = getAverageDriveTrainEncoder(movement_direction);
-            adjustedMotorPower         = DriveProfile.RunToPositionWithAccel(startDriveTrainEncoders, currentAverageEncoderValue, desiredPositionChangeInEncoders);
-            mecanumPowerDrive(movement_direction, adjustedMotorPower);
-
-        }
-        while((abs(desiredPositionChangeInEncoders - currentAverageEncoderValue) > 20) && linearOpMode.opModeIsActive());
-
-
-        stopDriveMotors();
-    }
-
-    /**
-     * Turns relative to starting position
-     * i.e. starts at 0, 90 will always mean the same position, moving counter-clockwise
-     */
-    @Deprecated
-    public void turnToDegree(double endRotation){
-        double currentRotation;
-        double adjustedMotorPower;
-        double startRotation;
-
-        BallisticMotionProfile TurnProfile = new BallisticMotionProfile(0, 0, 90, .1, 1, 0.5);
-
-        startRotation = getRev10IMUAngle()[2];
-
-        do {
-
-            currentRotation = getRev10IMUAngle()[2];
-
-            linearOpMode.telemetry.addData("Heading: ", currentRotation);
-            linearOpMode.telemetry.update();
-
-            adjustedMotorPower = TurnProfile.RunToPositionWithoutAccel(startRotation, currentRotation, endRotation);
-
-            mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, adjustedMotorPower);
-
-
-        }
-        while(((abs(endRotation - currentRotation) > 2) || (abs(getRev10IMUAngularVelocity()[2]) < 10)) && linearOpMode.opModeIsActive());
-
-        //stopAllMotors();
-        stopDriveMotors();
     }
 
     /**

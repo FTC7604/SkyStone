@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.DEFAULT;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.GRABBING;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.READY;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.STOWED;
@@ -108,7 +109,7 @@ public class DWAIAutonomous {
 
     private int checks = 0;
 
-    private double BLOCK_TO_BRIDGE = propertiesLoader.getDoubleProperty("BLOCK_TO_BRIDGE");;
+    private double BLOCK_TO_BRIDGE = propertiesLoader.getDoubleProperty("BLOCK_TO_BRIDGE");
 
     public DWAIAutonomous(
             FOUNDATION_ORIENTATION foundationOrientation,
@@ -227,23 +228,7 @@ public class DWAIAutonomous {
 //            setGrabberPosition(DEFAULT);
 
             robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
-
-            /*strafeToBlock();
-            grabBlockFirstTime();
-            forwardToFoundationFirstTime();
-
-            if(foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-                dropOffBlock(true);
-                backwardToBlocks();
-                grabBlockSecondTime();
-                forwardToFoundationSecondTime();
-                dropOffBlock(false);
-                //blockPark();
-                robot.stopDriveMotors();
-            } else if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
-                dropOffBlock(false);
-                robot.stopDriveMotors();
-            }*/
+            setGrabberPosition(DEFAULT);
 
         }
         else if (side == SIDE.JUST_PARK) {
