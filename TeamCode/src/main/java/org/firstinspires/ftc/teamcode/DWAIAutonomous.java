@@ -195,9 +195,9 @@ public class DWAIAutonomous {
             setGrabberPosition(GRABBING);
             opMode.sleep(500);
             setGrabberPosition(READY);
-//            opMode.sleep(1000);
-//            print("Raising to starting position");
-//            setGrabberPosition(DEFAULT);
+            opMode.sleep(500);
+            print("Raising to starting position");
+            setGrabberPosition(DEFAULT);
 
             backwardToBlocks();
 
