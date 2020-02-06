@@ -107,6 +107,7 @@ public class DWAIAutonomous {
     private int checks = 0;
 
     private double BLOCK_TO_BRIDGE = propertiesLoader.getDoubleProperty("BLOCK_TO_BRIDGE");
+    private double BLOCK_EXTRA_DIST_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DIST_TO_FOUNDATION");
 
     public DWAIAutonomous(
             FOUNDATION_ORIENTATION foundationOrientation,
@@ -220,7 +221,7 @@ public class DWAIAutonomous {
             setGrabberPosition(GRABBING);
             opMode.sleep(500);
             setGrabberPosition(READY);
-            opMode.sleep(1000);
+            opMode.sleep(500);
             print("Raising to starting position");
             setGrabberPosition(DEFAULT);
 
@@ -512,7 +513,7 @@ public class DWAIAutonomous {
 
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, blockRotation);
+        robot.compensatingMoveByInchesFast(forwardDistance + BLOCK_EXTRA_DIST_TO_FOUNDATION, FORWARD, blockRotation);
     }
 
     private void backwardToBlocks(){
@@ -539,7 +540,7 @@ public class DWAIAutonomous {
 
         print("Moving forwards to blocks");
         //robot.moveByInchesFast(backwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(backwardDistance, FORWARD, blockRotation);
+        robot.compensatingMoveByInchesFast(backwardDistance - BLOCK_EXTRA_DIST_TO_FOUNDATION, FORWARD, blockRotation);
     }
 
     private void forwardToFoundationSecondTime(){
@@ -556,13 +557,13 @@ public class DWAIAutonomous {
                 break;
         }
 
-        if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
+        //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
             forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
-        }
+        //}
 
         print("Moving backwards to foundation");
         //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, blockRotation);
+        robot.compensatingMoveByInchesFast(forwardDistance + BLOCK_EXTRA_DIST_TO_FOUNDATION, FORWARD, blockRotation);
     }
 
     private void openCVinit(){
