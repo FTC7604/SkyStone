@@ -22,9 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.GRABBING;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.READY;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.STOWED;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.*;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
@@ -222,9 +220,9 @@ public class DWAIAutonomous {
             setGrabberPosition(GRABBING);
             opMode.sleep(500);
             setGrabberPosition(READY);
-//            opMode.sleep(1000);
-//            print("Raising to starting position");
-//            setGrabberPosition(DEFAULT);
+            opMode.sleep(1000);
+            print("Raising to starting position");
+            setGrabberPosition(DEFAULT);
 
             robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
 
