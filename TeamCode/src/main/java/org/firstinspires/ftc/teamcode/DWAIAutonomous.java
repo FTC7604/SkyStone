@@ -308,7 +308,6 @@ public class DWAIAutonomous {
             BLOCK_ONE_STRAFE_TO_BLOCK *= -1;
             BLOCK_TWO_STRAFE_TO_BLOCK *= -1;
             BLOCK_THREE_STRAFE_TO_BLOCK *= -1;
-            BLOCK_TO_BRIDGE *= -1;
             blockRotation *= -1;
 
             BLOCK_STRAFE_DIST *= -1;
