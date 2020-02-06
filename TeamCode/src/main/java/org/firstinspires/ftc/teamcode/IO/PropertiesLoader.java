@@ -35,7 +35,7 @@ public class PropertiesLoader
         {
             return Boolean.parseBoolean(getStringProperty(name));
         }
-        catch (NumberFormatException e)
+        catch (Exception e)
         {
             throw new IllegalArgumentException("Invalid boolean: " + getStringProperty(name) + " for property: " + name);
         }
@@ -47,7 +47,7 @@ public class PropertiesLoader
         {
             return Integer.parseInt(getStringProperty(name));
         }
-        catch (NumberFormatException e)
+        catch (Exception e)
         {
             throw new IllegalArgumentException("Invalid integer: " + getStringProperty(name) + " for property: " + name);
         }
@@ -59,7 +59,7 @@ public class PropertiesLoader
         {
             return Long.parseLong(getStringProperty(name));
         }
-        catch (NumberFormatException e)
+        catch (Exception e)
         {
             throw new IllegalArgumentException("Invalid long: " + getStringProperty(name) + " for property: " + name);
         }
@@ -71,7 +71,7 @@ public class PropertiesLoader
         {
             return Float.parseFloat(getStringProperty(name));
         }
-        catch (NumberFormatException e)
+        catch (Exception e)
         {
             throw new IllegalArgumentException("Invalid float: " + getStringProperty(name) + " for property: " + name);
         }
@@ -83,7 +83,7 @@ public class PropertiesLoader
         {
             return Double.parseDouble(getStringProperty(name));
         }
-        catch (NumberFormatException e)
+        catch (Exception e)
         {
             throw new IllegalArgumentException("Invalid double: " + getStringProperty(name) + " for property: " + name);
         }
@@ -95,7 +95,7 @@ public class PropertiesLoader
         {
             return properties.getProperty(name);
         }
-        catch (NullPointerException e)
+        catch (Exception e)
         {
             throw new IllegalArgumentException("Cannot find property with name " + name);
         }

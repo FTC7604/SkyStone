@@ -88,6 +88,7 @@ public class DWAIAutonomous {
     private double BLOCK_SIX_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_SIX_FORWARD_TO_FOUNDATION");
     private double BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION");
     private double BLOCK_STRAFE_DIST = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST");
+    private double BLOCK_STRAFE_DIFF_DIST = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST_DIFF");
     private double BLOCK_STRAFE_DIST_2 = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST_2");
     private double BLOCK_STRAFE_DIFF_DIST_2 = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST_DIFF_2");
     private double horizontalTurnDegree = 90;
@@ -172,19 +173,18 @@ public class DWAIAutonomous {
 
             print("Lowering grabber");
             setGrabberPosition(READY);
-
             goToBlock();
             robot.stopDriveMotors();
 
             print("Strafing against block");
-            robot.moveByInchesFast(BLOCK_STRAFE_DIST, STRAFE);
+            robot.compensatingMoveByInchesFast(BLOCK_STRAFE_DIST, STRAFE, blockRotation);
 
             print("Grabbing block");
             setGrabberPosition(GRABBING);
             opMode.sleep(500);
             print("Stowing block");
             setGrabberPosition(STOWED);
-            robot.moveByInchesFast(-BLOCK_STRAFE_DIST, STRAFE);
+            robot.compensatingMoveByInchesFast(-(BLOCK_STRAFE_DIST + BLOCK_STRAFE_DIFF_DIST), STRAFE, blockRotation);
 
             waitForFlag();
             forwardToFoundationFirstTime();
@@ -197,11 +197,26 @@ public class DWAIAutonomous {
             setGrabberPosition(READY);
             opMode.sleep(500);
             print("Raising to starting position");
-            setGrabberPosition(DEFAULT);
+            Thread t1 = new Thread(() -> {
+
+                try{
+                    sleep(500);
+                } catch(Exception e){
+
+                }
+
+                setGrabberPosition(STOWED);
+            });
+
+            t1.start();
 
             backwardToBlocks();
-
             robot.stopDriveMotors();
+            robot.turnToDegreeFast(blockRotation);
+
+            print("Lowering grabber");
+            setGrabberPosition(READY);
+            opMode.sleep(500);
 
             print("Strafing against block");
             robot.moveByInchesFast(BLOCK_STRAFE_DIST_2, STRAFE);
@@ -210,8 +225,8 @@ public class DWAIAutonomous {
             print("Grabbing block");
             setGrabberPosition(GRABBING);
             opMode.sleep(500);
-            print("Stowing block");
             setGrabberPosition(STOWED);
+
             robot.moveByInchesFast(-(BLOCK_STRAFE_DIST_2 + BLOCK_STRAFE_DIFF_DIST_2), STRAFE);
 
             forwardToFoundationSecondTime();
@@ -221,13 +236,23 @@ public class DWAIAutonomous {
             setGrabberPosition(GRABBING);
             opMode.sleep(500);
             setGrabberPosition(READY);
-            opMode.sleep(500);
+            Thread t2 = new Thread(() -> {
+
+                try{
+                    sleep(500);
+                } catch(Exception e){
+
+                }
+
+                setGrabberPosition(STOWED);
+            });
+
+            t2.start();
+            print("Parking");
+            robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
             print("Raising to starting position");
             setGrabberPosition(DEFAULT);
-
-            robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
-            setGrabberPosition(DEFAULT);
-
+            opMode.sleep(500);
         }
         else if (side == SIDE.JUST_PARK) {
             startDeploy();
@@ -292,6 +317,7 @@ public class DWAIAutonomous {
         else if ((alliance == ALLIANCE.RED && side == SIDE.BLOCK)) {
             blockRotation *= -1;
             BLOCK_STRAFE_DIST *= -1;
+            BLOCK_STRAFE_DIFF_DIST *= -1;
             BLOCK_STRAFE_DIST_2 *= -1;
             BLOCK_STRAFE_DIFF_DIST_2 *= -1;
         }

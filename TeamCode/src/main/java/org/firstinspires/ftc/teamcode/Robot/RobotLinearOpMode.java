@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
 import org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
+import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
@@ -19,6 +20,8 @@ import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE
 //testing experimental angle compensation while moving forward/backward
 
 public class RobotLinearOpMode extends Robot {
+
+    private RuntimeLogger logger = new RuntimeLogger("motionProfile");
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Robot");
     private LinearOpMode linearOpMode;
@@ -142,6 +145,10 @@ public class RobotLinearOpMode extends Robot {
             double ratio
     ){
         ratio = Math.max(abs(ratio), 1) * Math.signum(ratio);
+
+        if(strafe != 0){
+            ratio = Math.max(abs(ratio) / 2, 1) * Math.signum(ratio);
+        }
 
         if ((ratio < 0 && forward > 0) || (ratio > 0 && forward < 0)) {
             leftFrontDriveMotor.setPower((forward - strafe + rotation) / abs(ratio));
@@ -293,12 +300,14 @@ public class RobotLinearOpMode extends Robot {
                 mecanumPowerDrive(movement_direction, motorPower);
             }
 
+            logger.write((motorPower * calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft()) + " " + (currentPosition - startPosition) + "\n");
         }
 
         if (betterBalisticProfile.getEnd_power() == 0) {
             stopDriveMotors();
         }
 
+        logger.write("\n");
     }
 
     public void moveByInchesFast(
