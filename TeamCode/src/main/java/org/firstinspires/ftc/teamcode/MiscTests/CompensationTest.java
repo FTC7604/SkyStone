@@ -6,8 +6,7 @@ import org.firstinspires.ftc.teamcode.Robot.*;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 
 
-@TeleOp(name="Compensation Test")
-@Disabled
+@TeleOp(name="Movement Test")
 public class CompensationTest extends LinearOpMode{
     private RobotLinearOpMode robot;
 
@@ -26,7 +25,10 @@ public class CompensationTest extends LinearOpMode{
 
             if(gamepad1.a){
                 while(gamepad1.a){}
-                robot.compensatingMoveByInchesFast(24, FORWARD, 0);
+                robot.moveByInchesFast(-72, FORWARD);
+            } else if(gamepad1.b){
+                while(gamepad1.b){}
+                robot.compensatingMoveByInchesFast(-72, FORWARD, 0);
             }
 
         }

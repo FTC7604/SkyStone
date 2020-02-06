@@ -143,6 +143,10 @@ public class RobotLinearOpMode extends Robot {
     ){
         ratio = Math.max(abs(ratio), 1) * Math.signum(ratio);
 
+        if(strafe != 0){
+            ratio = Math.max(abs(ratio) / 2, 1) * Math.signum(ratio);
+        }
+
         if ((ratio < 0 && forward > 0) || (ratio > 0 && forward < 0)) {
             leftFrontDriveMotor.setPower((forward - strafe + rotation) / abs(ratio));
             leftBackDriveMotor.setPower((forward + strafe + rotation) / abs(ratio));
