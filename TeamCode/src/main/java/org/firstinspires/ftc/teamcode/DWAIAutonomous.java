@@ -74,9 +74,9 @@ public class DWAIAutonomous {
     private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
     private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
     private double BLOCK_FORWARD_OFF_WALL_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_OFF_WALL_TO_BLOCK");
-    private double BLOCK_ONE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_BLOCK");
-    private double BLOCK_TWO_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_BLOCK");
-    private double BLOCK_THREE_STRAFE_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_BLOCK");
+    private double BLOCK_ONE_FORWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_BLOCK");
+    private double BLOCK_TWO_FORWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_BLOCK");
+    private double BLOCK_THREE_FORWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_BLOCK");
     private double BLOCK_ONE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_FOUNDATION");
     private double BLOCK_TWO_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_FOUNDATION");
     private double BLOCK_THREE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_FOUNDATION");
@@ -243,8 +243,10 @@ public class DWAIAutonomous {
         switch (alliance) {
             case RED:
                 robot.setLeftGrabberPosition(pos);
+                break;
             case BLUE:
                 robot.setRightGrabberPosition(pos);
+                break;
         }
 
     }
@@ -288,11 +290,7 @@ public class DWAIAutonomous {
             VBRIDGE_PARK_STRAFE_DISTANCE *= -1;
         }
         else if ((alliance == ALLIANCE.RED && side == SIDE.BLOCK)) {
-            BLOCK_ONE_STRAFE_TO_BLOCK *= -1;
-            BLOCK_TWO_STRAFE_TO_BLOCK *= -1;
-            BLOCK_THREE_STRAFE_TO_BLOCK *= -1;
             blockRotation *= -1;
-
             BLOCK_STRAFE_DIST *= -1;
             BLOCK_STRAFE_DIST_2 *= -1;
             BLOCK_STRAFE_DIFF_DIST_2 *= -1;
@@ -467,13 +465,13 @@ public class DWAIAutonomous {
         //strafing to in front of the block
         switch (skystone_position) {
             case ONE_AND_FOUR:
-                dist = BLOCK_ONE_STRAFE_TO_BLOCK;
+                dist = BLOCK_ONE_FORWARD_TO_BLOCK;
                 break;
             case TWO_AND_FIVE:
-                dist = BLOCK_TWO_STRAFE_TO_BLOCK;
+                dist = BLOCK_TWO_FORWARD_TO_BLOCK;
                 break;
             case THREE_AND_SIX:
-                dist = BLOCK_THREE_STRAFE_TO_BLOCK;
+                dist = BLOCK_THREE_FORWARD_TO_BLOCK;
                 break;
         }
 
