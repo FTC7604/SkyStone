@@ -106,7 +106,7 @@ public class DWAIAutonomous {
 
     private int checks = 0;
 
-    private double BLOCK_TO_BRIDGE = propertiesLoader.getDoubleProperty("BLOCK_TO_BRIDGE");;
+    private double BLOCK_TO_BRIDGE = propertiesLoader.getDoubleProperty("BLOCK_TO_BRIDGE");
 
     public DWAIAutonomous(
             FOUNDATION_ORIENTATION foundationOrientation,
@@ -225,23 +225,7 @@ public class DWAIAutonomous {
             setGrabberPosition(DEFAULT);
 
             robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
-
-            /*strafeToBlock();
-            grabBlockFirstTime();
-            forwardToFoundationFirstTime();
-
-            if(foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-                dropOffBlock(true);
-                backwardToBlocks();
-                grabBlockSecondTime();
-                forwardToFoundationSecondTime();
-                dropOffBlock(false);
-                //blockPark();
-                robot.stopDriveMotors();
-            } else if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
-                dropOffBlock(false);
-                robot.stopDriveMotors();
-            }*/
+            setGrabberPosition(DEFAULT);
 
         }
         else if (side == SIDE.JUST_PARK) {
