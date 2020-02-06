@@ -11,7 +11,7 @@ import static org.firstinspires.ftc.teamcode.DWAIAutonomous.PARK_POSITION;
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.FOUNDATION_ORIENTATION;
 import static org.firstinspires.ftc.teamcode.DWAIAutonomous.SIDE;
 
-@Autonomous(name = "Red One-Block", group = "Autonomous")
+@Autonomous(name = "Red Block Place", group = "Autonomous")
 public class RED_BLOCK_VERTICAL_BRIDGE extends LinearOpMode {
     private DWAIAutonomous auto;
 
