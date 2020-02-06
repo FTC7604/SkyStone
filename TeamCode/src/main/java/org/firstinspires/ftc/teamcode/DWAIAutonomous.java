@@ -212,6 +212,7 @@ public class DWAIAutonomous {
 
             backwardToBlocks();
             robot.stopDriveMotors();
+            robot.turnToDegreeFast(blockRotation);
 
             print("Lowering grabber");
             setGrabberPosition(READY);
@@ -251,6 +252,7 @@ public class DWAIAutonomous {
             robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
             print("Raising to starting position");
             setGrabberPosition(DEFAULT);
+            opMode.sleep(500);
         }
         else if (side == SIDE.JUST_PARK) {
             startDeploy();
