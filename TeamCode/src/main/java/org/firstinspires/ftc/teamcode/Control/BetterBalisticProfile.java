@@ -114,16 +114,15 @@ public class BetterBalisticProfile {
         else return 1;
     }
 
-    private double accelerationCurve() {
+    private double accelerationCurve(){
 
-            return processedCurve((full_power - start_power) * invert(), (currentPosition - startPosition) * invert(), acceleration_distance, acceleration_curve, start_power * invert());
+        return processedCurve((full_power - start_power) * invert(), (currentPosition - startPosition) * invert(), acceleration_distance, acceleration_curve, start_power * invert());
 
     }
 
     private double decelerationCurve(){
 
-            return processedCurve((full_power - end_power) * invert(), (endPosition - currentPosition) * invert(), deceleration_distance, deceleration_curve, end_power * invert());
-
+        return processedCurve((full_power - end_power) * invert(), (endPosition - currentPosition) * invert(), deceleration_distance, deceleration_curve, end_power * invert());
 
 
     }
@@ -138,16 +137,15 @@ public class BetterBalisticProfile {
             if (this.endPosition > topLimit) this.endPosition = topLimit;
             else if (this.endPosition < bottomLimit) this.endPosition = bottomLimit;
             else this.endPosition = endPosition;
-        } else {
+        }
+        else {
             this.startPosition = startPosition;
-            this.endPosition = endPosition;
+            this.endPosition   = endPosition;
         }
 
         this.movementIsBackward = startPosition > endPosition;
         this.currentPosition    = startPosition;
     }
-
-
 
 
     public void setCurrentPosition(double currentPosition){
@@ -163,9 +161,10 @@ public class BetterBalisticProfile {
     public double getPercentLeft(){
         double distanceLeft = abs(endPosition - currentPosition);
 
-        if(distanceLeft > abs(deceleration_distance)){
+        if (distanceLeft > abs(deceleration_distance)) {
             return 1;
-        } else{
+        }
+        else {
             return distanceLeft / abs(deceleration_distance);
         }
 
@@ -212,15 +211,18 @@ public class BetterBalisticProfile {
 
     }
 
-    public boolean isBackwards(){return movementIsBackward;}
+    public boolean isBackwards(){
+        return movementIsBackward;
+    }
 
     public boolean isDone(){
         //return currentPosition * invert() > endPosition;
         //return abs(currentPosition - endPosition) < deceleration_distance / 25;
 
-        if(movementIsBackward){
+        if (movementIsBackward) {
             return currentPosition <= endPosition + deceleration_distance / 40 && currentPosition >= endPosition - deceleration_distance;
-        } else{
+        }
+        else {
             return endPosition <= currentPosition + deceleration_distance / 40 && endPosition >= currentPosition - deceleration_distance;
         }
 
