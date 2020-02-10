@@ -101,6 +101,10 @@ public class Robot {
     public Robot(){
     }
 
+    void makeThread(){
+        imu2.getPosition();
+    }
+
     private void mapHardware(){
         //DRIVE
         rightFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");
@@ -184,6 +188,7 @@ public class Robot {
         setArmRunMode(runMode);
         setLiftRunMode(runMode);
     }
+
 
     public void setDriveTrainZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
         //sets the zero power behavior for the whole drive train, BRAKE, FLOAT, etc.
@@ -340,6 +345,10 @@ public class Robot {
     public boolean getFoundationSensorPressed(){
         return !foundationTouchSensor.getState();
     }
+
+//    public double getVoltage(){
+//        hardwareMap.voltageSensor.get("Motor Controller 1").getVoltage();
+//    }
 
     public double[] getColors(){
         double[] colors = new double[4];

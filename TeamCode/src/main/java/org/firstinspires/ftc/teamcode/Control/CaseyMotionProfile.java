@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Control;
 
 import static java.lang.Math.*;
 
-public class BallisticMotionProfile {
+public class CaseyMotionProfile {
 
     //this is the top limit of the system in regards to position, angle, etc. top and bottom limits set the bounds
     private double TOP_LIMIT;
@@ -28,7 +28,7 @@ public class BallisticMotionProfile {
     private double POWER_ADJUSTMENT_MULTIPLIER;
 
     //we keep all the parameter names consistant
-    public BallisticMotionProfile(final double LIMIT_1, final double LIMIT_2, final double DECELERATION_DISTANCE, final double MIN_POWER, final double EXP_POWER, final double MAX_POWER) {
+    public CaseyMotionProfile(final double LIMIT_1, final double LIMIT_2, final double DECELERATION_DISTANCE, final double MIN_POWER, final double EXP_POWER, final double MAX_POWER) {
 
         if (LIMIT_1 > LIMIT_2) {
             TOP_LIMIT = LIMIT_1;

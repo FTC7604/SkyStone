@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
+import org.firstinspires.ftc.teamcode.Control.CaseyMotionProfile;
 import org.firstinspires.ftc.teamcode.Control.HumanController;
 import org.firstinspires.ftc.teamcode.Control.Toggle;
 import org.firstinspires.ftc.teamcode.LED.LedPattern;
@@ -33,8 +33,8 @@ public class SSfullTeleop extends LinearOpMode {
     private BlinkinPattern dPadPattern;
     private double intakeCorrectionStartTime = -200;
     private double[] driveTrainController = new double[3];
-    private BallisticMotionProfile liftProfile = new BallisticMotionProfile(-1300, -10, 500, 0.25, 1, .7);
-    private BallisticMotionProfile armProfile = new BallisticMotionProfile(3300, 0, 1000, 0.3, 1, 1);
+    private CaseyMotionProfile liftProfile = new CaseyMotionProfile(-1300, -10, 500, 0.25, 1, .7);
+    private CaseyMotionProfile armProfile = new CaseyMotionProfile(3300, 0, 1000, 0.3, 1, 1);
     private double intakePower = 0;
     private double armPower = 0;
     private double liftPower = 0;

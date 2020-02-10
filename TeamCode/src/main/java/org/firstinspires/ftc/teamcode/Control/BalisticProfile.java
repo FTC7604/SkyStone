@@ -5,7 +5,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
-public class BetterBalisticProfile {
+public class BalisticProfile {
     private final double acceleration_distance;
     private final double deceleration_distance;
     private final double start_power;
@@ -24,7 +24,7 @@ public class BetterBalisticProfile {
     private boolean isAccelerating;
     private boolean isDecelerating;
 
-    public BetterBalisticProfile(
+    public BalisticProfile(
             final double acceleration_distance,
             final double deceleration_distance,
             final double start_power,
@@ -47,7 +47,7 @@ public class BetterBalisticProfile {
 
     }
 
-    public BetterBalisticProfile(
+    public BalisticProfile(
             final double acceleration_distance,
             final double deceleration_distance,
             final double start_power,

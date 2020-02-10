@@ -3,16 +3,14 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Control.BallisticMotionProfile;
-import org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile;
+import org.firstinspires.ftc.teamcode.Control.BalisticProfile;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
-import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.LINEAR;
-import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.SINUSOIDAL_NORMAL;
-import static org.firstinspires.ftc.teamcode.Control.BetterBalisticProfile.CURVE_TYPE.SINUSOIDAL_SCURVE;
+import static org.firstinspires.ftc.teamcode.Control.BalisticProfile.CURVE_TYPE.LINEAR;
+import static org.firstinspires.ftc.teamcode.Control.BalisticProfile.CURVE_TYPE.SINUSOIDAL_SCURVE;
 
 //changes this commit
 //removed unused thread methods
@@ -75,11 +73,11 @@ public class RobotLinearOpMode extends Robot {
     private double RIGHT_READY_SERVO = propertiesLoader.getDoubleProperty("RIGHT_READY_SERVO");
     private double RIGHT_DEFAULT_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_DEFAULT_GRABBER");
     private double RIGHT_DEFAULT_SERVO = propertiesLoader.getDoubleProperty("RIGHT_DEFAULT_SERVO");
-    private BetterBalisticProfile fastRotationBetterBalisticProfile = new BetterBalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, ROTATION_START_POWER, ROTATION_FULL_POWER, ROTATION_END_POWER, SINUSOIDAL_SCURVE, LINEAR);
-    private BetterBalisticProfile forwardBetterBalisticProfile = new BetterBalisticProfile(FORWARD_ACCELERATION_DISTANCE, FORWARD_DECELLERATION_DISTANCE, FORWARD_START_POWER, FORWARD_FULL_POWER, FORWARD_END_POWER, LINEAR, LINEAR);
-    private BetterBalisticProfile strafeBetterBalisticProfile = new BetterBalisticProfile(STRAFE_ACCELERATION_DISTANCE, STRAFE_DECELLERATION_DISTANCE, STRAFE_START_POWER, STRAFE_FULL_POWER, STRAFE_END_POWER, LINEAR, LINEAR);
-    private BetterBalisticProfile armBetterBalisticProfile = new BetterBalisticProfile(ARM_ACCELERATION_DISTANCE, ARM_DECELLERATION_DISTANCE, ARM_START_POWER, ARM_FULL_POWER, ARM_END_POWER, ARM_LIMIT_ONE, ARM_LIMIT_TWO, LINEAR, LINEAR);
-    //private BetterBalisticProfile liftBetterBalisticProfile = new BetterBalisticProfile(LIFT_ACCELERATION_DISTANCE, LIFT_DECELLERATION_DISTANCE, LIFT_START_POWER, LIFT_FULL_POWER, LIFT_END_POWER, LIFT_LIMIT_ONE, LIFT_LIMIT_TWO, LINEAR, LINEAR);
+    private BalisticProfile fastRotationBalisticProfile = new BalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, ROTATION_START_POWER, ROTATION_FULL_POWER, ROTATION_END_POWER, SINUSOIDAL_SCURVE, LINEAR);
+    private BalisticProfile forwardBalisticProfile = new BalisticProfile(FORWARD_ACCELERATION_DISTANCE, FORWARD_DECELLERATION_DISTANCE, FORWARD_START_POWER, FORWARD_FULL_POWER, FORWARD_END_POWER, LINEAR, LINEAR);
+    private BalisticProfile strafeBalisticProfile = new BalisticProfile(STRAFE_ACCELERATION_DISTANCE, STRAFE_DECELLERATION_DISTANCE, STRAFE_START_POWER, STRAFE_FULL_POWER, STRAFE_END_POWER, LINEAR, LINEAR);
+    private BalisticProfile armBalisticProfile = new BalisticProfile(ARM_ACCELERATION_DISTANCE, ARM_DECELLERATION_DISTANCE, ARM_START_POWER, ARM_FULL_POWER, ARM_END_POWER, ARM_LIMIT_ONE, ARM_LIMIT_TWO, LINEAR, LINEAR);
+    //private BalisticProfile liftBetterBalisticProfile = new BalisticProfile(LIFT_ACCELERATION_DISTANCE, LIFT_DECELLERATION_DISTANCE, LIFT_START_POWER, LIFT_FULL_POWER, LIFT_END_POWER, LIFT_LIMIT_ONE, LIFT_LIMIT_TWO, LINEAR, LINEAR);
     /**
      * CONSTRUCTORS
      */
@@ -101,6 +99,7 @@ public class RobotLinearOpMode extends Robot {
 
         setAllMotorRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setAllMotorRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior.BRAKE);
 
         initIMU();
@@ -177,6 +176,32 @@ public class RobotLinearOpMode extends Robot {
 
     }
 
+//    void compensatedMecanumDrive(MOVEMENT_DIRECTION movement_direction,
+//                            double motorpower,
+//                            double currentAngle,
+//                                 double desiredAngle){
+//
+//        IMUControl imuControl = new IMUControl();
+//        double[] driveControls = new double[3];
+//
+//
+//        switch (movement_direction) {
+//            case FORWARD:
+//                driveControls[1] = motorpower;
+//
+//                break;
+//            case STRAFE:
+//                driveControls[0] = motorpower;
+//                break;
+//        }
+//
+//        imuControl.compensate(driveControls, -angleOff);
+//        drive(driveControls[0], driveControls[1], angleOff);
+//
+//
+//
+//    }
+
     public void stopDriveMotors(){
         mecanumPowerDrive(0, 0, 0);
     }
@@ -194,9 +219,9 @@ public class RobotLinearOpMode extends Robot {
             desiredEndRotation -= 360;
         }
 
-        fastRotationBetterBalisticProfile.setCurve(startRotation, desiredEndRotation);
+        fastRotationBalisticProfile.setCurve(startRotation, desiredEndRotation);
 
-        while(!fastRotationBetterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
+        while(!fastRotationBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
             currentRotation = getRev10IMUAngle()[2];
 
             if (desiredEndRotation < 0 && currentRotation > 0) {
@@ -206,9 +231,9 @@ public class RobotLinearOpMode extends Robot {
                 currentRotation += 360;
             }
 
-            fastRotationBetterBalisticProfile.setCurrentPosition(currentRotation);
+            fastRotationBalisticProfile.setCurrentPosition(currentRotation);
 
-            motorPower = fastRotationBetterBalisticProfile.getCurrentPowerAccelDecel();
+            motorPower = fastRotationBalisticProfile.getCurrentPowerAccelDecel();
             mecanumPowerDrive(MOVEMENT_DIRECTION.ROTATION, motorPower);
 
             //linearOpMode.telemetry.addLine("Motor Power:" + motorPower);
@@ -219,7 +244,7 @@ public class RobotLinearOpMode extends Robot {
             linearOpMode.telemetry.update();
         }
 
-        if (fastRotationBetterBalisticProfile.getEnd_power() == 0) {
+        if (fastRotationBalisticProfile.getEnd_power() == 0) {
             stopDriveMotors();
         }
 
@@ -274,36 +299,36 @@ public class RobotLinearOpMode extends Robot {
         double currentPosition;
         double motorPower;
 
-        BetterBalisticProfile betterBalisticProfile;
+        BalisticProfile balisticProfile;
 
         switch (movement_direction) {
             case STRAFE:
-                betterBalisticProfile = strafeBetterBalisticProfile;
+                balisticProfile = strafeBalisticProfile;
                 break;
             default:
-                betterBalisticProfile = forwardBetterBalisticProfile;
+                balisticProfile = forwardBalisticProfile;
                 break;
         }
 
-        betterBalisticProfile.setCurve(startPosition, endPosition);
+        balisticProfile.setCurve(startPosition, endPosition);
 
-        while(!betterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
+        while(!balisticProfile.isDone() && linearOpMode.opModeIsActive()){
             currentPosition = getAverageDriveTrainEncoder(movement_direction);
-            betterBalisticProfile.setCurrentPosition(currentPosition);
-            motorPower = betterBalisticProfile.getCurrentPowerAccelDecel();
+            balisticProfile.setCurrentPosition(currentPosition);
+            motorPower = balisticProfile.getCurrentPowerAccelDecel();
 
             if(movement_direction == MOVEMENT_DIRECTION.STRAFE) {
-                compensatedMecanumPowerDrive(motorPower, 0, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
+                compensatedMecanumPowerDrive(motorPower, 0, 0, calcRatio(desiredAngle) * balisticProfile.getPercentLeft());
             } else if(movement_direction == MOVEMENT_DIRECTION.FORWARD) {
-                compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft());
+                compensatedMecanumPowerDrive(0, motorPower, 0, calcRatio(desiredAngle) * balisticProfile.getPercentLeft());
             } else{
                 mecanumPowerDrive(movement_direction, motorPower);
             }
 
-            logger.write((motorPower * calcRatio(desiredAngle) * betterBalisticProfile.getPercentLeft()) + " " + (currentPosition - startPosition) + "\n");
+            logger.write((motorPower * calcRatio(desiredAngle) * balisticProfile.getPercentLeft()) + " " + (currentPosition - startPosition) + "\n");
         }
 
-        if (betterBalisticProfile.getEnd_power() == 0) {
+        if (balisticProfile.getEnd_power() == 0) {
             stopDriveMotors();
         }
 
@@ -319,32 +344,32 @@ public class RobotLinearOpMode extends Robot {
         double currentPosition;
         double motorPower;
 
-        BetterBalisticProfile betterBalisticProfile;
+        BalisticProfile balisticProfile;
 
         switch (movement_direction) {
             case STRAFE:
-                betterBalisticProfile = strafeBetterBalisticProfile;
+                balisticProfile = strafeBalisticProfile;
                 break;
             case FORWARD:
             default:
-                betterBalisticProfile = forwardBetterBalisticProfile;
+                balisticProfile = forwardBalisticProfile;
         }
 
-        betterBalisticProfile.setCurve(startPosition, endPosition);
+        balisticProfile.setCurve(startPosition, endPosition);
 
-        while(!betterBalisticProfile.isDone() && linearOpMode.opModeIsActive()){
+        while(!balisticProfile.isDone() && linearOpMode.opModeIsActive()){
 
             currentPosition = getAverageDriveTrainEncoder(movement_direction);
-            betterBalisticProfile.setCurrentPosition(currentPosition);
+            balisticProfile.setCurrentPosition(currentPosition);
 
-            motorPower = betterBalisticProfile.getCurrentPowerAccelDecel();
+            motorPower = balisticProfile.getCurrentPowerAccelDecel();
             mecanumPowerDrive(movement_direction, motorPower);
 
             linearOpMode.telemetry.addData("Encoder", currentPosition);
             linearOpMode.telemetry.update();
         }
 
-        if (betterBalisticProfile.getEnd_power() == 0) {
+        if (balisticProfile.getEnd_power() == 0) {
             stopDriveMotors();
         }
 
@@ -381,14 +406,14 @@ public class RobotLinearOpMode extends Robot {
         double currentEncoderValue;
         double adjustedMotorPower;
 
-        armBetterBalisticProfile.setCurve(startEncoderValue, endEncoderValue);
+        armBalisticProfile.setCurve(startEncoderValue, endEncoderValue);
 
         do {
             currentEncoderValue = armMotor.getCurrentPosition();
-            armBetterBalisticProfile.setCurrentPosition(currentEncoderValue);
+            armBalisticProfile.setCurrentPosition(currentEncoderValue);
 
 
-            adjustedMotorPower = armBetterBalisticProfile.getCurrentPowerAccelDecel();
+            adjustedMotorPower = armBalisticProfile.getCurrentPowerAccelDecel();
             setArmPower(adjustedMotorPower);
 
             linearOpMode.telemetry.addData("Arm Encoder", currentEncoderValue);

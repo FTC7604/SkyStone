@@ -33,7 +33,7 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
  * LIKELY WILL BE CHANGED BACK FOR FUTURE TOURNAMENTS
  * MUST CHANGE TO + FIGURE OUT ODOMETRY BECAUSE FIELD TILE FRICTION CHANGES
  * WOULD BE VERY NICE TO HAVE A SERVO CLAW ON THE SIDE (QUICKER SAMPLING)
- * REMEMBER TO MAKE A BRIDGE PARK AUTO (park is only against the wall right now)
+ * REMEMBER TO MAKE A BRIDGE QUICK_PARK AUTO (park is only against the wall right now)
  * REMEMBER TO RECALIBRATE AUTOS (again), POSSIBLY INCLUDE 'friction constant' IN PROPERTIES
  * <p>
  * FIELD SETUP:
@@ -212,7 +212,7 @@ public class DWAIAutonomous {
 
             backwardToBlocks();
             robot.stopDriveMotors();
-            robot.turnToDegreeFast(blockRotation);
+            //robot.turnToDegreeFast(blockRotation);
 
             print("Lowering grabber");
             setGrabberPosition(READY);
@@ -254,7 +254,10 @@ public class DWAIAutonomous {
             setGrabberPosition(DEFAULT);
             opMode.sleep(500);
         }
-        else if (side == SIDE.JUST_PARK) {
+        else if (side == SIDE.QUICK_PARK || side == SIDE.SLOW_PARK) {
+            if(side == SIDE.SLOW_PARK){
+                opMode.sleep(25000);
+            }
             startDeploy();
             robot.moveByInchesFast(12, FORWARD);
             robot.stopDriveMotors();
@@ -649,7 +652,9 @@ public class DWAIAutonomous {
     public enum SIDE {
         BLOCK,
         FOUNDATION,
-        JUST_PARK
+        QUICK_PARK,
+        SLOW_PARK
+
     }
 
     enum SKYSTONE_POSITION {
