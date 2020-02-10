@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
 
 
 @TeleOp(name="Movement Test")
+@Disabled
 public class CompensationTest extends LinearOpMode{
     private RobotLinearOpMode robot;
 
