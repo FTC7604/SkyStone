@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.MiscTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
+import org.firstinspires.ftc.robotcore.external.navigation.*;
 import org.firstinspires.ftc.teamcode.Robot.*;
 import org.firstinspires.ftc.teamcode.IO.*;
 
@@ -12,12 +12,15 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
 @TeleOp(name="PID Test")
 public class PIDTest extends LinearOpMode{
     private RobotLinearOpMode robot;
-
-    private RunMode runMode = RunMode.RUN_USING_ENCODER;
+    private RuntimeLogger logger = new RuntimeLogger("MotorVelocity");
 
     @Override
     public void runOpMode(){
         robot = new RobotLinearOpMode(this);
+
+        DcMotorEx rf = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");
+
+        telemetry.addData("Voltage", hardwareMap.voltageSensor.get("Motor Controller 1").getVoltage());
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -25,7 +28,7 @@ public class PIDTest extends LinearOpMode{
 
         waitForStart();
 
-        double p = 0;
+        double p = 1;
         double i = 0;
         double d = 0;
         double f = 0;
@@ -38,8 +41,15 @@ public class PIDTest extends LinearOpMode{
 
         while(!isStopRequested()){
             robot.setDrivePIDCoefficients(p, i, d, f);
+            telemetry.addData("Velocity", rf.getVelocity(AngleUnit.DEGREES));
 
             if(gamepad1.y){
+                robot.mecanumPowerDrive(0, 0.2, 0);
+                while(gamepad1.y){}
+                robot.mecanumPowerDrive(0, 0, 0);
+            }
+
+            /*if(gamepad1.y){
                 while(gamepad1.y){}
                 robot.moveByInchesFast(24, FORWARD);
             } else if(gamepad1.a){
@@ -51,7 +61,7 @@ public class PIDTest extends LinearOpMode{
             } else if(gamepad1.b){
                 while(gamepad1.b){}
                 robot.moveByInchesFast(24, STRAFE);
-            }
+            }*/
 
             if(modP){
                 telemetry.addLine("Modifying P");
@@ -104,7 +114,7 @@ public class PIDTest extends LinearOpMode{
                 }
 
             } else if(gamepad1.left_bumper && gamepad1.right_bumper){
-                p = 0;
+                p = 1;
                 i = 0;
                 d = 0;
                 f = 0;
