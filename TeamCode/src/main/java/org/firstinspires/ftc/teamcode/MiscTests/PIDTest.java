@@ -13,41 +13,11 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DI
 public class PIDTest extends LinearOpMode{
     private RobotLinearOpMode robot;
 
-    private PropertiesLoader loader = new PropertiesLoader("Robot");
-    private double P = loader.getDoubleProperty("P");
-    private double I = loader.getDoubleProperty("I");
-    private double D = loader.getDoubleProperty("D");
-    private double F = loader.getDoubleProperty("F");
-
     private RunMode runMode = RunMode.RUN_USING_ENCODER;
 
     @Override
     public void runOpMode(){
         robot = new RobotLinearOpMode(this);
-
-        DcMotorEx[] driveMotors = new DcMotorEx[4];
-
-        driveMotors[0] = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");
-        driveMotors[1] = (DcMotorEx) hardwareMap.get(DcMotor.class, "rf");
-        driveMotors[2] = (DcMotorEx) hardwareMap.get(DcMotor.class, "lb");
-        driveMotors[3] = (DcMotorEx) hardwareMap.get(DcMotor.class, "rb");
-        driveMotors[0].setDirection(DcMotorEx.Direction.REVERSE);
-        driveMotors[1].setDirection(DcMotorEx.Direction.FORWARD);
-        driveMotors[2].setDirection(DcMotorEx.Direction.REVERSE);
-        driveMotors[3].setDirection(DcMotorEx.Direction.FORWARD);
-
-        for(int i = 0; i < 4; i++){
-            driveMotors[i].setMode(runMode);
-        }
-
-        PIDFCoefficients[] newCoeffs = new PIDFCoefficients[4];
-
-        for(int i = 0; i < newCoeffs.length; i++){
-            newCoeffs[i] = new PIDFCoefficients(P, I, D, F);
-        }
-
-        setCoeffs(driveMotors, newCoeffs);
-        PIDFCoefficients[] coeffs = getCoeffs(driveMotors);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -55,7 +25,19 @@ public class PIDTest extends LinearOpMode{
 
         waitForStart();
 
+        double p = 0;
+        double i = 0;
+        double d = 0;
+        double f = 0;
+        double increment = 0;
+
+        boolean modP = false;
+        boolean modI = false;
+        boolean modD = false;
+        boolean modF = false;
+
         while(!isStopRequested()){
+            robot.setDrivePIDCoefficients(p, i, d, f);
 
             if(gamepad1.y){
                 while(gamepad1.y){}
@@ -71,42 +53,93 @@ public class PIDTest extends LinearOpMode{
                 robot.moveByInchesFast(24, STRAFE);
             }
 
-            telemetry.addLine("LF");
-            printCoeffs(coeffs[0]);
-            telemetry.addLine("RF");
-            printCoeffs(coeffs[1]);
-            telemetry.addLine("LB");
-            printCoeffs(coeffs[2]);
-            telemetry.addLine("RB");
-            printCoeffs(coeffs[3]);
+            if(modP){
+                telemetry.addLine("Modifying P");
+            } else if(modI){
+                telemetry.addLine("Modifying I");
+            } else if(modD){
+                telemetry.addLine("Modifying D");
+            } else if(modF){
+                telemetry.addLine("Modifying F");
+            }
+
+            if(gamepad1.right_stick_button){
+                while(gamepad1.right_stick_button){}
+                increment *= 10;
+            } else if(gamepad1.left_stick_button){
+                while(gamepad1.left_stick_button){}
+                increment /= 10;
+            }
+
+            if(increment > 1){
+                increment = 1;
+            } else if(increment < 0.01){
+                increment = 0.01;
+            }
+
+            if(gamepad1.right_trigger > 0.3){
+                while(gamepad1.right_trigger > 0.3){}
+
+                if(modP){
+                    p += increment;
+                } else if(modI){
+                    i += increment;
+                } else if(modD){
+                    d += increment;
+                } else if(modF){
+                    f += increment;
+                }
+
+            } else if(gamepad1.left_trigger > 0.3){
+                while(gamepad1.left_trigger > 0.3){}
+
+                if(modP){
+                    p -= increment;
+                } else if(modI){
+                    i -= increment;
+                } else if(modD){
+                    d -= increment;
+                } else if(modF){
+                    f -= increment;
+                }
+
+            } else if(gamepad1.left_bumper && gamepad1.right_bumper){
+                p = 0;
+                i = 0;
+                d = 0;
+                f = 0;
+            }
+
+            if(gamepad1.dpad_up){
+                modP = true;
+                modI = false;
+                modD = false;
+                modF = false;
+            } else if(gamepad1.dpad_down){
+                modP = false;
+                modI = false;
+                modD = true;
+                modF = false;
+            } else if(gamepad1.dpad_right){
+                modP = false;
+                modI = true;
+                modD = false;
+                modF = false;
+            } else if (gamepad1.dpad_left){
+                modP = false;
+                modI = false;
+                modD = false;
+                modF = true;
+            }
+
+            telemetry.addData("Increment", increment);
+            telemetry.addData("P", p);
+            telemetry.addData("I", i);
+            telemetry.addData("D", d);
+            telemetry.addData("F", f);
             telemetry.update();
         }
 
-    }
-
-    private PIDFCoefficients[] getCoeffs(DcMotorEx[] motors){
-        PIDFCoefficients[] coeffs = new PIDFCoefficients[motors.length];
-
-        for(int i = 0; i < motors.length; i++){
-            coeffs[i] = motors[i].getPIDFCoefficients(runMode);
-        }
-
-        return coeffs;
-    }
-
-    private void setCoeffs(DcMotorEx[] motors, PIDFCoefficients[] coeffs){
-
-        for(int i = 0; i < motors.length; i++){
-            motors[i].setPIDFCoefficients(runMode, coeffs[i]);
-        }
-
-    }
-
-    private void printCoeffs(PIDFCoefficients coeffs){
-        telemetry.addData("P", coeffs.p);
-        telemetry.addData("I", coeffs.i);
-        telemetry.addData("D", coeffs.d);
-        telemetry.addData("F", coeffs.f);
     }
 
 }

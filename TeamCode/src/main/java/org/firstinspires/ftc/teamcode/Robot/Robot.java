@@ -261,6 +261,8 @@ public class Robot {
 
         imu1.initialize(parameters);
         imu2.initialize(parameters);
+
+        parameters.mode = BNO055IMU.SensorMode.CONFIG;
     }
 
     //originally this saved the imu rile, but now I don't know its purpose, sice we can always reinit
