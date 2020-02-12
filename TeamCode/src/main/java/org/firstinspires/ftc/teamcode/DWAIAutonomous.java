@@ -22,7 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.*;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.DEFAULT;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.GRABBING;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.READY;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.STOWED;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
 
@@ -199,9 +202,9 @@ public class DWAIAutonomous {
             print("Raising to starting position");
             Thread t1 = new Thread(() -> {
 
-                try{
+                try {
                     sleep(500);
-                } catch(Exception e){
+                } catch (Exception e) {
 
                 }
 
@@ -238,9 +241,9 @@ public class DWAIAutonomous {
             setGrabberPosition(READY);
             Thread t2 = new Thread(() -> {
 
-                try{
+                try {
                     sleep(500);
-                } catch(Exception e){
+                } catch (Exception e) {
 
                 }
 
@@ -255,7 +258,7 @@ public class DWAIAutonomous {
             opMode.sleep(500);
         }
         else if (side == SIDE.QUICK_PARK || side == SIDE.SLOW_PARK) {
-            if(side == SIDE.SLOW_PARK){
+            if (side == SIDE.SLOW_PARK) {
                 opMode.sleep(25000);
             }
             startDeploy();
@@ -540,7 +543,7 @@ public class DWAIAutonomous {
 
         print("Moving backwards to foundation");
 
-        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+        if (foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL) {
             forwardDistance += BLOCK_EXTRA_DIST_TO_FOUNDATION;
         }
 
@@ -570,7 +573,7 @@ public class DWAIAutonomous {
         backwardDistance -= BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
         //}
 
-        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+        if (foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL) {
             backwardDistance -= BLOCK_EXTRA_DIST_TO_FOUNDATION;
         }
 
@@ -594,10 +597,10 @@ public class DWAIAutonomous {
         }
 
         //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-            forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
+        forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
         //}
 
-        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
+        if (foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL) {
             forwardDistance += BLOCK_EXTRA_DIST_TO_FOUNDATION;
         }
 
@@ -663,7 +666,7 @@ public class DWAIAutonomous {
         THREE_AND_SIX,
     }
 
-    //detection pipeline (ignore)
+    //DETECTION pipeline (ignore)
     static class StageSwitchingPipeline extends OpenCvPipeline {
         Mat yCbCrChan2Mat = new Mat();
         Mat thresholdMat = new Mat();
@@ -673,7 +676,7 @@ public class DWAIAutonomous {
         private StageSwitchingPipeline.Stage[] stages = StageSwitchingPipeline.Stage.values();
 
         {
-            stageToRenderToViewport = StageSwitchingPipeline.Stage.detection;
+            stageToRenderToViewport = StageSwitchingPipeline.Stage.DETECTION;
         }
 
         @Override
@@ -683,7 +686,7 @@ public class DWAIAutonomous {
              * so whatever we do here, we must do quickly.
              */
 
-            stageToRenderToViewport = StageSwitchingPipeline.Stage.detection;
+            stageToRenderToViewport = StageSwitchingPipeline.Stage.DETECTION;
             int currentStageNum = stageToRenderToViewport.ordinal();
 
             int nextStageNum = currentStageNum + 1;
@@ -756,7 +759,7 @@ public class DWAIAutonomous {
                     return thresholdMat;
                 }
 
-                case detection: {
+                case DETECTION: {
                     return all;
                 }
 
@@ -767,7 +770,7 @@ public class DWAIAutonomous {
         }
 
         enum Stage {//color difference. greyscale
-            detection,//includes outlines
+            DETECTION,//includes outlines
             THRESHOLD,//b&w
             RAW_IMAGE,//displays raw view
         }
