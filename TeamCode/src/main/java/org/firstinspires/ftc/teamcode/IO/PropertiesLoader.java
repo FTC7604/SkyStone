@@ -85,9 +85,9 @@ public class PropertiesLoader {
 
     public void setByteProperty(String name, byte value){
         try {
-            setStringProperty(name, String.valueOf(value));
+            setStringProperty(name, Byte.toString(value));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid byte: " + getStringProperty(name) + " for property: " + name);
+            throw new IllegalArgumentException("Cannot write byte property " + Byte.toString(value) + " to " + name);
         }
     }
 
@@ -95,7 +95,7 @@ public class PropertiesLoader {
         try {
             properties.setProperty(name, value);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Cannot find property with name " + name);
+            throw new IllegalArgumentException("Cannot write property with name " + name);
         }
     }
 }
