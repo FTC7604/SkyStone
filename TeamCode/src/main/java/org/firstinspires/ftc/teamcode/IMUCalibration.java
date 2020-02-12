@@ -427,4 +427,74 @@ public class IMUCalibration extends LinearOpMode {
         imu2.write8(MAG_RADIUS_MSB, MAG_RADIUS_MSB_2);
     }
 
+    Thread imuThread;
+    private volatile double currentXAcceleration;
+    private volatile double currentYAcceleration;
+
+    private volatile double pastXAcceleration;
+    private volatile double pastYAcceleration;
+
+    private volatile double currentXVelocity;
+    private volatile double currentYVelocity;
+
+    private volatile double pastXVelocity;
+    private volatile double pastYVelocity;
+
+    private volatile double currentXPosition;
+    private volatile double currentYPosition;
+
+    private volatile boolean gotFirstAcceleration;
+    private volatile boolean gotFirstVelocity;
+
+    int dt = 50;
+
+    void startOfTheThread(){
+
+        pastXAcceleration = 0;
+        pastYAcceleration = 0;
+        currentXAcceleration = 0;
+        currentYAcceleration = 0;
+
+        pastXAcceleration = 0;
+        pastYAcceleration = 0;
+        currentXAcceleration = 0;
+        currentYAcceleration = 0;
+
+        currentXPosition = 0;
+        currentYPosition = 0;
+
+        gotFirstAcceleration = false;
+        gotFirstVelocity = false;
+
+
+        imuThread = new Thread(() -> {
+            if(!gotFirstAcceleration) {
+                pastXAcceleration = currentXAcceleration;
+                pastYAcceleration = currentYAcceleration;
+            }
+
+            currentXAcceleration = imu1.getLinearAcceleration().xAccel;
+            currentYAcceleration = imu1.getLinearAcceleration().yAccel;
+            gotFirstAcceleration = true;
+
+            if(gotFirstAcceleration) {
+                if(!gotFirstVelocity) {
+                    pastXVelocity = currentXVelocity;
+                    pastYVelocity = currentYVelocity;
+                }
+
+                currentXVelocity = (currentXAcceleration + pastXAcceleration) / 2 * dt;
+                currentYVelocity = (currentYAcceleration + pastYAcceleration) / 2 * dt;
+                gotFirstVelocity = true;
+
+                if(gotFirstVelocity) {
+                    currentXPosition = (currentXVelocity + pastXVelocity) / 2 * dt;
+                    currentYPosition = (currentYVelocity + pastYVelocity) / 2 * dt;
+                }
+            }
+            sleep(50);
+        });
+
+    }
+
 }
