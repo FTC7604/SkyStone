@@ -77,7 +77,9 @@ public class Robot {
 
     RevBlinkinLedDriver blinkin;
 
-    private BNO055IMU imu1 = null, imu2 = null;
+    private BNO055IMU imu1 = null;
+    private BNO055IMU imu2 = null;
+
 
     private ColorSensor leftWingCS;
     private DistanceSensor leftWingDS;
@@ -101,9 +103,7 @@ public class Robot {
     public Robot(){
     }
 
-    void makeThread(){
-        imu2.getPosition();
-    }
+
 
     private void mapHardware(){
         //DRIVE
@@ -147,6 +147,7 @@ public class Robot {
         //IMU
         imu1 = hardwareMap.get(BNO055IMU.class, "imu");
         imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");
+
 
         //INTAKE TOUCH SENSORS
         blockIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "bt");
@@ -248,36 +249,8 @@ public class Robot {
         imu2.initialize(parameters);
     }
 
-    //originally this saved the imu rile, but now I don't know its purpose, sice we can always reinit
-    public File[] readIMUCalibrationFiles(){
-        File[] calibrationFiles = new File[2];
-        BNO055IMU.CalibrationData[] calibrationData = new BNO055IMU.CalibrationData[2];
 
-        calibrationData[0] = imu1.readCalibrationData();
-        calibrationData[1] = imu2.readCalibrationData();
 
-        calibrationFiles[0] = AppUtil.getInstance().getSettingsFile("AdafruitIMUCalibration2.json");
-        calibrationFiles[1] = AppUtil.getInstance().getSettingsFile("AdafruitIMUCalibration1.json");
-
-        ReadWriteFile.writeFile(calibrationFiles[0], calibrationData[0].serialize());
-        ReadWriteFile.writeFile(calibrationFiles[1], calibrationData[1].serialize());
-
-        return calibrationFiles;
-    }
-
-    public void setCalibrationData(File[] calibrationFiles){
-        String[] data = new String[2];
-        BNO055IMU.CalibrationData[] calibrationData = new BNO055IMU.CalibrationData[2];
-
-        data[0] = ReadWriteFile.readFile(calibrationFiles[0]);
-        data[1] = ReadWriteFile.readFile(calibrationFiles[1]);
-
-        calibrationData[0] = BNO055IMU.CalibrationData.deserialize(data[0]);
-        calibrationData[1] = BNO055IMU.CalibrationData.deserialize(data[1]);
-
-        imu1.writeCalibrationData(calibrationData[0]);
-        imu2.writeCalibrationData(calibrationData[1]);
-    }
 
     boolean IMUSAreCalibrated(){
         return imu1.isGyroCalibrated() && imu2.isGyroCalibrated();
