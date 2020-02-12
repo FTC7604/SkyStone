@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
@@ -95,6 +97,11 @@ public class Robot {
     private double BLUE_LINE_DETECTED = propertiesLoader.getDoubleProperty("RED_LINE_DETECTED");
     private double RED_LINE_DETECTED = propertiesLoader.getDoubleProperty("BLUE_LINE_DETECTED");
 
+    private double P = propertiesLoader.getDoubleProperty("P");
+    private double I = propertiesLoader.getDoubleProperty("I");
+    private double D = propertiesLoader.getDoubleProperty("D");
+    private double F = propertiesLoader.getDoubleProperty("F");
+
     public Robot(OpMode opMode){
         this.hardwareMap = opMode.hardwareMap;
         mapHardware();
@@ -115,6 +122,7 @@ public class Robot {
         leftFrontDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
         rightBackDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftBackDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        setDrivePIDCoefficients(P, I, D, F);
 
         //INTAKE
         rightIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ri");
@@ -176,6 +184,13 @@ public class Robot {
     /**
      * ZERO POWER + RUNMODE METHODS
      */
+    public void setDrivePIDCoefficients(double P, double I, double D, double F){
+        rightFrontDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
+        leftFrontDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
+        rightBackDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
+        leftBackDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
+    }
+
     public void setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
         setDriveTrainZeroPowerProperty(zeroPowerBehavior);
         setIntakeZeroPowerProperty(zeroPowerBehavior);
@@ -247,6 +262,8 @@ public class Robot {
 
         imu1.initialize(parameters);
         imu2.initialize(parameters);
+
+        parameters.mode = BNO055IMU.SensorMode.CONFIG;
     }
 
 
