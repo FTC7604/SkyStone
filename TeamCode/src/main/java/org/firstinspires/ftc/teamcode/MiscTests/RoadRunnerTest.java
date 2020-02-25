@@ -32,7 +32,7 @@ public class RoadRunnerTest extends LinearOpMode {
 
         robot.setLeftGrabberPosition(RobotLinearOpMode.GRABBER_POSITION.DEFAULT);
         robot.setRightGrabberPosition(RobotLinearOpMode.GRABBER_POSITION.DEFAULT);
-        drive.setPoseEstimate(new Pose2d(-34, 63, Math.toRadians(90)));
+        drive.setPoseEstimate(new Pose2d(-33, 63, Math.toRadians(90)));
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
