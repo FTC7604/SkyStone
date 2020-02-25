@@ -46,7 +46,7 @@ leftSideGrabber -> "lsg"
 rightSideGrabberServo -> "rsl"
 rightSideGrabber -> "rsg"
 
-blockIntakeTouchSensor -> "bt"
+blockIntakeTouchSensor -> "blt" //don't forget to add brt for right intake touch sensor
 openIntakeTouchSensor -> "it"
 foundationTouchSensor -> "ft"
 
@@ -122,7 +122,7 @@ public class Robot {
         leftFrontDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
         rightBackDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftBackDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
-        setDrivePIDCoefficients(P, I, D, F);
+        //setDrivePIDCoefficients(P, I, D, F);
 
         //INTAKE
         rightIntakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "ri");
@@ -157,7 +157,7 @@ public class Robot {
         imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");   //imu 10
 
         //INTAKE TOUCH SENSORS
-        blockIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "bt");
+        blockIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "blt");
         blockIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
         openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
         openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);

@@ -200,7 +200,7 @@ public class SSfullTeleop extends LinearOpMode {
         rightLatchServo       = hardwareMap.get(Servo.class, "rl");
         blockGrabberServo     = hardwareMap.get(Servo.class, "bg");
         markerLatchServo      = hardwareMap.get(Servo.class, "ml");
-        intakeFull            = hardwareMap.get(DigitalChannel.class, "bt");
+        intakeFull            = hardwareMap.get(DigitalChannel.class, "blt");
         openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
         blinkin               = hardwareMap.get(RevBlinkinLedDriver.class, "bk");
 

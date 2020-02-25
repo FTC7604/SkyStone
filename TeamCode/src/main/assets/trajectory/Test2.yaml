@@ -1,0 +1,15 @@
+---
+startPose:
+  x: -30.0
+  y: -63.0
+  heading: 0.0
+startHeading: -1.5707963267948966
+steps:
+- pose:
+    x: -30.0
+    y: -35.0
+    heading: 0.0
+  interpolationType: "LINEAR"
+  heading: 0.0
+resolution: 0.25
+version: 2

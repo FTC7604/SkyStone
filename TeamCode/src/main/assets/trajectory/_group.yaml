@@ -1,0 +1,12 @@
+---
+constraints:
+  maxVel: 30.0
+  maxAccel: 30.0
+  maxJerk: 0.0
+  maxAngVel: 3.141592653589793
+  maxAngAccel: 6.283185307179586
+  maxAngJerk: 0.0
+driveType: "MECANUM"
+trackWidth: 16.0
+wheelBase: 2.0
+lateralMultiplier: 1.65
