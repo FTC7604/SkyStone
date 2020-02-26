@@ -108,6 +108,9 @@ public class RobotLinearOpMode extends Robot {
         holdMarker();
         openGrabber();
 
+        setLeftGrabberPosition(RobotLinearOpMode.GRABBER_POSITION.DEFAULT);
+        setRightGrabberPosition(RobotLinearOpMode.GRABBER_POSITION.DEFAULT);
+
         linearOpMode.telemetry.addData("Status", "Initialized");
         linearOpMode.telemetry.update();
     }
