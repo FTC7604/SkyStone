@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.MiscTests;
+/*package org.firstinspires.ftc.teamcode.MiscTests;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.DWAIAutonomous;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
@@ -23,8 +24,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
  * IMPORTANT: THIS AUTO ASSUMES BLUE ALLIANCE (for now)
  * TODO: replace DWAIAutonomous class with this one sooner or later
  */
-@TeleOp(group = "TeleOp", name = "Trajectory Tester")
-public class RoadRunnerTest extends LinearOpMode {
+/*public class DWAIAutonomous {
 
     private RobotLinearOpMode robot;
     private volatile boolean flag = false;
@@ -33,14 +33,36 @@ public class RoadRunnerTest extends LinearOpMode {
     private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
     private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
 
-    private SKYSTONE_POSITION skystone_position;
     private int checks = 0;
     private StageSwitchingPipeline pipeline;
 
-    @Override
+    private RobotLinearOpMode robot;
+    private FOUNDATION_ORIENTATION foundationOrientation;
+    private PARK_POSITION parkPosition;
+    private SIDE side;
+    private ALLIANCE alliance;
+    private LinearOpMode opMode;
+    private Telemetry telemetry;
+    private SKYSTONE_POSITION skystone_position;
+
+    public DWAIAutonomous(
+            FOUNDATION_ORIENTATION foundationOrientation,
+            PARK_POSITION parkPosition,
+            SIDE side,
+            ALLIANCE alliance,
+            LinearOpMode opMode
+    ){
+        this.foundationOrientation = foundationOrientation;
+        this.parkPosition          = parkPosition;
+        this.side                  = side;
+        this.alliance              = alliance;
+        this.opMode                = opMode;
+        this.telemetry             = opMode.telemetry;
+    }
+
     public void runOpMode(){
-        robot = new RobotLinearOpMode(this);
-        SampleMecanumDriveREV drive = new SampleMecanumDriveREV(hardwareMap);
+        robot = new RobotLinearOpMode(opMode);
+        SampleMecanumDriveREV drive = new SampleMecanumDriveREV(opMode.hardwareMap);
 
         //Additional setup
         robot.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
@@ -49,20 +71,33 @@ public class RoadRunnerTest extends LinearOpMode {
         telemetry.addLine("Initialized!");
         telemetry.update();
 
-        waitForStart();
+        opMode.waitForStart();
 
         //Some roadrunner stuff
         robot.setLeftGrabberPosition(RobotLinearOpMode.GRABBER_POSITION.DEFAULT);
         robot.setRightGrabberPosition(RobotLinearOpMode.GRABBER_POSITION.DEFAULT);
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
-        drive.setPoseEstimate(new Pose2d(-34, 63, Math.toRadians(90)));
 
-        //Detect block
-        /*while(skystone_position == null || checks < 10){
-            getSkyStonePosition();
-            checks++;
-            sleep(100);
-        }*/
+        if(alliance == ALLIANCE.RED && side == SIDE.BLOCK){
+            drive.setPoseEstimate(new Pose2d(-34, -63, Math.toRadians(270)));
+        } else if(alliance == ALLIANCE.RED && side == SIDE.FOUNDATION){
+            drive.setPoseEstimate(new Pose2d(15, -63, Math.toRadians(270)));
+        } else if(alliance == ALLIANCE.BLUE && side == SIDE.BLOCK){
+            drive.setPoseEstimate(new Pose2d(-34, 63, Math.toRadians(90)));
+        } else if(alliance == ALLIANCE.BLUE && side == SIDE.FOUNDATION){
+            drive.setPoseEstimate(new Pose2d(15, 63, Math.toRadians(90)));
+        }
+
+        if(side == SIDE.BLOCK) {
+
+            //Detect block
+            while (skystone_position == null || checks < 10) {
+                getSkyStonePosition();
+                checks++;
+                opMode.sleep(100);
+            }
+
+        }
 
         robot.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
 
@@ -90,9 +125,9 @@ public class RoadRunnerTest extends LinearOpMode {
         );
 
         robot.setRightGrabberPosition(RobotLinearOpMode.GRABBER_POSITION.GRABBING);
-        sleep(500);
+        opMode.sleep(500);
         robot.setRightGrabberPosition(RobotLinearOpMode.GRABBER_POSITION.STOWED);
-        sleep(500);
+        opMode.sleep(500);
 
         while(!flag);
 
@@ -107,7 +142,7 @@ public class RoadRunnerTest extends LinearOpMode {
             drive.update();
         }*/
 
-        telemetry.addLine("Done!");
+/*        telemetry.addLine("Done!");
         telemetry.update();
 
         //X diffs
@@ -185,16 +220,16 @@ public class RoadRunnerTest extends LinearOpMode {
         valMid = vals[1];
         valRight = vals[2];
 
-        //if (alliance == ALLIANCE.BLUE) {
+        if (alliance == ALLIANCE.BLUE) {
             if (valLeft == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
             if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
             if (valRight == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
-        /*}
+        }
         else {
             if (valLeft == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
             if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
             if (valRight == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
-        }*/
+        }
 
         if (skystone_position == null) {
             //throw new RuntimeException("No skystone detected!");
@@ -222,7 +257,7 @@ public class RoadRunnerTest extends LinearOpMode {
         float[] offsetArray = {offsetX, offsetY, distScale};
         pipeline = new StageSwitchingPipeline(offsetArray);
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
         OpenCvCamera phoneCam            = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
         phoneCam.openCameraDevice();//open camera
         phoneCam.setPipeline(pipeline);//different stages
@@ -239,4 +274,27 @@ public class RoadRunnerTest extends LinearOpMode {
         THREE_AND_SIX,
     }
 
+    public enum FOUNDATION_ORIENTATION {
+        HORIZONTAL,
+        VERTICAL
+    }
+
+    public enum PARK_POSITION {
+        WALL,
+        BRIDGE
+    }
+
+    public enum ALLIANCE {
+        RED,
+        BLUE
+    }
+
+    public enum SIDE {
+        BLOCK,
+        FOUNDATION,
+        QUICK_PARK,
+        SLOW_PARK
+    }
+
 }
+*/

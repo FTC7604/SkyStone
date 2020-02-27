@@ -14,6 +14,10 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.teamcode.util.AxesSigns;
+import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 import org.openftc.revextensions2.ExpansionHubEx;
 import org.openftc.revextensions2.ExpansionHubMotor;
@@ -46,12 +50,12 @@ public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase {
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
-        // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+        BNO055IMUUtil.remapAxes(imu, AxesOrder.ZXY, AxesSigns.PPN);
 
-        leftFront = hardwareMap.get(ExpansionHubMotor.class, "leftFront");
-        leftRear = hardwareMap.get(ExpansionHubMotor.class, "leftRear");
-        rightRear = hardwareMap.get(ExpansionHubMotor.class, "rightRear");
-        rightFront = hardwareMap.get(ExpansionHubMotor.class, "rightFront");
+        leftFront = hardwareMap.get(ExpansionHubMotor.class, "lf");
+        leftRear = hardwareMap.get(ExpansionHubMotor.class, "lb");
+        rightRear = hardwareMap.get(ExpansionHubMotor.class, "rb");
+        rightFront = hardwareMap.get(ExpansionHubMotor.class, "rf");
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
@@ -67,6 +71,10 @@ public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase {
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        rightRear.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftRear.setDirection(DcMotor.Direction.REVERSE);
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
