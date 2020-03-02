@@ -30,7 +30,7 @@ rightBackDriveMotor ->  "rb"
 leftBackDriveMotor -> "lb"
 
 rightIntakeMotor -> "ri"
-leftIntakeMotor -> "ri"
+leftIntakeMotor -> "li"
 
 armMotor -> "ax"
 liftMotor -> "lx"

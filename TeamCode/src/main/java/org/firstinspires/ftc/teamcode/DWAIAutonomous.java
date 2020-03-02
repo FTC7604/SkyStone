@@ -865,8 +865,8 @@ public class DWAIAutonomous {
                                 .reverse()
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
                                 .reverse()
-                                .splineTo(new Pose2d(-20, BLOCK_Y_POSITION, 0))
-                                .strafeTo(new Vector2d(-20, BLOCK_Y_POSITION))
+                                .splineTo(new Pose2d(-20, BLOCK_OFFSET_Y_POSITION, 0))
+                                .strafeRight((BLOCK_OFFSET_Y_POSITION - BLOCK_Y_POSITION))
                                 .build()
                 );
                 break;
@@ -877,8 +877,8 @@ public class DWAIAutonomous {
                                 .reverse()
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
                                 .reverse()
-                                .splineTo(new Pose2d(-28, BLOCK_Y_POSITION, 0))
-                                .strafeTo(new Vector2d(-28, BLOCK_Y_POSITION))
+                                .splineTo(new Pose2d(-28, BLOCK_OFFSET_Y_POSITION, 0))
+                                .strafeRight((BLOCK_OFFSET_Y_POSITION - BLOCK_Y_POSITION))
                                 .build()
                 );
                 break;
@@ -889,8 +889,8 @@ public class DWAIAutonomous {
                                 .reverse()
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
                                 .reverse()
-                                .splineTo(new Pose2d(-36, BLOCK_Y_POSITION, 0))
-                                .strafeTo(new Vector2d(-36, BLOCK_Y_POSITION))
+                                .splineTo(new Pose2d(-36, BLOCK_OFFSET_Y_POSITION, 0))
+                                .strafeRight((BLOCK_OFFSET_Y_POSITION - BLOCK_Y_POSITION))
                                 .build()
                 );
                 break;
@@ -950,16 +950,23 @@ public class DWAIAutonomous {
         drive.turnSync(Math.toRadians(180 - startAngle));
 
         while(!robot.getFoundationSensorPressed()){
-            robot.mecanumPowerDrive(0, -0.5, 0);
+            robot.mecanumPowerDrive(0, -0.2, 0);
             drive.updatePoseEstimate();
         }
 
         robot.mecanumPowerDrive(0, 0, 0);
         robot.setLatchPosition(CLOSE_LATCH_SERVO_POSITION);
 
+        opMode.sleep(GRAB_DELAY);
+
+        //WILLIAM
+        //make it move to where it needs to be, turn, and then move backwards instead of singular spline
+        //the angles are in radians, limited to between 0, 2pi, positive only
+        //connect using 192.168.49.1:8080/dash, switch graph to field from Default to see positioning
+
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .lineTo(new Vector2d(45, DEPOT_Y_POSITION), new LinearInterpolator(startAngle, Math.toRadians(180 - startAngle)))
+                        .splineTo(new Pose2d(45, DEPOT_Y_POSITION, Math.toRadians(180)))
                         .build()
         );
 
@@ -972,7 +979,7 @@ public class DWAIAutonomous {
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
                         .splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
-                        .splineTo(new Pose2d(50 + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
+                        .splineTo(new Pose2d(48 + blocksPlaced * 9, FOUNDATION_Y_POSITION, 0))
                         .build()
         );
 
@@ -994,8 +1001,8 @@ public class DWAIAutonomous {
                 drive.trajectoryBuilder()
                         .reverse()
                         .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
-                        .splineTo(new Pose2d(-12 - index * 8, BLOCK_Y_POSITION, 0))
-                        .strafeTo(new Vector2d(-12 - index * 8, BLOCK_Y_POSITION))
+                        .splineTo(new Pose2d(-12 - index * 8, BLOCK_OFFSET_Y_POSITION, 0))
+                        .strafeRight((BLOCK_OFFSET_Y_POSITION - BLOCK_Y_POSITION))
                         .build()
         );
 
