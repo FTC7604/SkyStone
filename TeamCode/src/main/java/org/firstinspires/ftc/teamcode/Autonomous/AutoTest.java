@@ -13,7 +13,7 @@ public class AutoTest extends LinearOpMode {
                 DWAIAutonomous.FOUNDATION_ORIENTATION.VERTICAL,
                 DWAIAutonomous.PARK_POSITION.BRIDGE,
                 DWAIAutonomous.SIDE.BLOCK,
-                DWAIAutonomous.ALLIANCE.BLUE,
+                DWAIAutonomous.ALLIANCE.RED,
                 this);
 
         auto.runOpMode();

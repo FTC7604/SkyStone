@@ -659,6 +659,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.path.heading.LinearInterpolator;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -668,6 +669,7 @@ import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
 import org.firstinspires.ftc.teamcode.Robot.StageSwitchingPipeline;
 import org.firstinspires.ftc.teamcode.drive.mecanum.SampleMecanumDriveREV;
+import org.firstinspires.ftc.teamcode.drive.mecanum.SampleMecanumDriveREVOptimized;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
@@ -678,16 +680,21 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 public class DWAIAutonomous {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
-    private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
-    private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
+    private double BLOCK_OFFSET_Y_POSITION = propertiesLoader.getDoubleProperty("BLOCK_OFFSET_Y_POSITION");
     private double BLOCK_Y_POSITION = propertiesLoader.getDoubleProperty("BLOCK_Y_POSITION");
     private double BRIDGE_Y_POSITION = propertiesLoader.getDoubleProperty("BRIDGE_Y_POSITION");
     private double FOUNDATION_Y_POSITION = propertiesLoader.getDoubleProperty("FOUNDATION_Y_POSITION");
+    private double DEPOT_Y_POSITION = propertiesLoader.getDoubleProperty("DEPOT_Y_POSITION");
 
+    private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
+    private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
+    private long GRAB_DELAY = propertiesLoader.getLongProperty("GRAB_DELAY");
     private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
+    private boolean DEPLOY_LIFTER = propertiesLoader.getBooleanProperty("DEPLOY_LIFTER");
 
     private int checks = 0;
     private StageSwitchingPipeline pipeline;
+    private OpenCvCamera phoneCam;
 
     private SampleMecanumDriveREV drive;
     private RobotLinearOpMode robot;
@@ -698,6 +705,9 @@ public class DWAIAutonomous {
     private SKYSTONE_POSITION skystone_position;
     private LinearOpMode opMode;
     private Telemetry telemetry;
+
+    private double startAngle = 0;
+    private int blocksPlaced = 0;
 
     private volatile boolean flag = false;
 
@@ -723,10 +733,8 @@ public class DWAIAutonomous {
         if (PAUSE_STEPS) {
             robot.stopAllMotors();
             //Ensures button is pressed and released before continuing
-            while(opMode.opModeIsActive() && !opMode.gamepad1.a){
-            }
-            while(opMode.opModeIsActive() && opMode.gamepad1.a){
-            }
+            while(opMode.opModeIsActive() && !opMode.gamepad1.a);
+            while(opMode.opModeIsActive() && opMode.gamepad1.a);
         }
 
     }
@@ -735,8 +743,10 @@ public class DWAIAutonomous {
 
         if(alliance == ALLIANCE.RED){
             BLOCK_Y_POSITION *= -1;
+            BLOCK_OFFSET_Y_POSITION *= -1;
             BRIDGE_Y_POSITION *= -1;
             FOUNDATION_Y_POSITION *= -1;
+            DEPOT_Y_POSITION *= -1;
         }
 
     }
@@ -744,6 +754,7 @@ public class DWAIAutonomous {
     public void runOpMode(){
         robot = new RobotLinearOpMode(opMode);
         drive = new SampleMecanumDriveREV(opMode.hardwareMap);
+        setupVariables();
 
         //Additional setup
         robot.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
@@ -761,19 +772,158 @@ public class DWAIAutonomous {
 
         if(alliance == ALLIANCE.RED && side == SIDE.BLOCK){
             drive.setPoseEstimate(new Pose2d(-34, -63, Math.toRadians(270)));
+            startAngle = 270;
         } else if(alliance == ALLIANCE.RED && side == SIDE.FOUNDATION){
             drive.setPoseEstimate(new Pose2d(15, -63, Math.toRadians(270)));
+            startAngle = 270;
         } else if(alliance == ALLIANCE.BLUE && side == SIDE.BLOCK){
             drive.setPoseEstimate(new Pose2d(-34, 63, Math.toRadians(90)));
+            startAngle = 90;
         } else if(alliance == ALLIANCE.BLUE && side == SIDE.FOUNDATION){
             drive.setPoseEstimate(new Pose2d(15, 63, Math.toRadians(90)));
+            startAngle = 90;
         }
 
         if(side == SIDE.BLOCK) {
             executeBlockAuto();
         } else if(side == SIDE.FOUNDATION){
+            executeFoundationAuto();
+        } else if(side == SIDE.QUICK_PARK){
+            //Deploy lifter
+            Thread deploy = new Thread(() -> {
+                startDeploy();
+                flag = true;
+            });
+
+            deploy.start();
+            while(!flag && opMode.opModeIsActive());
+
+            drive.followTrajectorySync(
+                    drive.trajectoryBuilder()
+                            .forward(18)
+                            .build()
+            );
+
+        } else if(side == SIDE.SLOW_PARK){
+            //Deploy lifter
+            Thread deploy = new Thread(() -> {
+                startDeploy();
+                flag = true;
+            });
+
+            deploy.start();
+            opMode.sleep(25000);
+
+            drive.followTrajectorySync(
+                    drive.trajectoryBuilder()
+                            .forward(18)
+                            .build()
+            );
 
         }
+
+        //AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop", alliance);
+    }
+
+    private void executeBlockAuto(){
+        /*//Detect block
+        while (skystone_position == null || checks < 10) {
+            getSkyStonePosition();
+            checks++;
+            opMode.sleep(100);
+        }*/
+        //phoneCam.closeCameraDevice();
+        skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR; //testing purposes
+
+        robot.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+
+        //Move off wall
+        /*drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .back(12)
+                        .build()
+        );*/
+
+        //Deploy lifter
+        Thread deploy = new Thread(() -> {
+            startDeploy();
+            flag = true;
+        });
+
+        deploy.start();
+
+        setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.READY);
+        print("Moving to block");
+
+        //PERHAPS TRY USING STRAFETO
+        //replace with BLOCK_OFFSET_Y_POSITION to enable strafing
+        switch(skystone_position) {
+            case ONE_AND_FOUR:
+                //Block 1 position
+                drive.followTrajectorySync(
+                        drive.trajectoryBuilder()
+                                .reverse()
+                                .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
+                                .reverse()
+                                .splineTo(new Pose2d(-20, BLOCK_Y_POSITION, 0))
+                                .strafeTo(new Vector2d(-20, BLOCK_Y_POSITION))
+                                .build()
+                );
+                break;
+            case TWO_AND_FIVE:
+                //Block 2 position
+                drive.followTrajectorySync(
+                        drive.trajectoryBuilder()
+                                .reverse()
+                                .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
+                                .reverse()
+                                .splineTo(new Pose2d(-28, BLOCK_Y_POSITION, 0))
+                                .strafeTo(new Vector2d(-28, BLOCK_Y_POSITION))
+                                .build()
+                );
+                break;
+            case THREE_AND_SIX:
+                //Block 3 position
+                drive.followTrajectorySync(
+                        drive.trajectoryBuilder()
+                                .reverse()
+                                .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
+                                .reverse()
+                                .splineTo(new Pose2d(-36, BLOCK_Y_POSITION, 0))
+                                .strafeTo(new Vector2d(-36, BLOCK_Y_POSITION))
+                                .build()
+                );
+                break;
+        }
+
+        print("Grabbing block");
+        setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.GRABBING);
+        opMode.sleep(GRAB_DELAY);
+        setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.STOWED);
+        opMode.sleep(GRAB_DELAY);
+
+        while(!flag && opMode.opModeIsActive());
+        placeBlock();
+
+        switch(skystone_position){
+            case ONE_AND_FOUR:
+                grabBlock(4);
+                break;
+            case TWO_AND_FIVE:
+                grabBlock(5);
+                break;
+            case THREE_AND_SIX:
+                grabBlock(6);
+                break;
+        }
+
+        placeBlock();
+        dragFoundation();
+
+        //grab more block?
+
+        telemetry.addLine("Done!");
+        telemetry.update();
 
         //X diffs
         //POS 1: -20, 33.3
@@ -789,91 +939,85 @@ public class DWAIAutonomous {
         //POS 6: -60, 33.3
 
         //turn to 90 at end
+        //latch
         //move to 60, 63
         //park at 0, 38
-
     }
 
-    private void executeBlockAuto(){
-        /*//Detect block
-        while (skystone_position == null || checks < 10) {
-            getSkyStonePosition();
-            checks++;
-            opMode.sleep(100);
-        }*/
-        skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR; //testing purposes
-        robot.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
+    private void dragFoundation(){
+        print("Latching foundation");
 
-        //Move off wall
+        drive.turnSync(Math.toRadians(180 - startAngle));
+
+        while(!robot.getFoundationSensorPressed()){
+            robot.mecanumPowerDrive(0, -0.5, 0);
+            drive.updatePoseEstimate();
+        }
+
+        robot.mecanumPowerDrive(0, 0, 0);
+        robot.setLatchPosition(CLOSE_LATCH_SERVO_POSITION);
+
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .back(12)
+                        .lineTo(new Vector2d(45, DEPOT_Y_POSITION), new LinearInterpolator(startAngle, Math.toRadians(180 - startAngle)))
                         .build()
         );
 
-        //Deploy lifter
-        Thread deploy = new Thread(() -> {
-            startDeploy();
-            flag = true;
-        });
+        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
+    }
 
-        deploy.start();
+    private void placeBlock(){
+        print("Going under bridge");
 
-        //Turn to correct orientation
-        drive.turnSync(0);
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
+                        .splineTo(new Pose2d(50 + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
+                        .build()
+        );
+
+        print("Placing block");
+        setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.GRABBING);
+        opMode.sleep(GRAB_DELAY);
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.READY);
-        print("Moving to block");
+        opMode.sleep(GRAB_DELAY);
+        setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.DEFAULT);
+        blocksPlaced++;
+    }
 
-        //PERHAPS TRY USING STRAFETO
-        switch(skystone_position) {
-            case ONE_AND_FOUR:
-                //Block 1 position
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .splineTo(new Pose2d(-20, BLOCK_Y_POSITION, 0))
-                                .build()
-                );
-                break;
-            case TWO_AND_FIVE:
-                //Block 2 position
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .splineTo(new Pose2d(-28, BLOCK_Y_POSITION, 0))
-                                .build()
-                );
-                break;
-            case THREE_AND_SIX:
-                //Block 3 position
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .splineTo(new Pose2d(-36, BLOCK_Y_POSITION, 0))
-                                .build()
-                );
-                break;
-        }
+    private void grabBlock(int index){
+        print("Going back for another one");
+        setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.READY);
+
+        //to enable strafe, replace BLOCK_Y_POSITION with BLOCK_OFFSET_Y_POSITION in splineto (-12)
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .reverse()
+                        .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
+                        .splineTo(new Pose2d(-12 - index * 8, BLOCK_Y_POSITION, 0))
+                        .strafeTo(new Vector2d(-12 - index * 8, BLOCK_Y_POSITION))
+                        .build()
+        );
 
         print("Grabbing block");
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.GRABBING);
-        opMode.sleep(500);
+        opMode.sleep(GRAB_DELAY);
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.STOWED);
-        opMode.sleep(500);
+        opMode.sleep(GRAB_DELAY);
+    }
 
-        while(!flag);
-        print("Going under bridge");
+    private void executeFoundationAuto(){
 
-        drive.followTrajectory(
-                drive.trajectoryBuilder()
-                        .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
-                        .splineTo(new Pose2d(45, FOUNDATION_Y_POSITION, 0))
-                        .build()
-        );
+        //make heading a variable
+        // make y positions a variable
 
-        while(drive.isBusy() && opMode.opModeIsActive()){
-            drive.update();
-        }
-
-        telemetry.addLine("Done!");
-        telemetry.update();
+        //strafe to 40, 63
+        //back up to ~40, 35
+        //latch
+        //turn to 180
+        //strafe to 40, 63
+        //unlatch
+        //park at 0, 63
     }
 
     private void setGrabberPos(RobotLinearOpMode.GRABBER_POSITION pos){
@@ -890,6 +1034,11 @@ public class DWAIAutonomous {
     }
 
     private void startDeploy(){
+
+        if(!DEPLOY_LIFTER){
+            return;
+        }
+
         robot.setLiftPower(-0.5);
         try {
             Thread.sleep(1000);
@@ -949,8 +1098,7 @@ public class DWAIAutonomous {
             if (valLeft == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
             if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
             if (valRight == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
-        }
-        else {
+        } else {
             if (valLeft == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
             if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
             if (valRight == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
@@ -960,8 +1108,7 @@ public class DWAIAutonomous {
             //throw new RuntimeException("No skystone detected!");
             telemetry.addLine("No Skystone detected!");
             telemetry.update();
-        }
-        else {
+        } else {
             telemetry.addLine(skystone_position.name());
             telemetry.update();
         }
@@ -975,7 +1122,7 @@ public class DWAIAutonomous {
         float distScale       = propertiesLoader.getFloatProperty("DIST_SCALE");//changing this scales the distance between everything by a factor
 
         if (alliance == ALLIANCE.BLUE) {
-        offsetX -= allianceOffsetX;
+            offsetX -= allianceOffsetX;
         }
 
         //offset array: 0 = x, 1 = y, 2 = distScale
@@ -983,7 +1130,7 @@ public class DWAIAutonomous {
         pipeline = new StageSwitchingPipeline(offsetArray);
 
         int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
-        OpenCvCamera phoneCam            = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
+        phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
         phoneCam.openCameraDevice();//open camera
         phoneCam.setPipeline(pipeline);//different stages
         int rows = 640;

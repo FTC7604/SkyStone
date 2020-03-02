@@ -114,10 +114,10 @@ public class Robot {
 
     private void mapHardware(){
         //DRIVE
-        rightFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");
-        leftFrontDriveMotor  = (DcMotorEx) hardwareMap.get(DcMotor.class, "rf");
-        rightBackDriveMotor  = (DcMotorEx) hardwareMap.get(DcMotor.class, "lb");
-        leftBackDriveMotor   = (DcMotorEx) hardwareMap.get(DcMotor.class, "rb");
+        rightFrontDriveMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rf");
+        leftFrontDriveMotor  = (DcMotorEx) hardwareMap.get(DcMotor.class, "lf");
+        rightBackDriveMotor  = (DcMotorEx) hardwareMap.get(DcMotor.class, "rb");
+        leftBackDriveMotor   = (DcMotorEx) hardwareMap.get(DcMotor.class, "lb");
         rightFrontDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
         leftFrontDriveMotor.setDirection(DcMotorEx.Direction.FORWARD);
         rightBackDriveMotor.setDirection(DcMotorEx.Direction.REVERSE);
