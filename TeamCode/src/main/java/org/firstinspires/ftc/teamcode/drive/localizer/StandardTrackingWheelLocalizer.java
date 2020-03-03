@@ -42,15 +42,13 @@ public class StandardTrackingWheelLocalizer extends TwoTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 0.944882; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double FORWARD_OFFSET = 2.5; // in; offset of the lateral wheel
-
     private ExpansionHubMotor frontEncoder, strafeEncoder;
     private BNO055IMU imu;
 
     public StandardTrackingWheelLocalizer(HardwareMap hardwareMap, BNO055IMU imu) {
         super(Arrays.asList(
-                new Pose2d(-FORWARD_OFFSET, -1.2, 0), // front
-                new Pose2d(-FORWARD_OFFSET, 1.2, Math.toRadians(90)) // strafe
+                new Pose2d(-1.75, -1.2, 0), // front
+                new Pose2d(-1.625, 1.5, Math.toRadians(90)) // strafe
         ));
 
         frontEncoder = hardwareMap.get(ExpansionHubMotor.class, "ri");
