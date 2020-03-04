@@ -680,9 +680,11 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 public class DWAIAutonomous {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
+    private double BLOCK_OFFSET_X_POSITION = propertiesLoader.getDoubleProperty("BLOCK_OFFSET_X_POSITION");
     private double BLOCK_OFFSET_Y_POSITION = propertiesLoader.getDoubleProperty("BLOCK_OFFSET_Y_POSITION");
     private double BLOCK_Y_POSITION = propertiesLoader.getDoubleProperty("BLOCK_Y_POSITION");
     private double BRIDGE_Y_POSITION = propertiesLoader.getDoubleProperty("BRIDGE_Y_POSITION");
+    private double INITIAL_FOUNDATION_X_POSITION = propertiesLoader.getDoubleProperty("INITIAL_FOUNDATION_X_POSITION");
     private double FOUNDATION_Y_POSITION = propertiesLoader.getDoubleProperty("FOUNDATION_Y_POSITION");
     private double DEPOT_Y_POSITION = propertiesLoader.getDoubleProperty("DEPOT_Y_POSITION");
 
@@ -753,10 +755,18 @@ public class DWAIAutonomous {
 
     }
 
-    private void strafeTo(double y_pos){
+    private void strafeTo(double x_pos, double y_pos){
+        double turnAngle = drive.getPoseEstimate().getHeading();
+
+        if(turnAngle > Math.PI){
+            turnAngle -= 2 * Math.PI;
+        }
+
+        drive.turnSync(-turnAngle);
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .strafeRight((drive.getPoseEstimate().getY() - y_pos) * LATERAL_MULTIPLIER)
+                        .strafeTo(new Vector2d(x_pos, y_pos))
+                        //.strafeRight((drive.getPoseEstimate().getY() - y_pos) * LATERAL_MULTIPLIER)
                         .build()
         );
     }
@@ -843,7 +853,7 @@ public class DWAIAutonomous {
             opMode.sleep(100);
         }*/
         //phoneCam.closeCameraDevice();
-        skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR; //testing purposes
+        skystone_position = SKYSTONE_POSITION.THREE_AND_SIX; //testing purposes
 
         robot.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
 
@@ -865,8 +875,6 @@ public class DWAIAutonomous {
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.READY);
         print("Moving to block");
 
-        //PERHAPS TRY USING STRAFETO
-        //replace with BLOCK_OFFSET_Y_POSITION to enable strafing
         switch(skystone_position) {
             case ONE_AND_FOUR:
                 //Block 1 position
@@ -875,10 +883,10 @@ public class DWAIAutonomous {
                                 .reverse()
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
                                 .reverse()
-                                .splineTo(new Pose2d(-20, BLOCK_OFFSET_Y_POSITION, 0))
+                                .splineTo(new Pose2d(-44 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                strafeTo(BLOCK_Y_POSITION);
+                strafeTo(-44 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION);
                 break;
             case TWO_AND_FIVE:
                 //Block 2 position
@@ -886,11 +894,10 @@ public class DWAIAutonomous {
                         drive.trajectoryBuilder()
                                 .reverse()
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
-                                .reverse()
-                                .splineTo(new Pose2d(-28, BLOCK_OFFSET_Y_POSITION, 0))
+                                .splineTo(new Pose2d(-52 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                strafeTo(BLOCK_Y_POSITION);
+                strafeTo(-52 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION);
                 break;
             case THREE_AND_SIX:
                 //Block 3 position
@@ -898,11 +905,10 @@ public class DWAIAutonomous {
                         drive.trajectoryBuilder()
                                 .reverse()
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
-                                .reverse()
-                                .splineTo(new Pose2d(-36, BLOCK_OFFSET_Y_POSITION, 0))
+                                .splineTo(new Pose2d(-60 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                strafeTo(BLOCK_Y_POSITION);
+                strafeTo(-60 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION);
                 break;
         }
 
@@ -917,13 +923,13 @@ public class DWAIAutonomous {
 
         switch(skystone_position){
             case ONE_AND_FOUR:
-                grabBlock(4);
+                grabBlock(1);
                 break;
             case TWO_AND_FIVE:
-                grabBlock(5);
+                grabBlock(2);
                 break;
             case THREE_AND_SIX:
-                grabBlock(6);
+                grabBlock(3);
                 break;
         }
 
@@ -958,9 +964,14 @@ public class DWAIAutonomous {
         print("Latching foundation");
 
         drive.turnSync(Math.toRadians(180 - startAngle));
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .strafeTo(new Vector2d(50, FOUNDATION_Y_POSITION))
+                        .build()
+        );
 
         while(!robot.getFoundationSensorPressed()){
-            robot.mecanumPowerDrive(0, -0.2, 0);
+            robot.mecanumPowerDrive(0, -0.3, 0);
             drive.updatePoseEstimate();
         }
 
@@ -978,24 +989,69 @@ public class DWAIAutonomous {
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .splineTo(new Pose2d(21, DEPOT_Y_POSITION, Math.toRadians(180)))
-                        .reverse()
-                        .splineTo(new Pose2d(45, DEPOT_Y_POSITION, Math.toRadians(180)))
+                        .forward(48)
                         .build()
         );
 
+        /*drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .splineTo(new Pose2d(21, DEPOT_Y_POSITION, Math.toRadians(180)))
+                        //.reverse()
+                        //.splineTo(new Pose2d(45, DEPOT_Y_POSITION, Math.toRadians(180)))
+                        .build()
+        );
+
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .strafeTo(new Vector2d(30, 63 * Math.signum(DEPOT_Y_POSITION)))
+                        .reverse()
+                        .splineTo(new Pose2d(63, 63 * Math.signum(DEPOT_Y_POSITION), Math.toRadians(180)))
+                        .build()
+        );*/
+
+        double turnAngle = drive.getPoseEstimate().getHeading() - Math.PI;
+
+        if(turnAngle > Math.PI){
+            turnAngle -= 2 * Math.PI;
+        }
+
+        drive.turnSync(-turnAngle);
+
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
+        opMode.sleep(GRAB_DELAY);
+
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .strafeLeft(63 * Math.signum(DEPOT_Y_POSITION) - BRIDGE_Y_POSITION)
+                        .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, Math.toRadians(180)))
+                        .build()
+        );
     }
 
     private void placeBlock(){
         print("Going under bridge");
 
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
-                        .splineTo(new Pose2d(48 + blocksPlaced * 9, FOUNDATION_Y_POSITION, 0))
-                        .build()
-        );
+        if(blocksPlaced == 0) {
+            drive.followTrajectorySync(
+                    drive.trajectoryBuilder()
+                            //.splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
+                            .strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION) / 1.8)
+                            .strafeTo(new Vector2d(0, BRIDGE_Y_POSITION))
+                            .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
+                            .build()
+            );
+            strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION);
+        } else{
+            drive.followTrajectorySync(
+                    drive.trajectoryBuilder()
+                            //.splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
+                            .strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION))
+                            .strafeTo(new Vector2d(0, BRIDGE_Y_POSITION))
+                            .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
+                            .build()
+            );
+            strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION);
+        }
 
         print("Placing block");
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.GRABBING);
@@ -1013,11 +1069,18 @@ public class DWAIAutonomous {
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
                         .reverse()
-                        .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
-                        .splineTo(new Pose2d(-12 - index * 8, BLOCK_OFFSET_Y_POSITION, 0))
+                        //.splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
+                        .strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION))
+                        .strafeTo(new Vector2d(0, BRIDGE_Y_POSITION))
+                        .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                         .build()
         );
-        strafeTo(BLOCK_Y_POSITION);
+        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION);
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .strafeRight(3 * Math.signum(BLOCK_Y_POSITION) * LATERAL_MULTIPLIER)
+                        .build()
+        );
 
         print("Grabbing block");
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.GRABBING);

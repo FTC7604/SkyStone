@@ -47,8 +47,8 @@ public class StandardTrackingWheelLocalizer extends TwoTrackingWheelLocalizer {
 
     public StandardTrackingWheelLocalizer(HardwareMap hardwareMap, BNO055IMU imu) {
         super(Arrays.asList(
-                new Pose2d(-1.3, -1.4, 0), // front
-                new Pose2d(-1.3, 1.4, Math.toRadians(90)) // strafe
+                new Pose2d(-1.8, -1.3, 0), // front
+                new Pose2d(-1.6, 1.3, Math.toRadians(90)) // strafe
         ));
 
         frontEncoder = hardwareMap.get(ExpansionHubMotor.class, "ri");
