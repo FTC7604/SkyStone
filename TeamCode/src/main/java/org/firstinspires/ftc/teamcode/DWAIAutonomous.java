@@ -660,6 +660,7 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.path.heading.LinearInterpolator;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -755,20 +756,31 @@ public class DWAIAutonomous {
 
     }
 
-    private void strafeTo(double x_pos, double y_pos){
-        double turnAngle = drive.getPoseEstimate().getHeading();
+    private void strafeTo(double x_pos, double y_pos, double additionalStrafe){
+        //check if turn necessary
+        /*double turnAngle = drive.getPoseEstimate().getHeading();
 
         if(turnAngle > Math.PI){
             turnAngle -= 2 * Math.PI;
         }
 
-        drive.turnSync(-turnAngle);
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .strafeTo(new Vector2d(x_pos, y_pos))
-                        //.strafeRight((drive.getPoseEstimate().getY() - y_pos) * LATERAL_MULTIPLIER)
-                        .build()
-        );
+        drive.turnSync(-turnAngle);*/
+
+        if(additionalStrafe != 0) {
+            drive.followTrajectorySync(
+                    drive.trajectoryBuilder()
+                            .strafeTo(new Vector2d(x_pos, y_pos))
+                            .strafeRight(additionalStrafe)
+                            .build()
+            );
+        } else{
+            drive.followTrajectorySync(
+                    drive.trajectoryBuilder()
+                            .strafeTo(new Vector2d(x_pos, y_pos))
+                            .build()
+            );
+        }
+
     }
 
     public void runOpMode(){
@@ -886,7 +898,7 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-44 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                strafeTo(-44 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION);
+                strafeTo(-44 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0);
                 break;
             case TWO_AND_FIVE:
                 //Block 2 position
@@ -897,7 +909,7 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-52 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                strafeTo(-52 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION);
+                strafeTo(-52 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0);
                 break;
             case THREE_AND_SIX:
                 //Block 3 position
@@ -908,7 +920,7 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-60 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                strafeTo(-60 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION);
+                strafeTo(-60 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0);
                 break;
         }
 
@@ -940,24 +952,6 @@ public class DWAIAutonomous {
 
         telemetry.addLine("Done!");
         telemetry.update();
-
-        //X diffs
-        //POS 1: -20, 33.3
-        //POS 2: -28, 33.3
-        //POS 3: -36, 33.3
-
-        //BRIDGE: 0, 40 < go here between blocks
-        //FOUNDATION: 45, 35
-
-        //X diffs
-        //POS 4: -44, 33.3
-        //POS 5: -52, 33.3
-        //POS 6: -60, 33.3
-
-        //turn to 90 at end
-        //latch
-        //move to 60, 63
-        //park at 0, 38
     }
 
     private void dragFoundation(){
@@ -989,7 +983,7 @@ public class DWAIAutonomous {
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .forward(48)
+                        .splineTo(new Pose2d(50, DEPOT_Y_POSITION, Math.toRadians(startAngle)))
                         .build()
         );
 
@@ -1022,7 +1016,7 @@ public class DWAIAutonomous {
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .strafeLeft(63 * Math.signum(DEPOT_Y_POSITION) - BRIDGE_Y_POSITION)
+                        .strafeLeft(DEPOT_Y_POSITION - BRIDGE_Y_POSITION)
                         .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, Math.toRadians(180)))
                         .build()
         );
@@ -1040,7 +1034,7 @@ public class DWAIAutonomous {
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
                             .build()
             );
-            strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION);
+            strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
         } else{
             drive.followTrajectorySync(
                     drive.trajectoryBuilder()
@@ -1050,7 +1044,7 @@ public class DWAIAutonomous {
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
                             .build()
             );
-            strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION);
+            strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
         }
 
         print("Placing block");
@@ -1075,13 +1069,7 @@ public class DWAIAutonomous {
                         .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                         .build()
         );
-        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION);
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .strafeRight(3 * Math.signum(BLOCK_Y_POSITION) * LATERAL_MULTIPLIER)
-                        .build()
-        );
-
+        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 3 * Math.signum(BLOCK_Y_POSITION) * LATERAL_MULTIPLIER);
         print("Grabbing block");
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.GRABBING);
         opMode.sleep(GRAB_DELAY);
