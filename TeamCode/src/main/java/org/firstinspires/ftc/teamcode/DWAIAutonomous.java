@@ -866,7 +866,11 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
                                 .reverse()
                                 .splineTo(new Pose2d(-20, BLOCK_OFFSET_Y_POSITION, 0))
-                                .strafeRight((BLOCK_OFFSET_Y_POSITION - BLOCK_Y_POSITION))
+                                .build()
+                );
+                drive.followTrajectorySync(
+                        drive.trajectoryBuilder()
+                                .strafeTo(new Vector2d(-20, BLOCK_Y_POSITION))
                                 .build()
                 );
                 break;
@@ -878,7 +882,11 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
                                 .reverse()
                                 .splineTo(new Pose2d(-28, BLOCK_OFFSET_Y_POSITION, 0))
-                                .strafeRight((BLOCK_OFFSET_Y_POSITION - BLOCK_Y_POSITION))
+                                .build()
+                );
+                drive.followTrajectorySync(
+                        drive.trajectoryBuilder()
+                                .strafeTo(new Vector2d(-28, BLOCK_Y_POSITION))
                                 .build()
                 );
                 break;
@@ -890,7 +898,11 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
                                 .reverse()
                                 .splineTo(new Pose2d(-36, BLOCK_OFFSET_Y_POSITION, 0))
-                                .strafeRight((BLOCK_OFFSET_Y_POSITION - BLOCK_Y_POSITION))
+                                .build()
+                );
+                drive.followTrajectorySync(
+                        drive.trajectoryBuilder()
+                                .strafeTo(new Vector2d(-36, BLOCK_Y_POSITION))
                                 .build()
                 );
                 break;
@@ -966,6 +978,8 @@ public class DWAIAutonomous {
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
+                        .splineTo(new Pose2d(21, DEPOT_Y_POSITION, Math.toRadians(180)))
+                        .reverse()
                         .splineTo(new Pose2d(45, DEPOT_Y_POSITION, Math.toRadians(180)))
                         .build()
         );
@@ -996,13 +1010,16 @@ public class DWAIAutonomous {
         print("Going back for another one");
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.READY);
 
-        //to enable strafe, replace BLOCK_Y_POSITION with BLOCK_OFFSET_Y_POSITION in splineto (-12)
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
                         .reverse()
                         .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
                         .splineTo(new Pose2d(-12 - index * 8, BLOCK_OFFSET_Y_POSITION, 0))
-                        .strafeRight((BLOCK_OFFSET_Y_POSITION - BLOCK_Y_POSITION))
+                        .build()
+        );
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .strafeTo(new Vector2d(-12 - index * 8, BLOCK_Y_POSITION))
                         .build()
         );
 
