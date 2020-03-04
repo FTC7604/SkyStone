@@ -692,6 +692,8 @@ public class DWAIAutonomous {
     private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
     private boolean DEPLOY_LIFTER = propertiesLoader.getBooleanProperty("DEPLOY_LIFTER");
 
+    private double LATERAL_MULTIPLIER = propertiesLoader.getDoubleProperty("LATERAL_MULTIPLIER");
+
     private int checks = 0;
     private StageSwitchingPipeline pipeline;
     private OpenCvCamera phoneCam;
@@ -749,6 +751,14 @@ public class DWAIAutonomous {
             DEPOT_Y_POSITION *= -1;
         }
 
+    }
+
+    private void strafeTo(double y_pos){
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .strafeRight((drive.getPoseEstimate().getY() - y_pos) * LATERAL_MULTIPLIER)
+                        .build()
+        );
     }
 
     public void runOpMode(){
@@ -868,11 +878,7 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-20, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .strafeTo(new Vector2d(-20, BLOCK_Y_POSITION))
-                                .build()
-                );
+                strafeTo(BLOCK_Y_POSITION);
                 break;
             case TWO_AND_FIVE:
                 //Block 2 position
@@ -884,11 +890,7 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-28, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .strafeTo(new Vector2d(-28, BLOCK_Y_POSITION))
-                                .build()
-                );
+                strafeTo(BLOCK_Y_POSITION);
                 break;
             case THREE_AND_SIX:
                 //Block 3 position
@@ -900,11 +902,7 @@ public class DWAIAutonomous {
                                 .splineTo(new Pose2d(-36, BLOCK_OFFSET_Y_POSITION, 0))
                                 .build()
                 );
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .strafeTo(new Vector2d(-36, BLOCK_Y_POSITION))
-                                .build()
-                );
+                strafeTo(BLOCK_Y_POSITION);
                 break;
         }
 
@@ -972,9 +970,11 @@ public class DWAIAutonomous {
         opMode.sleep(GRAB_DELAY);
 
         //WILLIAM
-        //make it move to where it needs to be, turn, and then move backwards instead of singular spline
         //the angles are in radians, limited to between 0, 2pi, positive only
         //connect using 192.168.49.1:8080/dash, switch graph to field from Default to see positioning
+        //roadrunner assumes lateral distance = forward/back distance, added a lateral multiplier
+        //accessible using strafeto method, which just strafes left/right along the y axis only
+        //check the open/close latch positions
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
@@ -1017,11 +1017,7 @@ public class DWAIAutonomous {
                         .splineTo(new Pose2d(-12 - index * 8, BLOCK_OFFSET_Y_POSITION, 0))
                         .build()
         );
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .strafeTo(new Vector2d(-12 - index * 8, BLOCK_Y_POSITION))
-                        .build()
-        );
+        strafeTo(BLOCK_Y_POSITION);
 
         print("Grabbing block");
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.GRABBING);
