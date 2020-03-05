@@ -659,6 +659,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.path.heading.ConstantInterpolator;
 import com.acmerobotics.roadrunner.path.heading.LinearInterpolator;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
@@ -982,7 +983,7 @@ public class DWAIAutonomous {
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .splineTo(new Pose2d(50, DEPOT_Y_POSITION, Math.toRadians(startAngle)))
+                        .splineTo(new Pose2d(45, DEPOT_Y_POSITION, Math.toRadians(startAngle + 45 * Math.signum(DEPOT_Y_POSITION))))
                         .build()
         );
 
@@ -1015,6 +1016,7 @@ public class DWAIAutonomous {
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
+                        .back(5)
                         .strafeLeft(DEPOT_Y_POSITION - BRIDGE_Y_POSITION)
                         .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, Math.toRadians(180)))
                         .build()
@@ -1027,9 +1029,9 @@ public class DWAIAutonomous {
         if(blocksPlaced == 0) {
             drive.followTrajectorySync(
                     drive.trajectoryBuilder()
-                            //.splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
-                            .strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION) / 1.8)
-                            .strafeTo(new Vector2d(0, BRIDGE_Y_POSITION))
+                            .splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
+                            //.strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION) / 1.8)
+                            //.lineTo(new Vector2d(0, BRIDGE_Y_POSITION, 0))
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
                             .build()
             );
@@ -1037,9 +1039,10 @@ public class DWAIAutonomous {
         } else{
             drive.followTrajectorySync(
                     drive.trajectoryBuilder()
-                            //.splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
-                            .strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION))
-                            .strafeTo(new Vector2d(0, BRIDGE_Y_POSITION))
+                            .strafeLeft((BRIDGE_Y_POSITION - BLOCK_Y_POSITION))
+                            .splineTo(new Pose2d(0,  BRIDGE_Y_POSITION, 0))
+                            //.strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION))
+                            //.lineTo(new Vector2d(0, BRIDGE_Y_POSITION), new ConstantInterpolator(0))
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
                             .build()
             );
@@ -1062,13 +1065,13 @@ public class DWAIAutonomous {
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
                         .reverse()
-                        //.splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
-                        .strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION))
-                        .strafeTo(new Vector2d(0, BRIDGE_Y_POSITION))
+                        .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
+                        //.strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION))
+                        //.lineTo(new Vector2d(0, BRIDGE_Y_POSITION), new ConstantInterpolator(0))
                         .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
                         .build()
         );
-        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 3 * Math.signum(BLOCK_Y_POSITION) * LATERAL_MULTIPLIER);
+        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 2 * Math.signum(BLOCK_Y_POSITION));
         print("Grabbing block");
         setGrabberPos(RobotLinearOpMode.GRABBER_POSITION.GRABBING);
         opMode.sleep(GRAB_DELAY);
