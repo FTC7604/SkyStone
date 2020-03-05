@@ -858,14 +858,13 @@ public class DWAIAutonomous {
     }
 
     private void executeBlockAuto(){
-        /*//Detect block
+        //Detect block
         while (skystone_position == null || checks < 10) {
             getSkyStonePosition();
             checks++;
             opMode.sleep(100);
-        }*/
+        }
         //phoneCam.closeCameraDevice();
-        skystone_position = SKYSTONE_POSITION.THREE_AND_SIX; //testing purposes
 
         robot.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
 
