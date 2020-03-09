@@ -44,6 +44,7 @@ public class SSfullTeleop extends LinearOpMode {
     private boolean armGoingToScoringPosition = false;
     private boolean armGoingToHomePosition = false;
     private double initialArmPosition = 0;
+    private double odometryUp = 1;
     private HumanController humanController = new HumanController(0.1, 1);
     private ElapsedTime runtime = new ElapsedTime();
     LedPattern cardBlinkinPatter = new LedPattern(new LedPatternStep[] {
@@ -66,7 +67,9 @@ public class SSfullTeleop extends LinearOpMode {
     private Servo rightLatchServo;
     private Servo blockGrabberServo;
     private Servo markerLatchServo;
-    private DigitalChannel intakeFull;
+    private Servo odometryRetractServo;
+    private DigitalChannel intakeFulla;
+    private DigitalChannel intakeFullb;
     private DigitalChannel openIntakeTouchSensor;
     private Toggle latchIsDown = new Toggle(false);
     private Toggle grabberIsEngaged = new Toggle(false);
@@ -132,7 +135,7 @@ public class SSfullTeleop extends LinearOpMode {
             rainbowPattern = false;
         }
 
-        if (!intakeFull.getState()) {
+        if (!intakeFulla.getState() || !intakeFullb.getState()) {
             blinkin.setPattern(BlinkinPattern.STROBE_GOLD);
             //LEDs flashing bright or something
         }
@@ -200,9 +203,11 @@ public class SSfullTeleop extends LinearOpMode {
         rightLatchServo       = hardwareMap.get(Servo.class, "rl");
         blockGrabberServo     = hardwareMap.get(Servo.class, "bg");
         markerLatchServo      = hardwareMap.get(Servo.class, "ml");
-        intakeFull            = hardwareMap.get(DigitalChannel.class, "blt");
+        intakeFulla           = hardwareMap.get(DigitalChannel.class, "blt");
+        intakeFullb           = hardwareMap.get(DigitalChannel.class, "brt");
         openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
         blinkin               = hardwareMap.get(RevBlinkinLedDriver.class, "bk");
+        odometryRetractServo  = hardwareMap.get(Servo.class, "or");
 
         //sets the direction
         rightFrontDriveMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -215,7 +220,8 @@ public class SSfullTeleop extends LinearOpMode {
         liftMotor.setDirection(DcMotor.Direction.FORWARD);
         leftLatchServo.setDirection(Servo.Direction.FORWARD);
         rightLatchServo.setDirection(Servo.Direction.REVERSE);
-        intakeFull.setMode(DigitalChannel.Mode.INPUT);
+        intakeFulla.setMode(DigitalChannel.Mode.INPUT);
+        intakeFullb.setMode(DigitalChannel.Mode.INPUT);
         openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
 
         //Brake
@@ -229,6 +235,10 @@ public class SSfullTeleop extends LinearOpMode {
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //Encoders
+        rightFrontDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFrontDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBackDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBackDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFrontDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftFrontDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -387,7 +397,7 @@ public class SSfullTeleop extends LinearOpMode {
 
         }
         else {
-            if (Math.abs(gamepad2.left_stick_y) < 0.1) {
+            if (Math.abs(gamepad2.left_stick_y) < 0.1 && armPosition > 1000) {
                 holdArmUp();
             }
             else {
@@ -402,7 +412,7 @@ public class SSfullTeleop extends LinearOpMode {
 
     private void getPositionTargets(){
         //this code checks to see if we are going to a new target, and of so changes the desired direction and resets the initial position
-        if (gamepad2.left_stick_button) {
+        if (Math.abs(gamepad2.left_stick_y) > 0.1) {
             armGoingToScoringPosition = false;
             armGoingToHomePosition    = false;
         }
@@ -427,7 +437,7 @@ public class SSfullTeleop extends LinearOpMode {
     }
 
     private void runServos(){
-        latchIsDown.update(gamepad2.x);
+        latchIsDown.update(gamepad1.x);
         markerDropper.update(gamepad2.a);
         //grabberIsEngaged.update(gamepad2.right_bumper);
 
@@ -441,6 +451,14 @@ public class SSfullTeleop extends LinearOpMode {
 
         if (markerDropper.get()) holdMarker();
         else dropMarker();
+
+
+        //Retract odometry
+        if (runtime.milliseconds() < 1000) {
+            odometryRetractServo.setPosition(1);
+        } else {
+            odometryRetractServo.setPosition(0.5);
+        }
     }
 
     private void holdArmUp(){
