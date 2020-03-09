@@ -207,38 +207,24 @@ public class DWAIAutonomous {
         while(skystone_position == null || checks < 10){
             getSkyStonePosition();
             checks++;
-            //TODO: make this less time, so that it can check quicker. %3
             opMode.sleep(50);
         }
         //phoneCam.closeCameraDevice();
 
         robot.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER);
 
-        //Move off wall
-        /*drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .back(12)
-                        .build()
-        );*/
-
         //grabber thread
-        Thread thread = new Thread(() -> {
-            while(drive.getPoseEstimate().getX() < END_OF_BRIDGE_STONE_X){
-            }
-            setGrabberPos(DROPPING_SOON);
-        });
+
 
         //Deploy lifter
-        Thread deploy = new Thread(() -> {
+        Thread deployThread = new Thread(() -> {
             startDeploy();
             deployed = true;
         });
 
-        deploy.start();
+        deployThread.start();
         setGrabberPos(GRABBING_SOON);
 
-        //TODO: make these their own method so that they can be further optimized. %2
-        //TODO: goToBlocksFirstTime(1,2,3)
         switch (skystone_position) {
             case ONE_AND_FOUR:
                 //Block 1 position
@@ -254,15 +240,19 @@ public class DWAIAutonomous {
                 break;
         }
 
-        //TODO:Thread the grabbing to make it quicker %4
-
         while(!deployed && opMode.opModeIsActive());
 
-        thread.start();
+        Thread grabberThread = new Thread(() -> {
+            while(drive.getPoseEstimate().getX() < END_OF_BRIDGE_STONE_X){
+            }
+            setGrabberPos(DROPPING_SOON);
+        });
+
+        grabberThread.start();
 
         placeBlock();
 
-        thread = new Thread(() -> {
+        grabberThread = new Thread(() -> {
             while(drive.getPoseEstimate().getX() > START_OF_FOUNDATION_X){
             }
             setGrabberPos(DEFAULT);
@@ -271,7 +261,7 @@ public class DWAIAutonomous {
             setGrabberPos(GRABBING_SOON);
         });
 
-        thread.start();
+        grabberThread.start();
 
         switch (skystone_position) {
             case ONE_AND_FOUR:
@@ -285,24 +275,24 @@ public class DWAIAutonomous {
                 break;
         }
 
-        thread = new Thread(() -> {
+        grabberThread = new Thread(() -> {
             while(drive.getPoseEstimate().getX() < END_OF_BRIDGE_STONE_X){
             }
             setGrabberPos(DROPPING_SOON);
         });
 
-        thread.start();
+        grabberThread.start();
 
         placeBlock();
 
-        thread = new Thread(() -> {
+        grabberThread = new Thread(() -> {
             double heading = drive.getPoseEstimate().getHeading();
-            while(Math.abs(drive.getPoseEstimate().getHeading() - heading) < Math.toRadians(15)){
+            while(Math.abs(drive.getPoseEstimate().getHeading() - heading) < Math.toRadians(5)){
             }
             setGrabberPos(DEFAULT);
         });
 
-        thread.start();
+        grabberThread.start();
 
         dragFoundation();
 
