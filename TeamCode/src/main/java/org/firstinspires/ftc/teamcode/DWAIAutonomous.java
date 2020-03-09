@@ -25,8 +25,6 @@ import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POS
 public class DWAIAutonomous {
 
 
-    volatile boolean blockDroppedOff;
-    volatile boolean blockGotten;
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
     private double BLOCK_OFFSET_X_POSITION = propertiesLoader.getDoubleProperty("BLOCK_OFFSET_X_POSITION");
     private double BLOCK_OFFSET_X_POSITION_FIRST = propertiesLoader.getDoubleProperty("BLOCK_OFFSET_X_POSITION_FIRST");
@@ -37,20 +35,9 @@ public class DWAIAutonomous {
     private double FOUNDATION_Y_POSITION = propertiesLoader.getDoubleProperty("FOUNDATION_Y_POSITION");
     private double DEPOT_Y_POSITION = propertiesLoader.getDoubleProperty("DEPOT_Y_POSITION");
     private double START_OF_FOUNDATION_X = propertiesLoader.getDoubleProperty("START_OF_FOUNDATION_X");
-    private double END_OF_BRIDGE_FOUNDATION_X = propertiesLoader.getDoubleProperty("END_OF_BRIDGE_FOUNDATION_X");
     private double END_OF_BRIDGE_STONE_X = propertiesLoader.getDoubleProperty("END_OF_BRIDGE_STONE_X");
     private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
     private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
-
-    private long GRAB_DELAY = propertiesLoader.getLongProperty("GRAB_DELAY");
-
-    private long DROP_BLOCK_DELAY = propertiesLoader.getLongProperty("DROP_BLOCK_DELAY");
-    private long DROP_RETURN_DELAY = propertiesLoader.getLongProperty("DROP_RETURN_DELAY");
-    private long GET_GRAB_DELAY = propertiesLoader.getLongProperty("GET_GRAB_DELAY");
-    private long GET_BLOCK_DELAY = propertiesLoader.getLongProperty("GET_BLOCK_DELAY");
-    private long GET_STOW_DELAY = propertiesLoader.getLongProperty("GET_STOW_DELAY");
-
-
     private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
     private boolean DEPLOY_LIFTER = propertiesLoader.getBooleanProperty("DEPLOY_LIFTER");
     private double LATERAL_MULTIPLIER = propertiesLoader.getDoubleProperty("LATERAL_MULTIPLIER");
