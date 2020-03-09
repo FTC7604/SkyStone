@@ -9,12 +9,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.Robot.*;
+import org.firstinspires.ftc.teamcode.drive.mecanum.SampleMecanumDriveREV;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import static java.lang.Thread.sleep;
-import static org.firstinspires.ftc.teamcode.drive.mecanum.*;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.*;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.*;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.STOWED;
@@ -242,35 +242,25 @@ public class DWAIAutonomous {
         switch (skystone_position) {
             case ONE_AND_FOUR:
                 //Block 1 position
-                goToBlocksFirstTime(1);
+                grabFirstBlock(1);
                 break;
             case TWO_AND_FIVE:
                 //Block 2 position
-                goToBlocksFirstTime(2);
+                grabFirstBlock(2);
                 break;
             case THREE_AND_SIX:
                 //Block 3 position
-                goToBlocksFirstTime(3);
+                grabFirstBlock(3);
                 break;
         }
 
-        setGrabberPos(GRABBING);
-        opMode.sleep(100);
-        setGrabberPos(STOWED);
-        opMode.sleep(700);
-
         //TODO:Thread the grabbing to make it quicker %4
 
-        while(!deployed && opMode.opModeIsActive()) ;
+        while(!deployed && opMode.opModeIsActive());
 
         thread.start();
 
         placeBlock();
-
-        setGrabberPos(GRABBING);
-        opMode.sleep(50);
-        setGrabberPos(READY);
-        opMode.sleep(50);
 
         thread = new Thread(() -> {
             while(drive.getPoseEstimate().getX() > START_OF_FOUNDATION_X){
@@ -280,6 +270,7 @@ public class DWAIAutonomous {
             }
             setGrabberPos(GRABBING_SOON);
         });
+
         thread.start();
 
         switch (skystone_position) {
@@ -294,25 +285,15 @@ public class DWAIAutonomous {
                 break;
         }
 
-        setGrabberPos(GRABBER_POSITION.GRABBING);
-        opMode.sleep(100);
-        setGrabberPos(STOWED);
-        opMode.sleep(700);
-
         thread = new Thread(() -> {
             while(drive.getPoseEstimate().getX() < END_OF_BRIDGE_STONE_X){
             }
             setGrabberPos(DROPPING_SOON);
         });
+
         thread.start();
 
         placeBlock();
-
-
-        setGrabberPos(GRABBING);
-        opMode.sleep(50);
-        setGrabberPos(READY);
-        opMode.sleep(50);
 
         thread = new Thread(() -> {
             double heading = drive.getPoseEstimate().getHeading();
@@ -320,6 +301,7 @@ public class DWAIAutonomous {
             }
             setGrabberPos(DEFAULT);
         });
+
         thread.start();
 
         dragFoundation();
@@ -330,7 +312,8 @@ public class DWAIAutonomous {
         telemetry.update();
     }
 
-    private void goToBlocksFirstTime(int index){
+    private void grabFirstBlock(int index){
+
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
                         .reverse()
@@ -338,6 +321,11 @@ public class DWAIAutonomous {
                         .splineTo(new Pose2d(-36 - (8 * index) + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_OFFSET_Y_POSITION, 0))
                         .build());
         strafeTo(-36 - 8 * index + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_Y_POSITION, 0);
+
+        setGrabberPos(GRABBING);
+        opMode.sleep(100);
+        setGrabberPos(STOWED);
+        opMode.sleep(700);
     }
 
     private void dragFoundation(){
@@ -354,7 +342,7 @@ public class DWAIAutonomous {
         robot.mecanumPowerDrive(0, 0, 0);
         robot.setLatchPosition(CLOSE_LATCH_SERVO_POSITION);
 
-        opMode.sleep(GRAB_DELAY);
+        opMode.sleep(100);
 
         //WILLIAM
         //the angles are in radians, limited to between 0, 2pi, positive only
@@ -390,7 +378,7 @@ public class DWAIAutonomous {
         drive.turnSync(-turnAngle);
 
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
-        opMode.sleep(GRAB_DELAY);
+        opMode.sleep(100);
 
         drive.followTrajectorySync(drive.trajectoryBuilder().back(5).strafeLeft((DEPOT_Y_POSITION - BRIDGE_Y_POSITION) * LATERAL_MULTIPLIER).splineTo(new Pose2d(0, BRIDGE_Y_POSITION, Math.toRadians(180))).build());
     }
@@ -412,10 +400,9 @@ public class DWAIAutonomous {
 
             drive.followTrajectorySync(
                     drive.trajectoryBuilder()
-
                             .strafeLeft((BRIDGE_Y_POSITION - BLOCK_Y_POSITION))
                             .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
-//                            .splineTo(new Pose2d(-8, BRIDGE_Y_POSITION, 0))
+//                           .splineTo(new Pose2d(-8, BRIDGE_Y_POSITION, 0))
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
                             .build());
             //strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
@@ -424,6 +411,8 @@ public class DWAIAutonomous {
         print("Placing block");
 
         blocksPlaced++;
+        setGrabberPos(DROPPING);
+        opMode.sleep(50);
     }
 
 
@@ -436,7 +425,7 @@ public class DWAIAutonomous {
                         .reverse()
                         .splineTo(new Pose2d(6, BRIDGE_Y_POSITION, 0))
 //                        .splineTo(new Pose2d(-6, BRIDGE_Y_POSITION, 0))
-                        .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
+                        .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0))
                         .build());
         strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 2 * Math.signum(BLOCK_Y_POSITION));
         print("Grabbing block");
@@ -446,6 +435,10 @@ public class DWAIAutonomous {
         //        setGrabberPos(STOWED);
         //        opMode.sleep(GRAB_DELAY);
 
+        setGrabberPos(GRABBING);
+        opMode.sleep(100);
+        setGrabberPos(STOWED);
+        opMode.sleep(500);
     }
 
     private void executeFoundationAuto(){

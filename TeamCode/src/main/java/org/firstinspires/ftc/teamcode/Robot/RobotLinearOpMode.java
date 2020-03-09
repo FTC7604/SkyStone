@@ -67,6 +67,8 @@ public class RobotLinearOpMode extends Robot {
 
     private double LEFT_DROPPING_SOON_GRABBER = propertiesLoader.getDoubleProperty("LEFT_DROPPING_SOON_GRABBER");
     private double LEFT_DROPPING_SOON_SERVO = propertiesLoader.getDoubleProperty("LEFT_DROPPING_SOON_SERVO");
+    private double LEFT_DROPPING_GRABBER = propertiesLoader.getDoubleProperty("LEFT_DROPPING_GRABBER");
+    private double LEFT_DROPPING_SERVO = propertiesLoader.getDoubleProperty("LEFT_DROPPING_SERVO");
 
     private double RIGHT_STOWED_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_STOWED_GRABBER");
     private double RIGHT_STOWED_SERVO = propertiesLoader.getDoubleProperty("RIGHT_STOWED_SERVO");
@@ -81,6 +83,8 @@ public class RobotLinearOpMode extends Robot {
 
     private double RIGHT_DROPPING_SOON_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_DROPPING_SOON_GRABBER");
     private double RIGHT_DROPPING_SOON_SERVO = propertiesLoader.getDoubleProperty("RIGHT_DROPPING_SOON_SERVO");
+    private double RIGHT_DROPPING_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_DROPPING_GRABBER");
+    private double RIGHT_DROPPING_SERVO = propertiesLoader.getDoubleProperty("RIGHT_DROPPING_SERVO");
 
     private BalisticProfile fastRotationBalisticProfile = new BalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, ROTATION_START_POWER, ROTATION_FULL_POWER, ROTATION_END_POWER, BalisticProfile.CURVE_TYPE.SINUSOIDAL_SCURVE, BalisticProfile.CURVE_TYPE.LINEAR);
     private BalisticProfile forwardBalisticProfile = new BalisticProfile(FORWARD_ACCELERATION_DISTANCE, FORWARD_DECELLERATION_DISTANCE, FORWARD_START_POWER, FORWARD_FULL_POWER, FORWARD_END_POWER, BalisticProfile.CURVE_TYPE.LINEAR, BalisticProfile.CURVE_TYPE.LINEAR);
@@ -488,6 +492,10 @@ public class RobotLinearOpMode extends Robot {
                 leftSideGrabber.setPosition(LEFT_DROPPING_SOON_GRABBER);
                 leftSideGrabberServo.setPosition(LEFT_DROPPING_SOON_SERVO);
                 break;
+            case DROPPING:
+                leftSideGrabber.setPosition(LEFT_DROPPING_GRABBER);
+                leftSideGrabberServo.setPosition(LEFT_DROPPING_SERVO);
+                break;
         }
 
     }
@@ -519,7 +527,10 @@ public class RobotLinearOpMode extends Robot {
                 rightSideGrabber.setPosition(RIGHT_DROPPING_SOON_GRABBER);
                 rightSideGrabberServo.setPosition(RIGHT_DROPPING_SOON_SERVO);
                 break;
-
+            case DROPPING:
+                rightSideGrabber.setPosition(RIGHT_DROPPING_GRABBER);
+                rightSideGrabberServo.setPosition(RIGHT_DROPPING_SERVO);
+                break;
         }
 
     }
@@ -608,7 +619,8 @@ public class RobotLinearOpMode extends Robot {
         GRABBING,
         STOWED,
         GRABBING_SOON,
-        DROPPING_SOON
+        DROPPING_SOON,
+        DROPPING
     }
 
 }
