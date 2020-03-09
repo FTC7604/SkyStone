@@ -314,18 +314,54 @@ public class DWAIAutonomous {
 
     private void grabFirstBlock(int index){
 
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .reverse()
-                        .splineTo(new Pose2d(-40, BLOCK_OFFSET_Y_POSITION, 0))
-                        .splineTo(new Pose2d(-36 - (8 * index) + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_OFFSET_Y_POSITION, 0))
-                        .build());
-        strafeTo(-36 - 8 * index + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_Y_POSITION, 0);
+        if(-36 - (8 * index) + BLOCK_OFFSET_X_POSITION_FIRST > -48){
+            drive.followTrajectorySync(
+                    drive.trajectoryBuilder()
+                            .reverse()
+                            .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
+                            .reverse()
+                            .splineTo(new Pose2d(-36 - 8 * index + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_OFFSET_Y_POSITION, 0))
+                            .build());
+        } else{
+            drive.followTrajectorySync(
+                    drive.trajectoryBuilder()
+                            .reverse()
+                            .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
+                            .splineTo(new Pose2d(-36 - 8 * index + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_OFFSET_Y_POSITION, 0))
+                            .build());
+        }
+
+        strafeTo(-36 - 8 * index + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_Y_POSITION, 0 * Math.signum(BLOCK_Y_POSITION));
 
         setGrabberPos(GRABBING);
         opMode.sleep(100);
         setGrabberPos(STOWED);
         opMode.sleep(700);
+    }
+
+    private void grabBlock(int index){
+        print("Going back for another one");
+        setGrabberPos(READY);
+
+        drive.followTrajectorySync(
+                drive.trajectoryBuilder()
+                        .reverse()
+                        .splineTo(new Pose2d(6, BRIDGE_Y_POSITION, 0))
+//                        .splineTo(new Pose2d(-6, BRIDGE_Y_POSITION, 0))
+                        .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0))
+                        .build());
+        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 2 * Math.signum(BLOCK_Y_POSITION));
+        print("Grabbing block");
+
+        //        setGrabberPos(GRABBING);
+        //        opMode.sleep(GRAB_DELAY);
+        //        setGrabberPos(STOWED);
+        //        opMode.sleep(GRAB_DELAY);
+
+        setGrabberPos(GRABBING);
+        opMode.sleep(100);
+        setGrabberPos(STOWED);
+        opMode.sleep(500);
     }
 
     private void dragFoundation(){
@@ -413,32 +449,6 @@ public class DWAIAutonomous {
         blocksPlaced++;
         setGrabberPos(DROPPING);
         opMode.sleep(50);
-    }
-
-
-    private void grabBlock(int index){
-        print("Going back for another one");
-        setGrabberPos(READY);
-
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .reverse()
-                        .splineTo(new Pose2d(6, BRIDGE_Y_POSITION, 0))
-//                        .splineTo(new Pose2d(-6, BRIDGE_Y_POSITION, 0))
-                        .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0))
-                        .build());
-        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 2 * Math.signum(BLOCK_Y_POSITION));
-        print("Grabbing block");
-
-        //        setGrabberPos(GRABBING);
-        //        opMode.sleep(GRAB_DELAY);
-        //        setGrabberPos(STOWED);
-        //        opMode.sleep(GRAB_DELAY);
-
-        setGrabberPos(GRABBING);
-        opMode.sleep(100);
-        setGrabberPos(STOWED);
-        opMode.sleep(500);
     }
 
     private void executeFoundationAuto(){
