@@ -4,22 +4,15 @@ import android.support.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.acmerobotics.roadrunner.localization.TwoTrackingWheelLocalizer;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil;
-import org.openftc.revextensions2.ExpansionHubEx;
 import org.openftc.revextensions2.ExpansionHubMotor;
-import org.openftc.revextensions2.RevBulkData;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.encoderTicksToInches;
 
 /*
  * Sample tracking wheel localizer implementation assuming the standard configuration:
@@ -42,7 +35,8 @@ public class StandardTrackingWheelLocalizer extends TwoTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 0.944882; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    private ExpansionHubMotor frontEncoder, strafeEncoder;
+    private DcMotor frontEncoder;
+    private DcMotor strafeEncoder;
     private BNO055IMU imu;
 
     public StandardTrackingWheelLocalizer(HardwareMap hardwareMap, BNO055IMU imu) {
@@ -51,8 +45,8 @@ public class StandardTrackingWheelLocalizer extends TwoTrackingWheelLocalizer {
                 new Pose2d(-1.6, 1.3, Math.toRadians(90)) // strafe
         ));
 
-        frontEncoder = hardwareMap.get(ExpansionHubMotor.class, "ri");
-        strafeEncoder = hardwareMap.get(ExpansionHubMotor.class, "li");
+        frontEncoder = hardwareMap.get(DcMotor.class, "ri");
+        strafeEncoder = hardwareMap.get(DcMotor.class, "li");
         this.imu = imu;
     }
 

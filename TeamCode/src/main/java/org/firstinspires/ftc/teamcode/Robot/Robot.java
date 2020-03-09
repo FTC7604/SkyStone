@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ReadWriteFile;
@@ -46,7 +45,8 @@ leftSideGrabber -> "lsg"
 rightSideGrabberServo -> "rsl"
 rightSideGrabber -> "rsg"
 
-blockIntakeTouchSensor -> "blt" //don't forget to add brt for right intake touch sensor
+blockLeftIntakeTouchSensor -> "blt"
+blockLeftIntakeTouchSensor -> "brt"
 openIntakeTouchSensor -> "it"
 foundationTouchSensor -> "ft"
 
@@ -78,13 +78,11 @@ public class Robot {
     Servo rightSideGrabber;
 
     RevBlinkinLedDriver blinkin;
-
+    DigitalChannel blockRightIntakeTouchSensor;
     private BNO055IMU imu1 = null, imu2 = null;
-
     private ColorSensor leftWingCS;
     private DistanceSensor leftWingDS;
-
-    private DigitalChannel blockIntakeTouchSensor;
+    private DigitalChannel blockLeftIntakeTouchSensor;
     private DigitalChannel openIntakeTouchSensor;
     private DigitalChannel foundationTouchSensor;
 
@@ -147,18 +145,20 @@ public class Robot {
 
         //SIDE GRABBERS
         leftSideGrabberServo = hardwareMap.get(Servo.class, "lsl");
-        leftSideGrabber = hardwareMap.get(Servo.class, "lsg");
+        leftSideGrabber      = hardwareMap.get(Servo.class, "lsg");
 
         rightSideGrabberServo = hardwareMap.get(Servo.class, "rsl");
-        rightSideGrabber = hardwareMap.get(Servo.class, "rsg");
+        rightSideGrabber      = hardwareMap.get(Servo.class, "rsg");
 
         //IMU
         imu1 = hardwareMap.get(BNO055IMU.class, "imu");     //imu 2
         imu2 = hardwareMap.get(BNO055IMU.class, "imu 1");   //imu 10
 
         //INTAKE TOUCH SENSORS
-        blockIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "blt");
-        blockIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+        blockLeftIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "blt");
+        blockLeftIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
+        blockRightIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "blt");
+        blockRightIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
         openIntakeTouchSensor = hardwareMap.get(DigitalChannel.class, "it");
         openIntakeTouchSensor.setMode(DigitalChannel.Mode.INPUT);
         foundationTouchSensor = hardwareMap.get(DigitalChannel.class, "ft");
@@ -170,7 +170,7 @@ public class Robot {
 
         try {
             blinkin = hardwareMap.get(RevBlinkinLedDriver.class, "bk");
-        } catch(Exception e){
+        } catch (Exception e) {
 
         }
 
@@ -184,10 +184,14 @@ public class Robot {
      * ZERO POWER + RUNMODE METHODS
      */
     public void setDrivePIDCoefficients(double P, double I, double D, double F){
-        rightFrontDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
-        leftFrontDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
-        rightBackDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
-        leftBackDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
+        rightFrontDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                                                 new PIDFCoefficients(P, I, D, F));
+        leftFrontDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                                                new PIDFCoefficients(P, I, D, F));
+        rightBackDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                                                new PIDFCoefficients(P, I, D, F));
+        leftBackDriveMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                                               new PIDFCoefficients(P, I, D, F));
     }
 
     public void setAllMotorZeroPowerProperty(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
@@ -267,8 +271,8 @@ public class Robot {
 
     //originally this saved the imu rile, but now I don't know its purpose, sice we can always reinit
     public File[] readIMUCalibrationFiles(){
-        File[] calibrationFiles = new File[2];
-        BNO055IMU.CalibrationData[] calibrationData = new BNO055IMU.CalibrationData[2];
+        File[]                      calibrationFiles = new File[2];
+        BNO055IMU.CalibrationData[] calibrationData  = new BNO055IMU.CalibrationData[2];
 
         calibrationData[0] = imu1.readCalibrationData();
         calibrationData[1] = imu2.readCalibrationData();
@@ -283,7 +287,7 @@ public class Robot {
     }
 
     public void setCalibrationData(File[] calibrationFiles){
-        String[] data = new String[2];
+        String[]                    data            = new String[2];
         BNO055IMU.CalibrationData[] calibrationData = new BNO055IMU.CalibrationData[2];
 
         data[0] = ReadWriteFile.readFile(calibrationFiles[0]);
@@ -352,7 +356,7 @@ public class Robot {
      */
     //returns the value of the touch sensor
     public boolean getBlockSensorNotPressed(){
-        return blockIntakeTouchSensor.getState();
+        return blockLeftIntakeTouchSensor.getState() || blockRightIntakeTouchSensor.getState();
     }
 
     boolean getIntakeSensorNotPressed(){
@@ -363,9 +367,9 @@ public class Robot {
         return !foundationTouchSensor.getState();
     }
 
-//    public double getVoltage(){
-//        hardwareMap.voltageSensor.get("Motor Controller 1").getVoltage();
-//    }
+    //    public double getVoltage(){
+    //        hardwareMap.voltageSensor.get("Motor Controller 1").getVoltage();
+    //    }
 
     public double[] getColors(){
         double[] colors = new double[4];
@@ -382,20 +386,17 @@ public class Robot {
     }
 
     public COLOR_UNDER_SENSOR color_under_sensor(){
-        if (leftWingCS.blue() > BLUE_LINE_DETECTED)
-            return COLOR_UNDER_SENSOR.BLUE;
-        else if (leftWingCS.red() > RED_LINE_DETECTED)
-            return COLOR_UNDER_SENSOR.RED;
-        else
-            return COLOR_UNDER_SENSOR.GRAY;
+        if (leftWingCS.blue() > BLUE_LINE_DETECTED) return COLOR_UNDER_SENSOR.BLUE;
+        else if (leftWingCS.red() > RED_LINE_DETECTED) return COLOR_UNDER_SENSOR.RED;
+        else return COLOR_UNDER_SENSOR.GRAY;
     }
 
     public void setPattern(RevBlinkinLedDriver.BlinkinPattern pattern){
 
-        if(blinkin != null) {
+        if (blinkin != null) {
             blinkin.setPattern(pattern);
         }
-        
+
     }
 
 }

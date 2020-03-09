@@ -1,659 +1,3 @@
-/*package org.firstinspires.ftc.teamcode;
-
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
-import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
-import org.firstinspires.ftc.teamcode.Robot.StageSwitchingPipeline;
-import org.firstinspires.ftc.teamcode.drive.mecanum.SampleMecanumDriveREV;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
-
-import static java.lang.Thread.sleep;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.*;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.FORWARD;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.MOVEMENT_DIRECTION.STRAFE;
-
-
-/**
- * IMPORTANT NOTES
- * FOR BLOCK AUTO: VERTICAL = ONE-BLOCK, HORIZONTAL = TWO-BLOCK AT THIS POINT IN TIME
- * LIKELY WILL BE CHANGED BACK FOR FUTURE TOURNAMENTS
- * MUST CHANGE TO + FIGURE OUT ODOMETRY BECAUSE FIELD TILE FRICTION CHANGES
- * WOULD BE VERY NICE TO HAVE A SERVO CLAW ON THE SIDE (QUICKER SAMPLING)
- * REMEMBER TO MAKE A BRIDGE QUICK_PARK AUTO (park is only against the wall right now)
- * REMEMBER TO RECALIBRATE AUTOS (again), POSSIBLY INCLUDE 'friction constant' IN PROPERTIES
- * <p>
- * FIELD SETUP:
- * ALWAYS CHECK ENCODER WIRES AND SUCH!
- * ALWAYS CHECK CAMERA IS NOT BLOCKED BY FOUNDATION CLAMP CLAW!
- * ALWAYS CHECK STRINGS ARE ON PULLEYS!
- * ALWAYS CHECK FOUNDATION CLAMP CLAWS ARE NOT BENT!
- * ALWAYS CHECK LIFT IS CLIPPED ONTO INTAKE!
- * ALWAYS CHECK GAME CONTROLLERS BOTH FUNCTIONING!!!!
- * FOR BLOCK-SIDE: PLACE SIDESKIRT ALIGNED ALONG TILE LINE CLOSE TO DEPOT
- * FOR FOUNDATION-SIDE: PLACE SIDESKIRT ALIGNED ALONG LINE CLOSE TO BRIDGE
- */
-
-/*public class DWAIAutonomous {
-    private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
-    private boolean PAUSE_STEPS = propertiesLoader.getBooleanProperty("PAUSE_STEPS");
-    private double DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT");
-    private double DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION");
-    private double DRIVETRAIN_DISTANCE_FORWARD_TO_TURN = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_FORWARD_TO_TURN");
-    private double DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD = propertiesLoader.getDoubleProperty("DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD");
-    private double HWALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("HWALL_PARK_STRAFE_DISTANCE");
-    private double HBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("HBRIDGE_PARK_STRAFE_DISTANCE");
-    private double VWALL_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VWALL_PARK_STRAFE_DISTANCE");
-    private double VBRIDGE_PARK_STRAFE_DISTANCE = propertiesLoader.getDoubleProperty("VBRIDGE_PARK_STRAFE_DISTANCE");
-    private double OPEN_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("OPEN_LATCH_SERVO_POSITION");
-    private double CLOSE_LATCH_SERVO_POSITION = propertiesLoader.getDoubleProperty("CLOSE_LATCH_SERVO_POSITION");
-    private double BLOCK_FORWARD_OFF_WALL_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FORWARD_OFF_WALL_TO_BLOCK");
-    private double BLOCK_ONE_FORWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_BLOCK");
-    private double BLOCK_TWO_FORWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_BLOCK");
-    private double BLOCK_THREE_FORWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_BLOCK");
-    private double BLOCK_ONE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_ONE_FORWARD_TO_FOUNDATION");
-    private double BLOCK_TWO_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_TWO_FORWARD_TO_FOUNDATION");
-    private double BLOCK_THREE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_THREE_FORWARD_TO_FOUNDATION");
-    private double BLOCK_FOUR_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FOUR_BACKWARD_TO_BLOCK");
-    private double BLOCK_FIVE_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_FIVE_BACKWARD_TO_BLOCK");
-    private double BLOCK_SIX_BACKWARD_TO_BLOCK = propertiesLoader.getDoubleProperty("BLOCK_SIX_BACKWARD_TO_BLOCK");
-    private double BLOCK_FOUR_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FOUR_FORWARD_TO_FOUNDATION");
-    private double BLOCK_FIVE_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_FIVE_FORWARD_TO_FOUNDATION");
-    private double BLOCK_SIX_FORWARD_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_SIX_FORWARD_TO_FOUNDATION");
-    private double BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION");
-    private double BLOCK_STRAFE_DIST = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST");
-    private double BLOCK_STRAFE_DIFF_DIST = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST_DIFF");
-    private double BLOCK_STRAFE_DIST_2 = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST_2");
-    private double BLOCK_STRAFE_DIFF_DIST_2 = propertiesLoader.getDoubleProperty("BLOCK_STRAFE_DIST_DIFF_2");
-    private double horizontalTurnDegree = 90;
-    private double verticalTurnDegree = 90;
-    private double fiddleDistance = -3;
-    private double blockRotation = -90;
-    private volatile boolean deployed = false;
-    private ElapsedTime runtime = new ElapsedTime();
-    private RobotLinearOpMode robot;
-    private FOUNDATION_ORIENTATION foundationOrientation;
-    private PARK_POSITION parkPosition;
-    private SIDE side;
-    private ALLIANCE alliance;
-    private LinearOpMode opMode;
-    private SKYSTONE_POSITION skystone_position;
-    private StageSwitchingPipeline pipeline;
-    private int checks = 0;
-
-    private double BLOCK_TO_BRIDGE = propertiesLoader.getDoubleProperty("BLOCK_TO_BRIDGE");
-    private double BLOCK_EXTRA_DIST_TO_FOUNDATION = propertiesLoader.getDoubleProperty("BLOCK_EXTRA_DIST_TO_FOUNDATION");
-
-    public DWAIAutonomous(
-            FOUNDATION_ORIENTATION foundationOrientation,
-            PARK_POSITION parkPosition,
-            SIDE side,
-            ALLIANCE alliance,
-            LinearOpMode opMode
-    ){
-        this.foundationOrientation = foundationOrientation;
-        this.parkPosition          = parkPosition;
-        this.side                  = side;
-        this.alliance              = alliance;
-        this.opMode                = opMode;
-    }
-
-    public void runOpMode(){
-        robot = new RobotLinearOpMode(opMode);
-        setupVariables();
-
-        if (side == SIDE.BLOCK) {
-            robot.setPattern(BlinkinPattern.BLACK);
-            openCVinit();
-        }
-
-        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
-        opMode.waitForStart();
-        runtime.reset();
-
-        if (side == SIDE.FOUNDATION) {
-
-            robot.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
-            moveToFoundation();
-            latchFoundation();
-
-            if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-                placeHorizontal();
-                parkHorizontal();
-            }
-            else {
-                placeVertical();
-                parkVertical();
-            }
-
-            robot.stopDriveMotors();
-        }
-        else if (side == SIDE.BLOCK) {
-
-            while(skystone_position == null || checks < 10){
-                getSkyStonePosition();
-                checks++;
-                opMode.sleep(100);
-            }
-
-            robot.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
-
-            Thread deploy = new Thread(() -> {
-                startDeploy();
-                deployed = true;
-            });
-
-            deploy.start();
-
-            print("Lowering grabber");
-            setGrabberPosition(READY);
-            goToBlock();
-            robot.stopDriveMotors();
-
-            print("Strafing against block");
-            robot.compensatingMoveByInchesFast(BLOCK_STRAFE_DIST, STRAFE, blockRotation);
-
-            print("Grabbing block");
-            setGrabberPosition(GRABBING);
-            opMode.sleep(500);
-            print("Stowing block");
-            setGrabberPosition(STOWED);
-            robot.compensatingMoveByInchesFast(-(BLOCK_STRAFE_DIST + BLOCK_STRAFE_DIFF_DIST), STRAFE, blockRotation);
-
-            waitForFlag();
-            forwardToFoundationFirstTime();
-
-            robot.stopDriveMotors();
-            print("Dropping block off");
-            setGrabberPosition(GRABBING);
-            opMode.sleep(500);
-            setGrabberPosition(READY);
-            opMode.sleep(500);
-            print("Raising to starting position");
-            Thread t1 = new Thread(() -> {
-
-                try{
-                    sleep(500);
-                } catch(Exception e){
-
-                }
-
-                setGrabberPosition(STOWED);
-            });
-
-            t1.start();
-
-            backwardToBlocks();
-            robot.stopDriveMotors();
-            //robot.turnToDegreeFast(blockRotation);
-
-            print("Lowering grabber");
-            setGrabberPosition(READY);
-            opMode.sleep(500);
-
-            print("Strafing against block");
-            robot.moveByInchesFast(BLOCK_STRAFE_DIST_2, STRAFE);
-
-            robot.stopDriveMotors();
-            print("Grabbing block");
-            setGrabberPosition(GRABBING);
-            opMode.sleep(500);
-            setGrabberPosition(STOWED);
-
-            robot.moveByInchesFast(-(BLOCK_STRAFE_DIST_2 + BLOCK_STRAFE_DIFF_DIST_2), STRAFE);
-
-            forwardToFoundationSecondTime();
-
-            robot.stopDriveMotors();
-            print("Dropping block off");
-            setGrabberPosition(GRABBING);
-            opMode.sleep(500);
-            setGrabberPosition(READY);
-            Thread t2 = new Thread(() -> {
-
-                try{
-                    sleep(500);
-                } catch(Exception e){
-
-                }
-
-                setGrabberPosition(STOWED);
-            });
-
-            t2.start();
-            print("Parking");
-            robot.moveByInchesFast(BLOCK_TO_BRIDGE, FORWARD);
-            print("Raising to starting position");
-            setGrabberPosition(DEFAULT);
-            opMode.sleep(500);
-        }
-        else if (side == SIDE.QUICK_PARK || side == SIDE.SLOW_PARK) {
-            if(side == SIDE.SLOW_PARK){
-                opMode.sleep(25000);
-            }
-            startDeploy();
-            robot.moveByInchesFast(12, FORWARD);
-            robot.stopDriveMotors();
-        }
-
-        AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop", alliance);
-    }
-
-    private void setGrabberPosition(RobotLinearOpMode.GRABBER_POSITION pos){
-
-        switch (alliance) {
-            case RED:
-                robot.setLeftGrabberPosition(pos);
-                break;
-            case BLUE:
-                robot.setRightGrabberPosition(pos);
-                break;
-        }
-
-    }
-
-    private void waitForFlag(){
-        print("Waiting for deployed");
-        while(opMode.opModeIsActive() && !deployed){
-        }
-        print("Done waiting");
-        deployed = false;
-    }
-
-    private void print(String printString){
-        opMode.telemetry.addLine(printString);
-        opMode.telemetry.update();
-
-        if (PAUSE_STEPS) {
-            robot.stopAllMotors();
-            //Ensures button is pressed and released before continuing
-            while(opMode.opModeIsActive() && !opMode.gamepad1.a){
-            }
-            while(opMode.opModeIsActive() && opMode.gamepad1.a){
-            }
-        }
-
-    }
-
-    private void setupVariables(){
-        //Necessary since all variables tuned to blue side
-
-        if (alliance == ALLIANCE.RED && side == SIDE.FOUNDATION) {
-            DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION *= -1;
-            horizontalTurnDegree *= -1;
-            fiddleDistance *= -1;
-            HWALL_PARK_STRAFE_DISTANCE *= -1;
-            HBRIDGE_PARK_STRAFE_DISTANCE *= -1;
-
-            verticalTurnDegree *= -1;
-            DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION *= -1;
-            VWALL_PARK_STRAFE_DISTANCE *= -1;
-            VBRIDGE_PARK_STRAFE_DISTANCE *= -1;
-        }
-        else if ((alliance == ALLIANCE.RED && side == SIDE.BLOCK)) {
-            blockRotation *= -1;
-            BLOCK_STRAFE_DIST *= -1;
-            BLOCK_STRAFE_DIFF_DIST *= -1;
-            BLOCK_STRAFE_DIST_2 *= -1;
-            BLOCK_STRAFE_DIFF_DIST_2 *= -1;
-        }
-
-    }
-
-    private void startDeploy(){
-        robot.setLiftPower(-0.5);
-        try {
-            sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        robot.setLiftPower(0);
-
-        robot.setArmPower(.2);
-        try {
-            sleep(750);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        robot.setArmPower(0);
-
-        robot.setLiftPower(0.2);
-        robot.setArmPower(-.2);
-
-        try {
-            sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        robot.setLiftPower(0);
-        robot.setArmPower(0);
-
-        robot.setLiftZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
-        robot.setArmZeroPowerProperty(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        try {
-            sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        robot.setLiftRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.setArmRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        robot.setLiftRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    private void moveToFoundation(){
-        print("Moving towards foundation");
-        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_OFF_WALL, FORWARD);
-        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_RIGHT_TO_GET_FOUNDATION, STRAFE);
-        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_GET_FOUNDATION, FORWARD);
-    }
-
-    private void latchFoundation(){
-        print("Latching foundation");
-        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
-
-        while(!robot.getFoundationSensorPressed() && opMode.opModeIsActive()){
-            robot.mecanumPowerDrive(0, -.3, 0);
-        }
-
-        print("Latched foundation");
-        robot.setLatchPosition(CLOSE_LATCH_SERVO_POSITION);
-        robot.moveByInchesFast(-2, FORWARD);
-    }
-
-    private void placeHorizontal(){
-        print("Driving forwards");
-        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_FORWARD_TO_TURN, FORWARD);
-
-        print("Turning to be forward");
-        robot.turnToDegreeFast(horizontalTurnDegree);
-        robot.stopDriveMotors();
-        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
-    }
-
-    private void parkHorizontal(){
-        print("Fiddling with latch");
-        robot.moveByInchesFast(fiddleDistance, STRAFE);
-
-        if (parkPosition == PARK_POSITION.WALL) {
-            print("Strafing against wall");
-            robot.moveByInchesFast(HWALL_PARK_STRAFE_DISTANCE, STRAFE);
-        }
-        else {
-            print("Strafing towards bridge");
-            robot.moveByInchesFast(HBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
-        }
-
-        robot.stopDriveMotors();
-        print("Deploying intake");
-        startDeploy();
-
-        print("Moving under bridge");
-        robot.moveByInchesFast(36, FORWARD);
-        //rough movement, likely replace with color sensor line code
-    }
-
-    private void placeVertical(){
-        print("Driving forwards");
-        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_FORWARD_TO_DEPOT, FORWARD);
-
-        print("Opening latch");
-        robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
-
-        print("Strafing away from the platform");
-        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_LEFT_TO_CLEAR_FOUNDATION, STRAFE);
-
-        print("Moving up parallel with platform");
-        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_MIDDLE_OF_FOUNDATION, FORWARD);
-
-        print("Turning to be forward");
-        robot.turnToDegreeFast(verticalTurnDegree);
-
-        print("Slamming foundation against the wall really really hard");
-        robot.moveByInchesFast(DRIVETRAIN_DISTANCE_BACKWARD_TO_SLAM_FOUNDATION_REALLY_REALLY_HARD, FORWARD);
-    }
-
-    private void parkVertical(){
-
-        if (parkPosition == PARK_POSITION.WALL) {
-            print("Strafing against wall");
-            robot.moveByInchesFast(VWALL_PARK_STRAFE_DISTANCE, STRAFE);
-        }
-        else {
-            print("Strafing against bridge");
-            robot.moveByInchesFast(VBRIDGE_PARK_STRAFE_DISTANCE, STRAFE);
-        }
-
-        robot.stopDriveMotors();
-        print("Deploying intake");
-        startDeploy();
-
-        print("Moving under bridge");
-        robot.moveByInchesFast(22, FORWARD);
-    }
-
-    private void getSkyStonePosition(){
-        int valLeft;
-        int valMid;
-        int valRight;
-
-        int[] vals = pipeline.getPositions();
-        valLeft = vals[0];
-        valMid = vals[1];
-        valRight = vals[2];
-
-        if (alliance == ALLIANCE.BLUE) {
-            if (valLeft == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
-            if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
-            if (valRight == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
-        }
-        else {
-            if (valLeft == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
-            if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
-            if (valRight == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
-        }
-
-        if (skystone_position == null) {
-            //throw new RuntimeException("No skystone detected!");
-            opMode.telemetry.addLine("No Skystone detected!");
-            opMode.telemetry.update();
-        }
-        else {
-            opMode.telemetry.addLine(skystone_position.name());
-            opMode.telemetry.update();
-        }
-
-    }
-
-    private void goToBlock(){
-        double dist = 0;
-
-        //strafing to in front of the block
-        switch (skystone_position) {
-            case ONE_AND_FOUR:
-                dist = BLOCK_ONE_FORWARD_TO_BLOCK;
-                break;
-            case TWO_AND_FIVE:
-                dist = BLOCK_TWO_FORWARD_TO_BLOCK;
-                break;
-            case THREE_AND_SIX:
-                dist = BLOCK_THREE_FORWARD_TO_BLOCK;
-                break;
-        }
-
-        print("Going to block");
-        robot.moveByInchesFast(BLOCK_FORWARD_OFF_WALL_TO_BLOCK, FORWARD);
-        robot.turnToDegreeFast(blockRotation);
-
-        if (dist != 0) {
-            robot.moveByInchesFast(dist, FORWARD);
-        }
-
-    }
-
-    private void forwardToFoundationFirstTime(){
-        //runIntake(-1);
-
-        double forwardDistance = 0;
-
-        switch (skystone_position) {
-            case ONE_AND_FOUR:
-
-                forwardDistance = BLOCK_ONE_FORWARD_TO_FOUNDATION;
-                break;
-            case TWO_AND_FIVE:
-
-                forwardDistance = BLOCK_TWO_FORWARD_TO_FOUNDATION;
-                break;
-            case THREE_AND_SIX:
-
-                forwardDistance = BLOCK_THREE_FORWARD_TO_FOUNDATION;
-                break;
-        }
-
-        //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-        forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
-        //}
-
-        print("Moving backwards to foundation");
-
-        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
-            forwardDistance += BLOCK_EXTRA_DIST_TO_FOUNDATION;
-        }
-
-        //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, blockRotation);
-    }
-
-    private void backwardToBlocks(){
-        double backwardDistance = 0;
-
-        switch (skystone_position) {
-            case ONE_AND_FOUR:
-
-                backwardDistance = BLOCK_FOUR_BACKWARD_TO_BLOCK;
-                break;
-            case TWO_AND_FIVE:
-
-                backwardDistance = BLOCK_FIVE_BACKWARD_TO_BLOCK;
-                break;
-            case THREE_AND_SIX:
-
-                backwardDistance = BLOCK_SIX_BACKWARD_TO_BLOCK;
-                break;
-        }
-
-        //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-        backwardDistance -= BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
-        //}
-
-        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
-            backwardDistance -= BLOCK_EXTRA_DIST_TO_FOUNDATION;
-        }
-
-        print("Moving forwards to blocks");
-        //robot.moveByInchesFast(backwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(backwardDistance, FORWARD, blockRotation);
-    }
-
-    private void forwardToFoundationSecondTime(){
-        double forwardDistance = 0;
-        switch (skystone_position) {
-            case ONE_AND_FOUR:
-                forwardDistance = BLOCK_FOUR_FORWARD_TO_FOUNDATION;
-                break;
-            case TWO_AND_FIVE:
-                forwardDistance = BLOCK_FIVE_FORWARD_TO_FOUNDATION;
-                break;
-            case THREE_AND_SIX:
-                forwardDistance = BLOCK_SIX_FORWARD_TO_FOUNDATION;
-                break;
-        }
-
-        //if (foundationOrientation == FOUNDATION_ORIENTATION.HORIZONTAL) {
-            forwardDistance += BLOCK_EXTRA_DISTANCE_HORIZONTAL_FOUNTATION;
-        //}
-
-        if(foundationOrientation == FOUNDATION_ORIENTATION.VERTICAL){
-            forwardDistance += BLOCK_EXTRA_DIST_TO_FOUNDATION;
-        }
-
-        print("Moving backwards to foundation");
-        //robot.moveByInchesFast(forwardDistance, FORWARD);
-        robot.compensatingMoveByInchesFast(forwardDistance, FORWARD, blockRotation);
-    }
-
-    private void openCVinit(){
-        float offsetX         = propertiesLoader.getFloatProperty("OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
-        float allianceOffsetX = propertiesLoader.getFloatProperty("ALLIANCE_OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
-        float offsetY         = propertiesLoader.getFloatProperty("OFFSET_Y");//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
-        float distScale       = propertiesLoader.getFloatProperty("DIST_SCALE");
-
-        if (alliance == ALLIANCE.BLUE) {
-            offsetX -= allianceOffsetX;
-        }
-
-        //offset array: 0 = x, 1 = y, 2 = distScale
-        float[] offsetArray = {offsetX, offsetY, distScale};
-        pipeline = new StageSwitchingPipeline(offsetArray);
-
-        int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
-        OpenCvCamera phoneCam            = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.FRONT, cameraMonitorViewId);
-        phoneCam.openCameraDevice();//open camera
-        phoneCam.setPipeline(pipeline);//different stages
-        int rows = 640;
-        int cols = 480;
-        phoneCam.startStreaming(rows, cols, OpenCvCameraRotation.UPRIGHT);//display on RC
-        //width, height
-        //width = height in this case, because camera is in portrait mode.
-    }
-
-    public enum FOUNDATION_ORIENTATION {
-        HORIZONTAL,
-        VERTICAL
-    }
-
-    public enum PARK_POSITION {
-        WALL,
-        BRIDGE
-    }
-
-    public enum ALLIANCE {
-        RED,
-        BLUE
-    }
-
-    public enum SIDE {
-        BLOCK,
-        FOUNDATION,
-        QUICK_PARK,
-        SLOW_PARK
-    }
-
-    enum SKYSTONE_POSITION {
-        ONE_AND_FOUR,
-        TWO_AND_FIVE,
-        THREE_AND_SIX,
-    }
-
-}*/
-
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -690,6 +34,7 @@ public class DWAIAutonomous {
     volatile boolean blockGotten;
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Autonomous");
     private double BLOCK_OFFSET_X_POSITION = propertiesLoader.getDoubleProperty("BLOCK_OFFSET_X_POSITION");
+    private double BLOCK_OFFSET_X_POSITION_FIRST = propertiesLoader.getDoubleProperty("BLOCK_OFFSET_X_POSITION_FIRST");
     private double BLOCK_OFFSET_Y_POSITION = propertiesLoader.getDoubleProperty("BLOCK_OFFSET_Y_POSITION");
     private double BLOCK_Y_POSITION = propertiesLoader.getDoubleProperty("BLOCK_Y_POSITION");
     private double BRIDGE_Y_POSITION = propertiesLoader.getDoubleProperty("BRIDGE_Y_POSITION");
@@ -736,29 +81,29 @@ public class DWAIAutonomous {
             SIDE side,
             ALLIANCE alliance,
             LinearOpMode opMode
-    ) {
+    ){
         this.foundationOrientation = foundationOrientation;
-        this.parkPosition = parkPosition;
-        this.side = side;
-        this.alliance = alliance;
-        this.opMode = opMode;
-        this.telemetry = opMode.telemetry;
+        this.parkPosition          = parkPosition;
+        this.side                  = side;
+        this.alliance              = alliance;
+        this.opMode                = opMode;
+        this.telemetry             = opMode.telemetry;
     }
 
-    private void print(String printString) {
+    private void print(String printString){
         opMode.telemetry.addLine(printString);
         opMode.telemetry.update();
 
         if (PAUSE_STEPS) {
             robot.stopAllMotors();
             //Ensures button is pressed and released before continuing
-            while (opMode.opModeIsActive() && !opMode.gamepad1.a) ;
-            while (opMode.opModeIsActive() && opMode.gamepad1.a) ;
+            while(opMode.opModeIsActive() && !opMode.gamepad1.a) ;
+            while(opMode.opModeIsActive() && opMode.gamepad1.a) ;
         }
 
     }
 
-    private void setupVariables() {
+    private void setupVariables(){
 
         if (alliance == ALLIANCE.RED) {
             BLOCK_Y_POSITION *= -1;
@@ -771,7 +116,7 @@ public class DWAIAutonomous {
     }
 
     //TODO: incorporate that into the past trajectory %5
-    private void strafeTo(double x_pos, double y_pos, double additionalStrafe) {
+    private void strafeTo(double x_pos, double y_pos, double additionalStrafe){
         //check if turn necessary
         /*double turnAngle = drive.getPoseEstimate().getHeading();
 
@@ -782,23 +127,15 @@ public class DWAIAutonomous {
         drive.turnSync(-turnAngle);*/
 
         if (additionalStrafe != 0) {
-            drive.followTrajectorySync(
-                    drive.trajectoryBuilder()
-                            .strafeTo(new Vector2d(x_pos, y_pos))
-                            .strafeRight(additionalStrafe)
-                            .build()
-            );
-        } else {
-            drive.followTrajectorySync(
-                    drive.trajectoryBuilder()
-                            .strafeTo(new Vector2d(x_pos, y_pos))
-                            .build()
-            );
+            drive.followTrajectorySync(drive.trajectoryBuilder().strafeTo(new Vector2d(x_pos, y_pos)).strafeRight(additionalStrafe).build());
+        }
+        else {
+            drive.followTrajectorySync(drive.trajectoryBuilder().strafeTo(new Vector2d(x_pos, y_pos)).build());
         }
 
     }
 
-    public void runOpMode() {
+    public void runOpMode(){
         robot = new RobotLinearOpMode(opMode);
         drive = new SampleMecanumDriveREV(opMode.hardwareMap);
         setupVariables();
@@ -820,22 +157,27 @@ public class DWAIAutonomous {
         if (alliance == ALLIANCE.RED && side == SIDE.BLOCK) {
             drive.setPoseEstimate(new Pose2d(-34, -63, Math.toRadians(270)));
             startAngle = 270;
-        } else if (alliance == ALLIANCE.RED && side == SIDE.FOUNDATION) {
+        }
+        else if (alliance == ALLIANCE.RED && side == SIDE.FOUNDATION) {
             drive.setPoseEstimate(new Pose2d(15, -63, Math.toRadians(270)));
             startAngle = 270;
-        } else if (alliance == ALLIANCE.BLUE && side == SIDE.BLOCK) {
+        }
+        else if (alliance == ALLIANCE.BLUE && side == SIDE.BLOCK) {
             drive.setPoseEstimate(new Pose2d(-34, 63, Math.toRadians(90)));
             startAngle = 90;
-        } else if (alliance == ALLIANCE.BLUE && side == SIDE.FOUNDATION) {
+        }
+        else if (alliance == ALLIANCE.BLUE && side == SIDE.FOUNDATION) {
             drive.setPoseEstimate(new Pose2d(15, 63, Math.toRadians(90)));
             startAngle = 90;
         }
 
         if (side == SIDE.BLOCK) {
             executeBlockAuto();
-        } else if (side == SIDE.FOUNDATION) {
+        }
+        else if (side == SIDE.FOUNDATION) {
             executeFoundationAuto();
-        } else if (side == SIDE.QUICK_PARK) {
+        }
+        else if (side == SIDE.QUICK_PARK) {
             //Deploy lifter
             Thread deploy = new Thread(() -> {
                 startDeploy();
@@ -843,15 +185,12 @@ public class DWAIAutonomous {
             });
 
             deploy.start();
-            while (!deployed && opMode.opModeIsActive()) ;
+            while(!deployed && opMode.opModeIsActive()) ;
 
-            drive.followTrajectorySync(
-                    drive.trajectoryBuilder()
-                            .forward(18)
-                            .build()
-            );
+            drive.followTrajectorySync(drive.trajectoryBuilder().forward(18).build());
 
-        } else if (side == SIDE.SLOW_PARK) {
+        }
+        else if (side == SIDE.SLOW_PARK) {
             //Deploy lifter
             Thread deploy = new Thread(() -> {
                 startDeploy();
@@ -861,20 +200,16 @@ public class DWAIAutonomous {
             deploy.start();
             opMode.sleep(25000);
 
-            drive.followTrajectorySync(
-                    drive.trajectoryBuilder()
-                            .forward(18)
-                            .build()
-            );
+            drive.followTrajectorySync(drive.trajectoryBuilder().forward(18).build());
 
         }
 
         //AutoTransitioner.transitionOnStop(opMode, "Skystone Main Teleop", alliance);
     }
 
-    private void executeBlockAuto() {
+    private void executeBlockAuto(){
         //Detect block
-        while (skystone_position == null || checks < 10) {
+        while(skystone_position == null || checks < 10){
             getSkyStonePosition();
             checks++;
             //TODO: make this less time, so that it can check quicker. %3
@@ -891,6 +226,13 @@ public class DWAIAutonomous {
                         .build()
         );*/
 
+        //grabber thread
+        Thread thread = new Thread(() -> {
+            while(drive.getPoseEstimate().getX() < END_OF_BRIDGE_STONE_X){
+            }
+            setGrabberPos(DROPPING_SOON);
+        });
+
         //Deploy lifter
         Thread deploy = new Thread(() -> {
             startDeploy();
@@ -905,82 +247,42 @@ public class DWAIAutonomous {
         switch (skystone_position) {
             case ONE_AND_FOUR:
                 //Block 1 position
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .reverse()
-                                .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
-                                .reverse()
-                                .splineTo(new Pose2d(-44 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
-                                .build()
-                );
-                strafeTo(-44 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0);
+                goToBlocksFirstTime(1);
                 break;
             case TWO_AND_FIVE:
                 //Block 2 position
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .reverse()
-                                .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
-                                .splineTo(new Pose2d(-52 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
-                                .build()
-                );
-                strafeTo(-52 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0);
+                goToBlocksFirstTime(2);
                 break;
             case THREE_AND_SIX:
                 //Block 3 position
-                drive.followTrajectorySync(
-                        drive.trajectoryBuilder()
-                                .reverse()
-                                .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
-                                .splineTo(new Pose2d(-60 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
-                                .build()
-                );
-                strafeTo(-60 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0);
+                goToBlocksFirstTime(3);
                 break;
         }
 
         setGrabberPos(GRABBING);
-        try {
-            sleep(50);
-        } catch (InterruptedException e) {
-
-        }
+        opMode.sleep(100);
         setGrabberPos(STOWED);
-        try {
-            sleep(50);
-        } catch (InterruptedException e) {
-
-        }
+        opMode.sleep(700);
 
         //TODO:Thread the grabbing to make it quicker %4
 
-        while (!deployed && opMode.opModeIsActive()) ;
+        while(!deployed && opMode.opModeIsActive()) ;
 
-        Thread thread = new Thread(() -> {
-            while (drive.getPoseEstimate().getX() > END_OF_BRIDGE_STONE_X) { }
-            setGrabberPos(DROPPING_SOON);
-        });
         thread.start();
 
         placeBlock();
 
         setGrabberPos(GRABBING);
-        try {
-            sleep(50);
-        } catch (InterruptedException e) {
-
-        }
+        opMode.sleep(50);
         setGrabberPos(READY);
-        try {
-            sleep(50);
-        } catch (InterruptedException e) {
-
-        }
+        opMode.sleep(50);
 
         thread = new Thread(() -> {
-            while (drive.getPoseEstimate().getX() > END_OF_BRIDGE_FOUNDATION_X) { }
+            while(drive.getPoseEstimate().getX() > START_OF_FOUNDATION_X){
+            }
             setGrabberPos(DEFAULT);
-            while (drive.getPoseEstimate().getX() > END_OF_BRIDGE_STONE_X) { }
+            while(drive.getPoseEstimate().getX() > END_OF_BRIDGE_STONE_X){
+            }
             setGrabberPos(GRABBING_SOON);
         });
         thread.start();
@@ -998,20 +300,13 @@ public class DWAIAutonomous {
         }
 
         setGrabberPos(GRABBING);
-        try {
-            sleep(50);
-        } catch (InterruptedException e) {
-
-        }
+        opMode.sleep(100);
         setGrabberPos(STOWED);
-        try {
-            sleep(50);
-        } catch (InterruptedException e) {
+        opMode.sleep(700);
 
-        }
-
-         thread = new Thread(() -> {
-            while (drive.getPoseEstimate().getX() > END_OF_BRIDGE_STONE_X) { }
+        thread = new Thread(() -> {
+            while(drive.getPoseEstimate().getX() < END_OF_BRIDGE_STONE_X){
+            }
             setGrabberPos(DROPPING_SOON);
         });
         thread.start();
@@ -1020,21 +315,14 @@ public class DWAIAutonomous {
 
 
         setGrabberPos(GRABBING);
-        try {
-            sleep(50);
-        } catch (InterruptedException e) {
-
-        }
+        opMode.sleep(50);
         setGrabberPos(READY);
-        try {
-            sleep(50);
-        } catch (InterruptedException e) {
-
-        }
+        opMode.sleep(50);
 
         thread = new Thread(() -> {
             double heading = drive.getPoseEstimate().getHeading();
-            while (Math.abs(drive.getPoseEstimate().getHeading()) - heading < 45) { }
+            while(Math.abs(drive.getPoseEstimate().getHeading() - heading) < Math.toRadians(15)){
+            }
             setGrabberPos(DEFAULT);
         });
         thread.start();
@@ -1047,29 +335,23 @@ public class DWAIAutonomous {
         telemetry.update();
     }
 
-    private void goToBlocksFirstTime(int index) {
+    private void goToBlocksFirstTime(int index){
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
                         .reverse()
-                        .splineTo(new Pose2d(-48, BLOCK_OFFSET_Y_POSITION, 0))
-                        .reverse()
-                        .splineTo(new Pose2d(-36 + -8 * index + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
-                        .build()
-        );
-        strafeTo(-36 + -8 * index + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0);
+                        .splineTo(new Pose2d(-40, BLOCK_OFFSET_Y_POSITION, 0))
+                        .splineTo(new Pose2d(-36 - (8 * index) + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_OFFSET_Y_POSITION, 0))
+                        .build());
+        strafeTo(-36 - 8 * index + BLOCK_OFFSET_X_POSITION_FIRST, BLOCK_Y_POSITION, 0);
     }
 
-    private void dragFoundation() {
+    private void dragFoundation(){
         print("Latching foundation");
 
         drive.turnSync(Math.toRadians(180 - startAngle));
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .strafeTo(new Vector2d(50, FOUNDATION_Y_POSITION))
-                        .build()
-        );
+        drive.followTrajectorySync(drive.trajectoryBuilder().strafeTo(new Vector2d(50, FOUNDATION_Y_POSITION)).build());
 
-        while (!robot.getFoundationSensorPressed()) {
+        while(!robot.getFoundationSensorPressed()){
             robot.mecanumPowerDrive(0, -0.3, 0);
             drive.updatePoseEstimate();
         }
@@ -1086,11 +368,7 @@ public class DWAIAutonomous {
         //accessible using strafeto method, which just strafes left/right along the y axis only
         //check the open/close latch positions
 
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .splineTo(new Pose2d(45, DEPOT_Y_POSITION, Math.toRadians(startAngle + 45 * Math.signum(DEPOT_Y_POSITION))))
-                        .build()
-        );
+        drive.followTrajectorySync(drive.trajectoryBuilder().splineTo(new Pose2d(45, DEPOT_Y_POSITION, Math.toRadians(startAngle + 45 * Math.signum(DEPOT_Y_POSITION)))).build());
 
         /*drive.followTrajectorySync(
                 drive.trajectoryBuilder()
@@ -1119,141 +397,63 @@ public class DWAIAutonomous {
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
         opMode.sleep(GRAB_DELAY);
 
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder()
-                        .back(5)
-                        .strafeLeft(DEPOT_Y_POSITION - BRIDGE_Y_POSITION)
-                        .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, Math.toRadians(180)))
-                        .build()
-        );
+        drive.followTrajectorySync(drive.trajectoryBuilder().back(5).strafeLeft((DEPOT_Y_POSITION - BRIDGE_Y_POSITION) * LATERAL_MULTIPLIER).splineTo(new Pose2d(0, BRIDGE_Y_POSITION, Math.toRadians(180))).build());
     }
 
-    private void placeBlock() {
+    private void placeBlock(){
         print("Going under bridge");
 
-        if (blocksPlaced != 0) {
+        if (blocksPlaced == 0) {
             drive.followTrajectorySync(
                     drive.trajectoryBuilder()
-                            .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
+                            //.strafeLeft((BRIDGE_Y_POSITION - BLOCK_Y_POSITION))
+                            .splineTo(new Pose2d(-8, BRIDGE_Y_POSITION, 0))
+                            .splineTo(new Pose2d(8, BRIDGE_Y_POSITION, 0))
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
-                            .build()
-            );
-            strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
-        } else {
+                            .build());
+            //strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
+        }
+        else {
+
             drive.followTrajectorySync(
                     drive.trajectoryBuilder()
+
                             .strafeLeft((BRIDGE_Y_POSITION - BLOCK_Y_POSITION))
                             .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
+//                            .splineTo(new Pose2d(-8, BRIDGE_Y_POSITION, 0))
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
-                            .build()
-            );
-            strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
+                            .build());
+            //strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
         }
 
         print("Placing block");
 
         blocksPlaced++;
     }
-//
-//    private void startDropOffThread() {
-//        Thread thread = new Thread(() -> {
-//            double sleepStartTime;
-//            blockDroppedOff = false;
-//
-//            setGrabberPos(STOWED);
-//
-//            while (drive.getPoseEstimate().getX() < END_OF_BRIDGE_FOUNDATION_X + 9) {
-//            }
-//
-//            setGrabberPos(DROPPING_SOON);
-//
-//            while (drive.getPoseEstimate().getX() < START_OF_FOUNDATION_X) {
-//            }
-//            while (drive.getPoseEstimate().getY() > FOUNDATION_Y_POSITION) {
-//            }
-//
-//            setGrabberPos(GRABBING);
-//
-//            sleepStartTime = System.currentTimeMillis();
-//            while (System.currentTimeMillis() - sleepStartTime < DROP_BLOCK_DELAY) ;
-//
-//            setGrabberPos(READY);
-//
-//            blockDroppedOff = true;
-//
-//            sleepStartTime = System.currentTimeMillis();
-//            while (System.currentTimeMillis() - sleepStartTime < 2 * DROP_RETURN_DELAY) ;
-//
-//            setGrabberPos(DEFAULT);
-//        });
-//        thread.start();
-//    }
-//
-//    private void startGetThread(int index) {
-//        Thread thread = new Thread(() -> {
-//            double sleepStartTime;
-//            blockGotten = false;
-//
-//            sleepStartTime = System.currentTimeMillis();
-//            while (System.currentTimeMillis() - sleepStartTime < 100) ;
-//
-//            setGrabberPos(DEFAULT);
-//
-//            while (drive.getPoseEstimate().getX() > END_OF_BRIDGE_STONE_X) {
-//            }
-//
-//            setGrabberPos(GRABBING_SOON);
-//
-//            while (drive.getPoseEstimate().getY() > 24 + 10 ||
-//                    drive.getPoseEstimate().getX() < -24 - (8 * index) + 2
-//            ) {
-//            }
-//
-//            sleepStartTime = System.currentTimeMillis();
-//            while (System.currentTimeMillis() - sleepStartTime < GET_GRAB_DELAY) {
-//            }
-//
-//            setGrabberPos(GRABBING);
-//
-//            sleepStartTime = System.currentTimeMillis();
-//            while (System.currentTimeMillis() - sleepStartTime < GET_BLOCK_DELAY) {
-//            }
-//
-//            setGrabberPos(STOWED);
-//
-//            sleepStartTime = System.currentTimeMillis();
-//            while (System.currentTimeMillis() - sleepStartTime < GET_STOW_DELAY) {
-//            }
-//            blockGotten = true;
-//        });
-//        thread.start();
-//
-//    }
 
-    private void grabBlock(int index) {
+
+    private void grabBlock(int index){
         print("Going back for another one");
         setGrabberPos(READY);
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
                         .reverse()
-                        .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, 0))
-                        //.strafeLeft((BRIDGE_Y_POSITION - FOUNDATION_Y_POSITION))
-                        //.lineTo(new Vector2d(0, BRIDGE_Y_POSITION), new ConstantInterpolator(0))
+                        .splineTo(new Pose2d(6, BRIDGE_Y_POSITION, 0))
+//                        .splineTo(new Pose2d(-6, BRIDGE_Y_POSITION, 0))
                         .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_OFFSET_Y_POSITION, 0))
-                        .build()
-        );
+                        .build());
         strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 2 * Math.signum(BLOCK_Y_POSITION));
         print("Grabbing block");
 
-//        setGrabberPos(GRABBING);
-//        opMode.sleep(GRAB_DELAY);
-//        setGrabberPos(STOWED);
-//        opMode.sleep(GRAB_DELAY);
+        //        setGrabberPos(GRABBING);
+        //        opMode.sleep(GRAB_DELAY);
+        //        setGrabberPos(STOWED);
+        //        opMode.sleep(GRAB_DELAY);
 
     }
 
-    private void executeFoundationAuto() {
+    private void executeFoundationAuto(){
 
         //make heading a variable
         // make y positions a variable
@@ -1267,7 +467,7 @@ public class DWAIAutonomous {
         //park at 0, 63
     }
 
-    private void setGrabberPos(GRABBER_POSITION pos) {
+    private void setGrabberPos(GRABBER_POSITION pos){
 
         switch (alliance) {
             case BLUE:
@@ -1280,7 +480,7 @@ public class DWAIAutonomous {
 
     }
 
-    private void startDeploy() {
+    private void startDeploy(){
 
         if (!DEPLOY_LIFTER) {
             return;
@@ -1331,21 +531,22 @@ public class DWAIAutonomous {
         robot.setArmRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    private void getSkyStonePosition() {
+    private void getSkyStonePosition(){
         int valLeft;
         int valMid;
         int valRight;
 
         int[] vals = pipeline.getPositions();
-        valLeft = vals[0];
-        valMid = vals[1];
+        valLeft  = vals[0];
+        valMid   = vals[1];
         valRight = vals[2];
 
         if (alliance == ALLIANCE.BLUE) {
             if (valLeft == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
             if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
             if (valRight == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
-        } else {
+        }
+        else {
             if (valLeft == 0) skystone_position = SKYSTONE_POSITION.ONE_AND_FOUR;
             if (valMid == 0) skystone_position = SKYSTONE_POSITION.TWO_AND_FIVE;
             if (valRight == 0) skystone_position = SKYSTONE_POSITION.THREE_AND_SIX;
@@ -1355,18 +556,19 @@ public class DWAIAutonomous {
             //throw new RuntimeException("No skystone detected!");
             telemetry.addLine("No Skystone detected!");
             telemetry.update();
-        } else {
+        }
+        else {
             telemetry.addLine(skystone_position.name());
             telemetry.update();
         }
 
     }
 
-    private void openCVinit() {
-        float offsetX = propertiesLoader.getFloatProperty("OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
+    private void openCVinit(){
+        float offsetX         = propertiesLoader.getFloatProperty("OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
         float allianceOffsetX = propertiesLoader.getFloatProperty("ALLIANCE_OFFSET_X");//changing this moves the three rects and the three circles left or right, range : (-2, 2) not inclusive
-        float offsetY = propertiesLoader.getFloatProperty("OFFSET_Y");//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
-        float distScale = propertiesLoader.getFloatProperty("DIST_SCALE");//changing this scales the distance between everything by a factor
+        float offsetY         = propertiesLoader.getFloatProperty("OFFSET_Y");//changing this moves the three rects and circles up or down, range: (-4, 4) not inclusive
+        float distScale       = propertiesLoader.getFloatProperty("DIST_SCALE");//changing this scales the distance between everything by a factor
 
         if (alliance == ALLIANCE.BLUE) {
             offsetX -= allianceOffsetX;
