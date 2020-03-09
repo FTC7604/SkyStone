@@ -8,20 +8,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
-import org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode;
-import org.firstinspires.ftc.teamcode.Robot.StageSwitchingPipeline;
-import org.firstinspires.ftc.teamcode.drive.mecanum.SampleMecanumDriveREV;
+import org.firstinspires.ftc.teamcode.Robot.*;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import static java.lang.Thread.sleep;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.DEFAULT;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.DROPPING_SOON;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.GRABBING;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.GRABBING_SOON;
-import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.READY;
+import static org.firstinspires.ftc.teamcode.drive.mecanum.*;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.*;
+import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.*;
 import static org.firstinspires.ftc.teamcode.Robot.RobotLinearOpMode.GRABBER_POSITION.STOWED;
 
 /**
@@ -299,7 +294,7 @@ public class DWAIAutonomous {
                 break;
         }
 
-        setGrabberPos(GRABBING);
+        setGrabberPos(GRABBER_POSITION.GRABBING);
         opMode.sleep(100);
         setGrabberPos(STOWED);
         opMode.sleep(700);

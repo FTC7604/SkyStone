@@ -385,11 +385,11 @@ public class Robot {
         return leftWingDS.getDistance(DistanceUnit.MM);
     }
 
-    public COLOR_UNDER_SENSOR color_under_sensor(){
-        if (leftWingCS.blue() > BLUE_LINE_DETECTED) return COLOR_UNDER_SENSOR.BLUE;
-        else if (leftWingCS.red() > RED_LINE_DETECTED) return COLOR_UNDER_SENSOR.RED;
-        else return COLOR_UNDER_SENSOR.GRAY;
-    }
+//    public COLOR_UNDER_SENSOR color_under_sensor(){
+//        if (leftWingCS.blue() > BLUE_LINE_DETECTED) return COLOR_UNDER_SENSOR.BLUE;
+//        else if (leftWingCS.red() > RED_LINE_DETECTED) return COLOR_UNDER_SENSOR.RED;
+//        else return COLOR_UNDER_SENSOR.GRAY;
+//    }
 
     public void setPattern(RevBlinkinLedDriver.BlinkinPattern pattern){
 

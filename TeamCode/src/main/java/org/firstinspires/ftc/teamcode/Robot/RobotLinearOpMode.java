@@ -3,13 +3,11 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Control.BalisticProfile;
+import org.firstinspires.ftc.teamcode.Control.*;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 
 import static java.lang.Math.abs;
-import static org.firstinspires.ftc.teamcode.Control.BalisticProfile.CURVE_TYPE.LINEAR;
-import static org.firstinspires.ftc.teamcode.Control.BalisticProfile.CURVE_TYPE.SINUSOIDAL_SCURVE;
 
 //changes this commit
 //removed unused thread methods
@@ -84,10 +82,10 @@ public class RobotLinearOpMode extends Robot {
     private double RIGHT_DROPPING_SOON_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_DROPPING_SOON_GRABBER");
     private double RIGHT_DROPPING_SOON_SERVO = propertiesLoader.getDoubleProperty("RIGHT_DROPPING_SOON_SERVO");
 
-    private BalisticProfile fastRotationBalisticProfile = new BalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, ROTATION_START_POWER, ROTATION_FULL_POWER, ROTATION_END_POWER, SINUSOIDAL_SCURVE, LINEAR);
-    private BalisticProfile forwardBalisticProfile = new BalisticProfile(FORWARD_ACCELERATION_DISTANCE, FORWARD_DECELLERATION_DISTANCE, FORWARD_START_POWER, FORWARD_FULL_POWER, FORWARD_END_POWER, LINEAR, LINEAR);
-    private BalisticProfile strafeBalisticProfile = new BalisticProfile(STRAFE_ACCELERATION_DISTANCE, STRAFE_DECELLERATION_DISTANCE, STRAFE_START_POWER, STRAFE_FULL_POWER, STRAFE_END_POWER, LINEAR, LINEAR);
-    private BalisticProfile armBalisticProfile = new BalisticProfile(ARM_ACCELERATION_DISTANCE, ARM_DECELLERATION_DISTANCE, ARM_START_POWER, ARM_FULL_POWER, ARM_END_POWER, ARM_LIMIT_ONE, ARM_LIMIT_TWO, LINEAR, LINEAR);
+    private BalisticProfile fastRotationBalisticProfile = new BalisticProfile(ROTATION_ACCELERATION_DISTANCE, ROTATION_DECELLERATION_DISTANCE, ROTATION_START_POWER, ROTATION_FULL_POWER, ROTATION_END_POWER, BalisticProfile.CURVE_TYPE.SINUSOIDAL_SCURVE, BalisticProfile.CURVE_TYPE.LINEAR);
+    private BalisticProfile forwardBalisticProfile = new BalisticProfile(FORWARD_ACCELERATION_DISTANCE, FORWARD_DECELLERATION_DISTANCE, FORWARD_START_POWER, FORWARD_FULL_POWER, FORWARD_END_POWER, BalisticProfile.CURVE_TYPE.LINEAR, BalisticProfile.CURVE_TYPE.LINEAR);
+    private BalisticProfile strafeBalisticProfile = new BalisticProfile(STRAFE_ACCELERATION_DISTANCE, STRAFE_DECELLERATION_DISTANCE, STRAFE_START_POWER, STRAFE_FULL_POWER, STRAFE_END_POWER, BalisticProfile.CURVE_TYPE.LINEAR, BalisticProfile.CURVE_TYPE.LINEAR);
+    private BalisticProfile armBalisticProfile = new BalisticProfile(ARM_ACCELERATION_DISTANCE, ARM_DECELLERATION_DISTANCE, ARM_START_POWER, ARM_FULL_POWER, ARM_END_POWER, ARM_LIMIT_ONE, ARM_LIMIT_TWO, BalisticProfile.CURVE_TYPE.LINEAR, BalisticProfile.CURVE_TYPE.LINEAR);
     //private BalisticProfile liftBetterBalisticProfile = new BalisticProfile(LIFT_ACCELERATION_DISTANCE, LIFT_DECELLERATION_DISTANCE, LIFT_START_POWER, LIFT_FULL_POWER, LIFT_END_POWER, LIFT_LIMIT_ONE, LIFT_LIMIT_TWO, LINEAR, LINEAR);
 
     /**

@@ -1,6 +1,7 @@
 //imports the package so that all the code can be used
 package org.firstinspires.ftc.teamcode;
 
+
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,11 +16,6 @@ import org.firstinspires.ftc.teamcode.Control.Toggle;
 import org.firstinspires.ftc.teamcode.LED.LedPattern;
 import org.firstinspires.ftc.teamcode.LED.LedPatternStep;
 
-import static com.qualcomm.hardware.rev.RevBlinkinLedDriver.BlinkinPattern;
-import static java.lang.Math.abs;
-import static org.firstinspires.ftc.teamcode.DWAIAutonomous.ALLIANCE;
-import static org.firstinspires.ftc.teamcode.DWAIAutonomous.ALLIANCE.BLUE;
-
 @TeleOp(name = "Skystone Main Teleop", group = "Linear Opmode")
 public class SSfullTeleop extends LinearOpMode {
     private final double LIFT_HOME_POSITION = -20;
@@ -28,9 +24,9 @@ public class SSfullTeleop extends LinearOpMode {
     private final double ARM_SCORING_POSITION = 2300;
     private boolean cardPattern = false;
     private boolean rainbowPattern = false;
-    private ALLIANCE alliance = AutoTransitioner.alliance;
+    //    private ALLIANCE alliance = AutoTransitioner.alliance;
     private RevBlinkinLedDriver blinkin;
-    private BlinkinPattern dPadPattern;
+    private RevBlinkinLedDriver.BlinkinPattern dPadPattern;
     private double intakeCorrectionStartTime = -200;
     private double[] driveTrainController = new double[3];
     private CaseyMotionProfile liftProfile = new CaseyMotionProfile(-1300, -10, 500, 0.25, 1, .7);
@@ -48,11 +44,15 @@ public class SSfullTeleop extends LinearOpMode {
     private HumanController humanController = new HumanController(0.1, 1);
     private ElapsedTime runtime = new ElapsedTime();
     LedPattern cardBlinkinPatter = new LedPattern(new LedPatternStep[] {
-            new LedPatternStep(BlinkinPattern.WHITE, .5), new LedPatternStep(BlinkinPattern.RED, .5)}, runtime.time());
+            new LedPatternStep(RevBlinkinLedDriver.BlinkinPattern.WHITE, .5),
+            new LedPatternStep(RevBlinkinLedDriver.BlinkinPattern.RED, .5)}, runtime.time());
     LedPattern rainbowBlinkingPattern = new LedPattern(new LedPatternStep[] {
-            new LedPatternStep(BlinkinPattern.RED, .2), new LedPatternStep(BlinkinPattern.ORANGE, .2),
-            new LedPatternStep(BlinkinPattern.YELLOW, .2), new LedPatternStep(BlinkinPattern.GREEN, .2),
-            new LedPatternStep(BlinkinPattern.BLUE, .2), new LedPatternStep(BlinkinPattern.VIOLET, .2)
+            new LedPatternStep(RevBlinkinLedDriver.BlinkinPattern.RED, .2),
+            new LedPatternStep(RevBlinkinLedDriver.BlinkinPattern.ORANGE, .2),
+            new LedPatternStep(RevBlinkinLedDriver.BlinkinPattern.YELLOW, .2),
+            new LedPatternStep(RevBlinkinLedDriver.BlinkinPattern.GREEN, .2),
+            new LedPatternStep(RevBlinkinLedDriver.BlinkinPattern.BLUE, .2),
+            new LedPatternStep(RevBlinkinLedDriver.BlinkinPattern.VIOLET, .2)
 
     }, runtime.time());
     private DcMotor rightFrontDriveMotor;
@@ -116,7 +116,7 @@ public class SSfullTeleop extends LinearOpMode {
             rainbowPattern = false;
         }
         else if (gamepad1.dpad_right) {
-            dPadPattern    = BlinkinPattern.RAINBOW_WITH_GLITTER;
+            dPadPattern    = RevBlinkinLedDriver.BlinkinPattern.RAINBOW_WITH_GLITTER;
             cardPattern    = false;
             rainbowPattern = false;
         }
@@ -125,7 +125,7 @@ public class SSfullTeleop extends LinearOpMode {
             rainbowPattern = true;
         }
         else if (gamepad1.dpad_left) {
-            dPadPattern    = BlinkinPattern.HEARTBEAT_WHITE;
+            dPadPattern    = RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE;
             cardPattern    = false;
             rainbowPattern = false;
         }
@@ -136,38 +136,38 @@ public class SSfullTeleop extends LinearOpMode {
         }
 
         if (!intakeFulla.getState() || !intakeFullb.getState()) {
-            blinkin.setPattern(BlinkinPattern.STROBE_GOLD);
+            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
             //LEDs flashing bright or something
         }
         else if (latchIsDown.get()) {
-            blinkin.setPattern(BlinkinPattern.STROBE_WHITE);
+            blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
             //LEDS a certain color to indicate the latch is down
         }
         else {
 
             //LEDs some other way, maybe an alliance color if we want
-            if (dPadPattern != null) {
-                if (!cardPattern && !rainbowPattern) {
-                    blinkin.setPattern(dPadPattern);
-                }
-                else if (cardPattern) {
-                    cardBlinkinPatter.update(runtime.time());
-                    blinkin.setPattern(cardBlinkinPatter.getPattern());
-                }
-                else {
-                    rainbowBlinkingPattern.update(runtime.time());
-                    blinkin.setPattern(rainbowBlinkingPattern.getPattern());
-                }
-            }
-            else if (alliance == BLUE) {
-                blinkin.setPattern(BlinkinPattern.COLOR_WAVES_OCEAN_PALETTE);
-            }
-            else if (alliance == ALLIANCE.RED) {
-                blinkin.setPattern(BlinkinPattern.COLOR_WAVES_LAVA_PALETTE);
-            }
-            else {
-                blinkin.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
-            }
+            //            if (dPadPattern != null) {
+            //                if (!cardPattern && !rainbowPattern) {
+            //                    blinkin.setPattern(dPadPattern);
+            //                }
+            //                else if (cardPattern) {
+            //                    cardBlinkinPatter.update(runtime.time());
+            //                    blinkin.setPattern(cardBlinkinPatter.getPattern());
+            //                }
+            //                else {
+            //                    rainbowBlinkingPattern.update(runtime.time());
+            //                    blinkin.setPattern(rainbowBlinkingPattern.getPattern());
+            //                }
+            //            }
+            //            else if (alliance == BLUE) {
+            //                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_OCEAN_PALETTE);
+            //            }
+            //            else if (alliance == ALLIANCE.RED) {
+            //                blinkin.setPattern(BlinkinPattern.COLOR_WAVES_LAVA_PALETTE);
+            //            }
+            //            else {
+            //                blinkin.setPattern(BlinkinPattern.RAINBOW_WITH_GLITTER);
+            //            }
         }
 
         //Well get rid of this telemetry for lag reduction
@@ -331,8 +331,10 @@ public class SSfullTeleop extends LinearOpMode {
         driveMode.update(gamepad1.right_bumper);
 
         if (driveMode.get()) {//tank
-            driveTrainController[1] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) * (abs(-gamepad1.right_stick_y)) + ((-gamepad1.left_stick_y) * (abs(-gamepad1.left_stick_y)))) / 2);
-            driveTrainController[0] = humanController.linearDriveProfile(-(((-gamepad1.right_stick_x) * (abs(-gamepad1.right_stick_x)) + ((-gamepad1.left_stick_x) * (abs(-gamepad1.left_stick_x)))) / 2));
+            driveTrainController[1] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) * (Math.abs(
+                    -gamepad1.right_stick_y)) + ((-gamepad1.left_stick_y) * (Math.abs(-gamepad1.left_stick_y)))) / 2);
+            driveTrainController[0] = humanController.linearDriveProfile(-(((-gamepad1.right_stick_x) * (Math.abs(
+                    -gamepad1.right_stick_x)) + ((-gamepad1.left_stick_x) * (Math.abs(-gamepad1.left_stick_x)))) / 2));
             driveTrainController[2] = humanController.linearDriveProfile(((-gamepad1.right_stick_y) - (-gamepad1.left_stick_y)) / 2);
         }
         else {//normal
@@ -346,7 +348,10 @@ public class SSfullTeleop extends LinearOpMode {
             driveTrainController[1] /= 3;///should be a bit slower if these changes work
             driveTrainController[0] /= 2;
             driveTrainController[2] /= 3;
-            compensatedMecanumPowerDrive(driveTrainController[0], driveTrainController[1], driveTrainController[2], WEIGHT_COMP_RATIO);
+            compensatedMecanumPowerDrive(driveTrainController[0],
+                                         driveTrainController[1],
+                                         driveTrainController[2],
+                                         WEIGHT_COMP_RATIO);
 
             //I am trying a different drive mode without weight comp
 
@@ -357,7 +362,8 @@ public class SSfullTeleop extends LinearOpMode {
     }
 
     private void runLifter(){
-        liftPower    = liftProfile.limitWithoutAccel(liftMotor.getCurrentPosition(), -gamepad2.right_stick_y);
+        liftPower    = liftProfile.limitWithoutAccel(liftMotor.getCurrentPosition(),
+                                                     -gamepad2.right_stick_y);
         liftPosition = liftMotor.getCurrentPosition();
         liftMotor.setPower(liftPower);
     }
@@ -376,7 +382,9 @@ public class SSfullTeleop extends LinearOpMode {
                 //stop trying to go there
             }
             else {
-                armPower = armProfile.RunToPositionWithAccel(initialArmPosition, armPosition, ARM_SCORING_POSITION);
+                armPower = armProfile.RunToPositionWithAccel(initialArmPosition,
+                                                             armPosition,
+                                                             ARM_SCORING_POSITION);
             }
         }
         else if ((liftPower != 0) && armPosition < 200 && gamepad2.left_stick_y <= 0) {
@@ -392,7 +400,9 @@ public class SSfullTeleop extends LinearOpMode {
                 //stop trying to go there
             }
             else {
-                armPower = armProfile.RunToPositionWithAccel(initialArmPosition, armPosition, ARM_HOME_POSITION);
+                armPower = armProfile.RunToPositionWithAccel(initialArmPosition,
+                                                             armPosition,
+                                                             ARM_HOME_POSITION);
             }
 
         }
@@ -455,8 +465,9 @@ public class SSfullTeleop extends LinearOpMode {
 
         //Retract odometry
         if (runtime.milliseconds() < 1000) {
-            odometryRetractServo.setPosition(1);
-        } else {
+            odometryRetractServo.setPosition(0.75);
+        }
+        else {
             odometryRetractServo.setPosition(0.5);
         }
     }
