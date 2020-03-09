@@ -126,22 +126,17 @@ public class FoundationTest extends LinearOpMode {
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .splineTo(new Pose2d(12, BRIDGE_Y_POSITION, Math.toRadians(180)))
+                        .splineTo(new Pose2d(31, DEPOT_Y_POSITION, Math.toRadians(180)))
+                        .splineTo(new Pose2d(20, DEPOT_Y_POSITION, Math.toRadians(180)))
                         .build()
         );
 
-        double turnAngle = drive.getPoseEstimate().getHeading() - Math.PI;
-
-        if (turnAngle > Math.PI) {
-            turnAngle -= 2 * Math.PI;
-        }
-
-        drive.turnSync(-turnAngle);
         robot.setLatchPosition(OPEN_LATCH_SERVO_POSITION);
 
         drive.followTrajectorySync(
                 drive.trajectoryBuilder()
-                        .back(5)
+                        .back(20)
+                        .splineTo(new Pose2d(16, BRIDGE_Y_POSITION, Math.toRadians(180)))
                         .splineTo(new Pose2d(0, BRIDGE_Y_POSITION, Math.toRadians(180)))
                         .build()
         );

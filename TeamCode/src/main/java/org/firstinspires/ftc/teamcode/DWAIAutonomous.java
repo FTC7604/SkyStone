@@ -427,7 +427,7 @@ public class DWAIAutonomous {
                     drive.trajectoryBuilder()
                             //.strafeLeft((BRIDGE_Y_POSITION - BLOCK_Y_POSITION))
                             .splineTo(new Pose2d(-8, BRIDGE_Y_POSITION, 0))
-                            .splineTo(new Pose2d(8, BRIDGE_Y_POSITION, 0))
+                            .splineTo(new Pose2d(2, BRIDGE_Y_POSITION, 0))
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
                             .build());
             //strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
