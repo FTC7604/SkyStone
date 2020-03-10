@@ -7,6 +7,8 @@ import org.firstinspires.ftc.teamcode.Control.*;
 import org.firstinspires.ftc.teamcode.IO.PropertiesLoader;
 import org.firstinspires.ftc.teamcode.IO.RuntimeLogger;
 
+import kotlin.internal.DynamicExtension;
+
 import static java.lang.Math.abs;
 
 //changes this commit
@@ -20,8 +22,7 @@ public class RobotLinearOpMode extends Robot {
 
     private PropertiesLoader propertiesLoader = new PropertiesLoader("Robot");
     private LinearOpMode linearOpMode;
-    private double inchesToEncoders = 4000 / 69; //about 60 encoder ticks to an inch
-    private double encodersToInches = 69 / 4000; //about 60 encoder ticks to an inch
+    private double inchesToEncoders = (double)4000 / (double)69; //about 60 encoder ticks to an inch
     private double ROTATION_ACCELERATION_DISTANCE = propertiesLoader.getDoubleProperty("ROTATION_ACCELERATION_DISTANCE");
     private double ROTATION_START_POWER = propertiesLoader.getDoubleProperty("ROTATION_START_POWER");
     private double ROTATION_DECELLERATION_DISTANCE = propertiesLoader.getDoubleProperty("ROTATION_DECELLERATION_DISTANCE");
@@ -44,13 +45,13 @@ public class RobotLinearOpMode extends Robot {
     private double ARM_DECELLERATION_DISTANCE = propertiesLoader.getDoubleProperty("ARM_DECELLERATION_DISTANCE");
     private double ARM_END_POWER = propertiesLoader.getDoubleProperty("ARM_END_POWER");
     private double ARM_FULL_POWER = propertiesLoader.getDoubleProperty("ARM_FULL_POWER");
-    private double LIFT_LIMIT_ONE = propertiesLoader.getDoubleProperty("LIFT_LIMIT_ONE");
-    private double LIFT_LIMIT_TWO = propertiesLoader.getDoubleProperty("LIFT_LIMIT_TWO");
-    private double LIFT_ACCELERATION_DISTANCE = propertiesLoader.getDoubleProperty("LIFT_ACCELERATION_DISTANCE");
-    private double LIFT_START_POWER = propertiesLoader.getDoubleProperty("LIFT_START_POWER");
-    private double LIFT_DECELLERATION_DISTANCE = propertiesLoader.getDoubleProperty("LIFT_DECELLERATION_DISTANCE");
-    private double LIFT_END_POWER = propertiesLoader.getDoubleProperty("LIFT_END_POWER");
-    private double LIFT_FULL_POWER = propertiesLoader.getDoubleProperty("LIFT_FULL_POWER");
+//    private double LIFT_LIMIT_ONE = propertiesLoader.getDoubleProperty("LIFT_LIMIT_ONE");
+//    private double LIFT_LIMIT_TWO = propertiesLoader.getDoubleProperty("LIFT_LIMIT_TWO");
+//    private double LIFT_ACCELERATION_DISTANCE = propertiesLoader.getDoubleProperty("LIFT_ACCELERATION_DISTANCE");
+//    private double LIFT_START_POWER = propertiesLoader.getDoubleProperty("LIFT_START_POWER");
+//    private double LIFT_DECELLERATION_DISTANCE = propertiesLoader.getDoubleProperty("LIFT_DECELLERATION_DISTANCE");
+//    private double LIFT_END_POWER = propertiesLoader.getDoubleProperty("LIFT_END_POWER");
+//    private double LIFT_FULL_POWER = propertiesLoader.getDoubleProperty("LIFT_FULL_POWER");
     /**
      * SIDE GRABBER POSITIONS
      */
@@ -69,6 +70,7 @@ public class RobotLinearOpMode extends Robot {
     private double LEFT_DROPPING_SOON_SERVO = propertiesLoader.getDoubleProperty("LEFT_DROPPING_SOON_SERVO");
     private double LEFT_DROPPING_GRABBER = propertiesLoader.getDoubleProperty("LEFT_DROPPING_GRABBER");
     private double LEFT_DROPPING_SERVO = propertiesLoader.getDoubleProperty("LEFT_DROPPING_SERVO");
+    private double LEFT_DEFAULT_WAIT = propertiesLoader.getDoubleProperty("LEFT_DEFAULT_WAIT");
 
     private double RIGHT_STOWED_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_STOWED_GRABBER");
     private double RIGHT_STOWED_SERVO = propertiesLoader.getDoubleProperty("RIGHT_STOWED_SERVO");
@@ -103,9 +105,6 @@ public class RobotLinearOpMode extends Robot {
         init();
     }
 
-    public double getInchesToEncoders() {
-        return inchesToEncoders;
-    }
 
     private void init() {
         linearOpMode.telemetry.addData("Status", " DO NOT START");
@@ -216,7 +215,7 @@ public class RobotLinearOpMode extends Robot {
 //
 //    }
 
-    public void stopDriveMotors() {
+    private void stopDriveMotors() {
         mecanumPowerDrive(0, 0, 0);
     }
 
@@ -270,12 +269,12 @@ public class RobotLinearOpMode extends Robot {
         while (testDif > 180) {
             testDif -= 360;
         }
-        ;
+
 
         while (testDif < -180) {
             testDif += 360;
         }
-        ;
+
 
         if (testDif < -90) {
             ratio = 3;
@@ -438,7 +437,7 @@ public class RobotLinearOpMode extends Robot {
      * SERVO METHODS
      */
 
-    public void openGrabber() {
+    private void openGrabber() {
         blockGrabberServo.setPosition(.7);
     }
 
@@ -450,7 +449,7 @@ public class RobotLinearOpMode extends Robot {
         markerLatchServo.setPosition(1);
     }
 
-    public void holdMarker() {
+    private void holdMarker() {
         markerLatchServo.setPosition(0.3);
     }
 
@@ -465,38 +464,65 @@ public class RobotLinearOpMode extends Robot {
         leftSideGrabberServo.setPosition(servoPos);
     }
 
-    public void setLeftGrabberPosition(GRABBER_POSITION pos) {
+    void setLeftGrabber(double GRABBER, double GRABBER_SERVO) {
+        if (GRABBER == LEFT_DEFAULT_GRABBER && GRABBER_SERVO == LEFT_DEFAULT_SERVO) {
+            leftSideGrabber.setPosition(GRABBER);
+            leftSideGrabberServo.setPosition(LEFT_DEFAULT_WAIT);
+            while (leftSideGrabber.getPosition() > LEFT_DEFAULT_GRABBER + .1) ;
+            leftSideGrabberServo.setPosition(GRABBER_SERVO);
+        } else if (leftGrabberPos == GRABBER_POSITION.DEFAULT) {
 
-        switch (pos) {
+            leftSideGrabberServo.setPosition(GRABBER_SERVO);
+            while (leftSideGrabberServo.getPosition() > LEFT_DEFAULT_WAIT + .05) ;
+            leftSideGrabber.setPosition(GRABBER);
+        } else {
+            leftSideGrabber.setPosition(GRABBER);
+            leftSideGrabberServo.setPosition(GRABBER_SERVO);
+        }
+    }
+
+    GRABBER_POSITION leftGrabberPos;
+
+    public void setLeftGrabberPosition(GRABBER_POSITION newGrabberPos) {
+        leftGrabberPos = newGrabberPos;
+        switch (newGrabberPos) {
             case DEFAULT:
-                leftSideGrabber.setPosition(LEFT_DEFAULT_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_DEFAULT_SERVO);
+                setLeftGrabber(LEFT_DEFAULT_GRABBER, LEFT_DEFAULT_SERVO);
+//                leftSideGrabber.setPosition(LEFT_DEFAULT_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_DEFAULT_SERVO);
                 break;
             case READY:
-                leftSideGrabber.setPosition(LEFT_READY_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_READY_SERVO);
+                setLeftGrabber(LEFT_READY_GRABBER, LEFT_READY_SERVO);
+//                leftSideGrabber.setPosition(LEFT_READY_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_READY_SERVO);
                 break;
             case GRABBING:
-                leftSideGrabber.setPosition(LEFT_GRABBING_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_GRABBING_SERVO);
+                setLeftGrabber(LEFT_GRABBING_GRABBER, LEFT_GRABBING_SERVO);
+//                leftSideGrabber.setPosition(LEFT_GRABBING_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_GRABBING_SERVO);
                 break;
             case STOWED:
-                leftSideGrabber.setPosition(LEFT_STOWED_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_STOWED_SERVO);
+                setLeftGrabber(LEFT_STOWED_GRABBER, LEFT_STOWED_SERVO);
+//                leftSideGrabber.setPosition(LEFT_STOWED_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_STOWED_SERVO);
                 break;
             case GRABBING_SOON:
-                leftSideGrabber.setPosition(LEFT_GRABBING_SOON_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_GRABBING_SOON_SERVO);
+                setLeftGrabber(LEFT_GRABBING_SOON_GRABBER, LEFT_GRABBING_SOON_SERVO);
+//                leftSideGrabber.setPosition(LEFT_GRABBING_SOON_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_GRABBING_SOON_SERVO);
                 break;
             case DROPPING_SOON:
-                leftSideGrabber.setPosition(LEFT_DROPPING_SOON_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_DROPPING_SOON_SERVO);
+                setLeftGrabber(LEFT_DROPPING_SOON_GRABBER, LEFT_DROPPING_SOON_SERVO);
+//                leftSideGrabber.setPosition(LEFT_DROPPING_SOON_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_DROPPING_SOON_SERVO);
                 break;
             case DROPPING:
-                leftSideGrabber.setPosition(LEFT_DROPPING_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_DROPPING_SERVO);
+                setLeftGrabber(LEFT_DROPPING_GRABBER, LEFT_DROPPING_SERVO);
+//                leftSideGrabber.setPosition(LEFT_DROPPING_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_DROPPING_SERVO);
                 break;
         }
+        leftGrabberPos = newGrabberPos;
 
     }
 
