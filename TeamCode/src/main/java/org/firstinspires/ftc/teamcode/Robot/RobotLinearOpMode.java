@@ -69,6 +69,7 @@ public class RobotLinearOpMode extends Robot {
     private double LEFT_DROPPING_SOON_SERVO = propertiesLoader.getDoubleProperty("LEFT_DROPPING_SOON_SERVO");
     private double LEFT_DROPPING_GRABBER = propertiesLoader.getDoubleProperty("LEFT_DROPPING_GRABBER");
     private double LEFT_DROPPING_SERVO = propertiesLoader.getDoubleProperty("LEFT_DROPPING_SERVO");
+    private double LEFT_DEFAULT_WAIT = propertiesLoader.getDoubleProperty("LEFT_DEFAULT_WAIT");
 
     private double RIGHT_STOWED_GRABBER = propertiesLoader.getDoubleProperty("RIGHT_STOWED_GRABBER");
     private double RIGHT_STOWED_SERVO = propertiesLoader.getDoubleProperty("RIGHT_STOWED_SERVO");
@@ -465,38 +466,65 @@ public class RobotLinearOpMode extends Robot {
         leftSideGrabberServo.setPosition(servoPos);
     }
 
+    void setLeftGrabber(double GRABBER, double GRABBER_SERVO) {
+        if (GRABBER == LEFT_DEFAULT_GRABBER && GRABBER_SERVO == LEFT_DEFAULT_SERVO) {
+            leftSideGrabberServo.setPosition(GRABBER_SERVO);
+            leftSideGrabber.setPosition(LEFT_DEFAULT_WAIT);
+            while (leftSideGrabberServo.getPosition() > LEFT_DEFAULT_GRABBER + .05) ;
+            leftSideGrabber.setPosition(GRABBER);
+        } else if (leftGrabberPos == GRABBER_POSITION.DEFAULT) {
+            leftSideGrabberServo.setPosition(GRABBER_SERVO);
+            while (leftSideGrabberServo.getPosition() > LEFT_DEFAULT_WAIT + .05) ;
+            leftSideGrabber.setPosition(GRABBER);
+        } else {
+            leftSideGrabber.setPosition(GRABBER);
+            leftSideGrabberServo.setPosition(GRABBER_SERVO);
+        }
+    }
+
+    GRABBER_POSITION leftGrabberPos;
+
     public void setLeftGrabberPosition(GRABBER_POSITION pos) {
+
 
         switch (pos) {
             case DEFAULT:
-                leftSideGrabber.setPosition(LEFT_DEFAULT_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_DEFAULT_SERVO);
+                setLeftGrabber(LEFT_DEFAULT_GRABBER, LEFT_DEFAULT_SERVO);
+//                leftSideGrabber.setPosition(LEFT_DEFAULT_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_DEFAULT_SERVO);
                 break;
             case READY:
-                leftSideGrabber.setPosition(LEFT_READY_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_READY_SERVO);
+                setLeftGrabber(LEFT_READY_GRABBER, LEFT_READY_SERVO);
+//                leftSideGrabber.setPosition(LEFT_READY_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_READY_SERVO);
                 break;
             case GRABBING:
-                leftSideGrabber.setPosition(LEFT_GRABBING_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_GRABBING_SERVO);
+                setLeftGrabber(LEFT_GRABBING_GRABBER, LEFT_GRABBING_SERVO);
+//                leftSideGrabber.setPosition(LEFT_GRABBING_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_GRABBING_SERVO);
                 break;
             case STOWED:
-                leftSideGrabber.setPosition(LEFT_STOWED_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_STOWED_SERVO);
+                setLeftGrabber(LEFT_STOWED_GRABBER, LEFT_STOWED_SERVO);
+//                leftSideGrabber.setPosition(LEFT_STOWED_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_STOWED_SERVO);
                 break;
             case GRABBING_SOON:
-                leftSideGrabber.setPosition(LEFT_GRABBING_SOON_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_GRABBING_SOON_SERVO);
+                setLeftGrabber(LEFT_GRABBING_SOON_GRABBER, LEFT_GRABBING_SOON_SERVO);
+//                leftSideGrabber.setPosition(LEFT_GRABBING_SOON_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_GRABBING_SOON_SERVO);
                 break;
             case DROPPING_SOON:
-                leftSideGrabber.setPosition(LEFT_DROPPING_SOON_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_DROPPING_SOON_SERVO);
+                setLeftGrabber(LEFT_DROPPING_SOON_GRABBER, LEFT_DROPPING_SOON_SERVO);
+//                leftSideGrabber.setPosition(LEFT_DROPPING_SOON_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_DROPPING_SOON_SERVO);
                 break;
             case DROPPING:
-                leftSideGrabber.setPosition(LEFT_DROPPING_GRABBER);
-                leftSideGrabberServo.setPosition(LEFT_DROPPING_SERVO);
+                setLeftGrabber(LEFT_DROPPING_GRABBER, LEFT_DROPPING_SERVO);
+//                leftSideGrabber.setPosition(LEFT_DROPPING_GRABBER);
+//                leftSideGrabberServo.setPosition(LEFT_DROPPING_SERVO);
                 break;
         }
+        leftGrabberPos = pos;
 
     }
 
