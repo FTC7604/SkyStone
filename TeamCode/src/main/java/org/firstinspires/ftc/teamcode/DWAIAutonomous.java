@@ -313,7 +313,7 @@ public class DWAIAutonomous {
         setGrabberPos(GRABBING);
         opMode.sleep(100);
         setGrabberPos(STOWED);
-        opMode.sleep(700);
+        opMode.sleep(100);
     }
 
     private void grabBlock(int index){
@@ -327,7 +327,7 @@ public class DWAIAutonomous {
 //                        .splineTo(new Pose2d(-6, BRIDGE_Y_POSITION, 0))
                         .splineTo(new Pose2d(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 0))
                         .build());
-        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 2 * Math.signum(BLOCK_Y_POSITION));
+        strafeTo(-12 - index * 8 + BLOCK_OFFSET_X_POSITION, BLOCK_Y_POSITION, 2.5 * Math.signum(BLOCK_Y_POSITION));
         print("Grabbing block");
 
         //        setGrabberPos(GRABBING);
@@ -338,7 +338,7 @@ public class DWAIAutonomous {
         setGrabberPos(GRABBING);
         opMode.sleep(100);
         setGrabberPos(STOWED);
-        opMode.sleep(500);
+        opMode.sleep(100);
     }
 
     private void dragFoundation(){
@@ -404,7 +404,7 @@ public class DWAIAutonomous {
                     drive.trajectoryBuilder()
                             //.strafeLeft((BRIDGE_Y_POSITION - BLOCK_Y_POSITION))
                             .splineTo(new Pose2d(-8, BRIDGE_Y_POSITION, 0))
-                            .splineTo(new Pose2d(8, BRIDGE_Y_POSITION, 0))
+                            .splineTo(new Pose2d(2, BRIDGE_Y_POSITION, 0))
                             .splineTo(new Pose2d(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0))
                             .build());
             //strafeTo(INITIAL_FOUNDATION_X_POSITION + blocksPlaced * 8, FOUNDATION_Y_POSITION, 0);
